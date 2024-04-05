@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Pressable } from 'react-native';
+import { IP } from '../constant/Constants';
 
 export default function SignupScreen({ navigation }) {
     const [name, setName] = useState("");
@@ -35,7 +36,7 @@ export default function SignupScreen({ navigation }) {
             password: password,
         }
 
-        fetch(url = "http://192.168.100.177:8080/v1/auth/register", {
+        fetch(url = `http://${IP}:8080/v1/auth/register`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -43,14 +44,14 @@ export default function SignupScreen({ navigation }) {
             body: JSON.stringify(fomrData)
         }).then((res) => {
             alert(`Chúc mừng bạn ${name} đã đăng ký thành công`)
-            return res.json();      
-        }).then(()=> navigation.navigate('AboutScreen'))
-        .catch((err) => alert(err))
+            return res.json();
+        }).then(() => navigation.navigate('AboutScreen'))
+            .catch((err) => alert(err))
     }
 
-    useEffect(() => {
-        doSignup()
-    }, [])
+    // useEffect(() => {
+    //     doSignup()
+    // }, [])
 
     return (
         <View style={styles.container}>
@@ -58,9 +59,9 @@ export default function SignupScreen({ navigation }) {
             <Text style={{ ...styles.header, fontSize: 24, fontWeight: "bold", marginTop: 10 }}>Create an Account</Text>
             <View style={styles.wrapper}>
                 <TextInput placeholder="Your name" style={styles.ip} onChangeText={(text) => setName(text)}></TextInput>
-                <TextInput placeholder="Email" style={styles.ip} onChangeText={(text) => setEmail(text)}></TextInput>
-                <TextInput placeholder="Password" style={styles.ip} onChangeText={(text) => setPassword(text)} textContentType="password" secureTextEntry={true}></TextInput>
-                <TextInput placeholder="Cofirm Password" style={styles.ip} onChangeText={(text) => setConfirmPass(text)} textContentType="password" secureTextEntry={true}></TextInput>
+                <TextInput autoCapitalize='none' placeholder="Email" style={styles.ip} onChangeText={(text) => setEmail(text)}></TextInput>
+                <TextInput autoCapitalize='none' placeholder="Password" style={styles.ip} onChangeText={(text) => setPassword(text)} textContentType="password" secureTextEntry={true}></TextInput>
+                <TextInput autoCapitalize='none' placeholder="Cofirm Password" style={styles.ip} onChangeText={(text) => setConfirmPass(text)} textContentType="password" secureTextEntry={true}></TextInput>
             </View>
             <View style={styles.btn}>
                 <TouchableOpacity>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { StyleSheet, View, Text, Image, FlatList, ActivityIndicator } from "react-native";
 import BottomNavigator from "../components/BottomNagivator";
+import { IP } from "../constant/Constants";
 
 export default function AboutScreen({ navigation }) {
   const [musicList, setMusicList] = useState([]);
@@ -9,7 +10,7 @@ export default function AboutScreen({ navigation }) {
   useEffect(() => {
     const fetchMusicList = async () => {
       try {
-        const response = await fetch('http://192.168.100.177:8080/v1/songs/recently');
+        const response = await fetch(`http://${IP}:8080/v1/songs/recently`);
         const data = await response.json();
         setMusicList(data);
       } catch (error) {
@@ -38,8 +39,8 @@ export default function AboutScreen({ navigation }) {
         renderItem={({ item }) => (
           <View style={styles.wrapper}>
             <Image
-              source={{ uri: item.imagePath }}
-              style={{ width: 100, height: 100, backgroundColor: "#000" }}
+              source={{ uri: item.imagePath.replace("localhost", IP) }}
+              style={{ width: 100, height: 100 }}
               onLoad={() => console.log('Image loaded successfully')}
               onError={(error) => console.error('Image loading error:', error)}
             />
@@ -51,8 +52,8 @@ export default function AboutScreen({ navigation }) {
         )}
         keyExtractor={(item) => item.id.toString()}
       />
-        <BottomNavigator />
-      
+      <BottomNavigator />
+
     </View>
   );
 }

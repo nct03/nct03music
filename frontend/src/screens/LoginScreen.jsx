@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-nativ
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { IP } from '../constant/Constants';
 
 export default function LoginScreen({ navigation }) {
 
@@ -19,7 +20,7 @@ export default function LoginScreen({ navigation }) {
             return
         }
         try {
-            const response = await fetch('http://192.168.100.177:8080/v1/auth/authenticate', {
+            const response = await fetch(`http://${IP}:8080/v1/auth/authenticate`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -30,20 +31,22 @@ export default function LoginScreen({ navigation }) {
 
             if (response.ok) {
                 // Save token to AsyncStorage or SecureStore
+                console.log("Ok");
                 await AsyncStorage.setItem('token', data.token);
                 navigation.navigate('AboutScreen'); // Navigate to Home screen on successful login
             } else {
                 // Handle error
-                alert('Login failed:', data.error);
+                alert('Login failed:' + data.errors[0]);
+                console.log(data.errors[0]);
             }
         } catch (error) {
             console.error('Error:', error);
         }
     };
 
-    useEffect(() => {
-        handleLogin()
-    }, [])
+    // useEffect(() => {
+    //     handleLogin()
+    // }, [])
 
     // const loginAPi = (email, password) => {
     //     return axios.post('http://192.168.100.177:8080/v1/auth/authenticate', { email, password });
@@ -101,8 +104,8 @@ export default function LoginScreen({ navigation }) {
             <Text style={{ ...styles.header, fontSize: 16, marginTop: 60 }}>WELLCOME BACK</Text>
             <Text style={{ ...styles.header, fontSize: 24, fontWeight: "bold", marginTop: 10 }}>LOGIN into your account</Text>
             <View style={styles.wrapper}>
-                <TextInput placeholder="Email" style={styles.ip} onChangeText={(text) => setEmail(text)}></TextInput>
-                <TextInput placeholder="Password" style={styles.ip} onChangeText={(text) => setPassword(text)} textContentType="password" secureTextEntry={true}></TextInput>
+                <TextInput autoCapitalize='none' placeholder="Email" style={styles.ip} onChangeText={(text) => setEmail(text)}></TextInput>
+                <TextInput autoCapitalize='none' placeholder="Password" style={styles.ip} onChangeText={(text) => setPassword(text)} textContentType="password" secureTextEntry={true}></TextInput>
             </View>
             <View style={styles.btn} >
                 <TouchableOpacity>
