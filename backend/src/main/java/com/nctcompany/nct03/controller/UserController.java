@@ -1,5 +1,6 @@
 package com.nctcompany.nct03.controller;
 
+import com.nctcompany.nct03.constant.ApplicationConstants;
 import com.nctcompany.nct03.constant.SecurityConstants;
 import com.nctcompany.nct03.dto.user.ChangePasswordRequest;
 import com.nctcompany.nct03.dto.user.UserResponse;
@@ -11,10 +12,14 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.Principal;
 
 @RequestMapping("/v1/users")
@@ -62,6 +67,23 @@ public class UserController {
             ){
         userService.changePassword(request, loginedUser);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/images/{imageName}")
+    public ResponseEntity<?> viewUserImage(@PathVariable String imageName) {
+        try {
+            Path imagePath = Paths.get(ApplicationConstants.USERS_FOLDER + imageName);
+            UrlResource resource = new UrlResource(imagePath.toUri());
+            if (resource.exists()) {
+                return ResponseEntity.ok()
+                        .contentType(MediaType.IMAGE_JPEG)
+                        .body(resource);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        }catch (Exception e){
+            return ResponseEntity.notFound().build();
+        }
     }
 
 }

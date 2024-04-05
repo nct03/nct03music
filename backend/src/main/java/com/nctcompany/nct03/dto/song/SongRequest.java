@@ -20,4 +20,10 @@ public class SongRequest {
 
     @NotNull(message = "Song file is required")
     private MultipartFile songFile;
+
+    @NotNull(message = "Genre id is required")
+    private Integer genreId;
+
+    @NotNull(message = "Artist id is required")
+    private Long artistId;
 }

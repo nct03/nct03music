@@ -2,12 +2,18 @@ package com.nctcompany.nct03.constant;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.Set;
 
 public class ApplicationConstants {
 
     public static final String ROOT_FOLDER_PATH = Paths.get("").toFile().getAbsolutePath();
-    public static final String SONGS_FOLDER_PATH = ROOT_FOLDER_PATH + File.separator + "songs";
-    public static final String USERS_FOLDER_PATH = ROOT_FOLDER_PATH + File.separator + "users";
-    public static final String ARTISTS_FOLDER_PATH = ROOT_FOLDER_PATH + File.separator + "artists";
+    public static final String SONGS_IMG_FOLDER = "songs/img/";
+    public static final String SONGS_FILE_FOLDER = "songs/file/";
+    public static final String USERS_FOLDER = "users/";
+    public static final String ARTISTS_FOLDER = "artists/";
+
+    public static final String DEFAULT_IMAGE = "default.jpg";
+
+    public static final String APP_URL = "http://localhost:8080/v1";
 
 }

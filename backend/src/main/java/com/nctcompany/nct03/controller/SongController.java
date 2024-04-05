@@ -1,5 +1,6 @@
 package com.nctcompany.nct03.controller;
 
+import com.nctcompany.nct03.constant.ApplicationConstants;
 import com.nctcompany.nct03.dto.song.SongRequest;
 import com.nctcompany.nct03.dto.song.SongResponse;
 import com.nctcompany.nct03.service.SongService;
@@ -70,7 +71,7 @@ public class SongController {
             @PathVariable String imageName
     )  {
         try {
-            Path imagePath = Paths.get("songs2/img/" + imageName);
+            Path imagePath = Paths.get(ApplicationConstants.SONGS_IMG_FOLDER + imageName);
             UrlResource resource = new UrlResource(imagePath.toUri());
             if (resource.exists()) {
                 return ResponseEntity.ok()
@@ -90,7 +91,7 @@ public class SongController {
             @PathVariable String songName
     )  {
         try {
-            Path songPath = Paths.get("songs2/file/" + songName);
+            Path songPath = Paths.get(ApplicationConstants.SONGS_FILE_FOLDER + songName);
             UrlResource resource = new UrlResource(songPath.toUri());
             if (resource.exists()) {
                 return ResponseEntity.ok()

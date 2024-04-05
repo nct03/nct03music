@@ -15,11 +15,8 @@ public class UserMapper {
                 .email(user.getEmail())
                 .role(user.getRole().getName())
                 .build();
-//        String photo = ApplicationConstants.USERS_FOLDER_PATH + File.separator + "default.jpg";
-//        if (user.getPhoto() != null && !user.getPhoto().isEmpty()){
-//            photo = ApplicationConstants.USERS_FOLDER_PATH + File.separator + user.getId() + File.separator + user.getPhoto();
-//        }
-        userResponse.setPhoto(user.getPhoto());
+        String photo = ApplicationConstants.APP_URL + "/users/images/" + user.getPhoto();
+        userResponse.setPhoto(photo);
         return userResponse;
     }
 }

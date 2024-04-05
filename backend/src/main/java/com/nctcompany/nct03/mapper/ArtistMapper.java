@@ -5,8 +5,6 @@ import com.nctcompany.nct03.dto.artist.ArtistDetails;
 import com.nctcompany.nct03.dto.artist.ArtistResponse;
 import com.nctcompany.nct03.model.Artist;
 
-import java.io.File;
-
 public class ArtistMapper {
 
     public static ArtistResponse mapToResponse(Artist artist){
@@ -15,11 +13,8 @@ public class ArtistMapper {
                 .name(artist.getName())
                 .build();
 
-//        String photo = ApplicationConstants.ARTISTS_FOLDER_PATH + File.separator + "default.jpg";
-//        if (artist.getPhoto() != null && !artist.getPhoto().isEmpty()){
-//            photo = ApplicationConstants.ARTISTS_FOLDER_PATH + File.separator + artist.getId() + File.separator + artist.getPhoto();
-//        }
-        artistResponse.setPhoto(artist.getPhoto());
+        String photo = ApplicationConstants.APP_URL + "/artists/images/" + artist.getPhoto();
+        artistResponse.setPhoto(photo);
 
         return artistResponse;
     }

@@ -25,14 +25,10 @@ public class SongMapper {
         }
         songResponse.setArtists(artists);
 
-//        String url = ApplicationConstants.SONGS_FOLDER_PATH + File.separator + song.getId() + File.separator + "file" + File.separator + song.getFileName();
-        songResponse.setUrl(song.getFileName());
-//
-//        String imagePath = ApplicationConstants.SONGS_FOLDER_PATH + File.separator + "default.jpg";
-//        if (song.getImageName() != null && !song.getImageName().equals("")){
-//            imagePath = ApplicationConstants.SONGS_FOLDER_PATH + File.separator + song.getId() + File.separator + "img" + File.separator + song.getImageName();
-//        }
-        songResponse.setImagePath(song.getImageName());
+        String url = ApplicationConstants.APP_URL + "/songs/files/" + song.getFileName();
+        songResponse.setUrl(url);
+        String imagePath = ApplicationConstants.APP_URL + "/songs/images/" + song.getImageName();
+        songResponse.setImagePath(imagePath);
         return songResponse;
     }
 }

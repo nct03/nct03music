@@ -1,5 +1,6 @@
 package com.nctcompany.nct03.service.impl;
 
+import com.nctcompany.nct03.constant.ApplicationConstants;
 import com.nctcompany.nct03.constant.SecurityConstants;
 import com.nctcompany.nct03.dto.auth.AuthRequest;
 import com.nctcompany.nct03.dto.auth.AuthResponse;
@@ -36,9 +37,9 @@ public class AuthServiceImpl implements AuthService {
         }
         User user = new User();
         user.setName(request.getName());
-        user.setEmail(request.getEmail());
+        user.setEmail(request.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setPhoto(null);
+        user.setPhoto(ApplicationConstants.DEFAULT_IMAGE);
 
         Role role = roleRepository.findByName(Role.ROLE_FREE_USER);
         user.setRole(role);

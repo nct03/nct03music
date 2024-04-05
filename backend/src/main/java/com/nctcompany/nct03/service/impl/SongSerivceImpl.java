@@ -1,11 +1,16 @@
 package com.nctcompany.nct03.service.impl;
 
+import com.nctcompany.nct03.constant.ApplicationConstants;
 import com.nctcompany.nct03.dto.song.SongRequest;
 import com.nctcompany.nct03.dto.song.SongResponse;
 import com.nctcompany.nct03.exception.BadRequestException;
 import com.nctcompany.nct03.exception.ResourceNotFoundException;
 import com.nctcompany.nct03.mapper.SongMapper;
+import com.nctcompany.nct03.model.Artist;
+import com.nctcompany.nct03.model.Genre;
 import com.nctcompany.nct03.model.Song;
+import com.nctcompany.nct03.repository.ArtistRepository;
+import com.nctcompany.nct03.repository.GenreRepository;
 import com.nctcompany.nct03.repository.SongRepository;
 import com.nctcompany.nct03.service.SongService;
 import com.nctcompany.nct03.util.FileUploadUtil;
@@ -15,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.text.Normalizer;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -24,6 +30,8 @@ import java.util.stream.Collectors;
 public class SongSerivceImpl implements SongService {
 
     private final SongRepository songRepository;
+    private final GenreRepository genreRepository;
+    private final ArtistRepository artistRepository;
 
     @Override
     public List<SongResponse> getRecentlyReleasedSong() {
@@ -51,75 +59,69 @@ public class SongSerivceImpl implements SongService {
 
     @Override
     public SongResponse createSong(SongRequest songRequest) throws IOException {
-        if (!isValidAudioFile(songRequest.getSongFile())){
+        if (!FileUploadUtil.checkUploadAudioTypeFile(songRequest.getSongFile())){
             throw new BadRequestException("Please provide the song file in MPEG format");
         }
         String songName = songRequest.getName();
         String fileName = generateFileName(songName, songRequest.getSongFile());
         
-        String imgName = null;
-        if (!songRequest.getImageFile().isEmpty()){
-            if (!isValidImageFile(songRequest.getImageFile())){
+        String imgName = ApplicationConstants.DEFAULT_IMAGE;
+        if (songRequest.getImageFile() != null && !songRequest.getImageFile().isEmpty()){
+            if (!FileUploadUtil.checkUploadImageTypeFile(songRequest.getImageFile())){
                 throw new BadRequestException("Please provide the song image in JPG/PNG format");
             }
-            imgName = generateFileName(songName, songRequest.getImageFile());
+            imgName = generateImageName(songRequest.getImageFile());
         }
 
         Song song = new Song();
         song.setName(songName);
         song.setImageName(imgName);
         song.setFileName(fileName);
+
+        Genre genre = genreRepository.findById(songRequest.getGenreId())
+                .orElseThrow(() -> new ResourceNotFoundException("Genre with id=[%s] not found".formatted(songRequest.getGenreId())));
+        song.setGenre(genre);
+
+        Artist artist = artistRepository.findById(songRequest.getArtistId())
+                .orElseThrow(() -> new ResourceNotFoundException("Artist with id=[%s] not found".formatted(songRequest.getArtistId())));
+        song.getArtists().add(artist);
+        song.setReleasedOn(LocalDate.now());
         Song savedSong = songRepository.save(song);
 
-        String fileFolderPath = "songs/" + savedSong.getId() + "/file";
-        FileUploadUtil.cleanDir(fileFolderPath);
+        String fileFolderPath = ApplicationConstants.SONGS_FILE_FOLDER;
+//        FileUploadUtil.cleanDir(fileFolderPath);
         FileUploadUtil.saveFile(fileFolderPath, fileName, songRequest.getSongFile());
-        if (savedSong.getImageName() != null){
-            String imgFolderPath = "songs/" + savedSong.getId() + "/img";
-            FileUploadUtil.cleanDir(imgFolderPath);
+        if (!savedSong.getImageName().equals(ApplicationConstants.DEFAULT_IMAGE)){
+            String imgFolderPath = ApplicationConstants.SONGS_IMG_FOLDER;
+//            FileUploadUtil.cleanDir(imgFolderPath);
             FileUploadUtil.saveFile(imgFolderPath, imgName, songRequest.getImageFile());
         }
 
         return SongMapper.mapToSongResponse(song);
     }
 
-    // Chuẩn hoá tiếng việt có dấu về không dấu
-    private static String removeAccent(String s) {
-        String temp = Normalizer.normalize(s, Normalizer.Form.NFD);
-        Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
-        return pattern.matcher(temp).replaceAll("");
-    }
+    private String generateImageName(MultipartFile file){
+        String fileExtension = getFileExtension(file);
 
-    private String getFileExtension(String fileName) {
-        int dotIndex = fileName.lastIndexOf('.');
-        if (dotIndex > 0 && dotIndex < fileName.length() - 1) {
-            return fileName.substring(dotIndex);
-        }
-        return "";
+        String imageName = UUID.randomUUID().toString().substring(0,10);
+        return imageName + fileExtension;
     }
     
     private String generateFileName(String songName, MultipartFile file){
-        String originalFileName = file.getOriginalFilename();
-        String fileExtension = getFileExtension(originalFileName);
+        String fileExtension = getFileExtension(file);
     
-        songName = removeAccent(songName);
+        songName = FileUploadUtil.removeAccent(songName);
         String randomString = UUID.randomUUID().toString().substring(0, 7);
         String fileName = songName.replaceAll(" ", "") + "-" + randomString;
         
         return fileName + fileExtension;
     }
 
-    private boolean isValidImageFile(MultipartFile file) {
-        String contentType = file.getContentType();
-        return contentType != null && (contentType.equals("image/jpeg") || contentType.equals("image/png"));
-    }
 
-    private boolean isValidAudioFile(MultipartFile file) {
-        if (file.isEmpty()) {
-            return false;
-        }
-        String contentType = file.getContentType();
-        return contentType != null && contentType.equals("audio/mpeg");
+    private String getFileExtension(MultipartFile file){
+        String originalFileName = file.getOriginalFilename();
+        String fileExtension = FileUploadUtil.getFileExtension(originalFileName);
+        return fileExtension;
     }
 
 }
