@@ -49,10 +49,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         request -> request
                                 .requestMatchers("/v1/auth/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/v1/genres/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/v1/songs/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/v1/artists/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/v1/users/images/**").permitAll()
                                 .requestMatchers(
                                         "/v2/api-docs",
                                         "/v3/api-docs",
