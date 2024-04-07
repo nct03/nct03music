@@ -196,3 +196,7 @@ VALUES
 	(63,21),
 	(64,21),
 	(64,13);
+
+INSERT INTO users(name, email, password, role_id)
+VALUES
+    ("Tran Bao Minh", "minh@gmail.com", "$2a$10$L467UvjUkML/xLurSelhi.yKtXEthY3bFhAZI9e6jncWFsg.ZyBDq", 2);

@@ -42,3 +42,18 @@ CREATE TABLE IF NOT EXISTS artist_songs (
     FOREIGN KEY (artist_id) REFERENCES artists(id),
     PRIMARY KEY (song_id, artist_id)
 );
+
+CREATE TABLE playlists (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(128) NOT NULL UNIQUE,
+    user_id BIGINT,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE playlist_songs (
+    playlist_id BIGINT,
+    song_id BIGINT,
+    FOREIGN KEY (playlist_id) REFERENCES playlists(id),
+    FOREIGN KEY (song_id) REFERENCES songs(id),
+    PRIMARY KEY (playlist_id, song_id)
+);
