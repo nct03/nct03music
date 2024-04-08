@@ -2,11 +2,13 @@ package com.nctcompany.nct03.exception;
 
 import com.nctcompany.nct03.dto.error.ErrorDetails;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -22,6 +24,22 @@ import java.util.List;
 @ControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+
+    @ExceptionHandler(BadCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseBody
+    public ErrorDetails handleBadCredentialsException(HttpServletRequest request, BadCredentialsException ex){
+        logger.error(ex.getMessage(), ex);
+
+        ErrorDetails errorDetails = new ErrorDetails();
+        errorDetails.setTimestamp(new Date());
+        errorDetails.setStatus(HttpStatus.UNAUTHORIZED.value());
+        errorDetails.setPath(request.getServletPath());
+        errorDetails.addError("Wrong email or password!");
+
+        return errorDetails;
+    }
+
 
     @ExceptionHandler(DuplicateResourceException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
@@ -66,6 +84,29 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         errorDetails.addError(ex.getMessage());
 
         return errorDetails;
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ErrorDetails handleConstraintViolationException(HttpServletRequest request, Exception ex) {
+        ErrorDetails error = new ErrorDetails();
+
+        ConstraintViolationException violationException = (ConstraintViolationException) ex;
+
+        error.setTimestamp(new Date());
+        error.setStatus(HttpStatus.BAD_REQUEST.value());
+        error.setPath(request.getServletPath());
+
+        var constraintViolations = violationException.getConstraintViolations();
+
+        constraintViolations.forEach(constraint -> {
+            error.addError(constraint.getPropertyPath() + ": " + constraint.getMessage());
+        });
+
+        logger.error(ex.getMessage(), ex);
+
+        return error;
     }
 
     @Override

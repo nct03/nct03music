@@ -35,7 +35,7 @@ public class SongSerivceImpl implements SongService {
 
     @Override
     public List<SongResponse> getRecentlyReleasedSong() {
-        List<Song> songs = songRepository.findTop5ByOrderByReleasedOnDesc();
+        List<Song> songs = songRepository.findTop10ByOrderByReleasedOnDesc();
 
         return songs
                 .stream().map(SongMapper::mapToSongResponse)

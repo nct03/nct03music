@@ -50,7 +50,7 @@ public class SongController {
             description = "Http Status 200 OK"
     )
     @GetMapping("/recently")
-    public ResponseEntity<List<SongResponse>> getRecentlyReleasedSongs(){
+    public ResponseEntity<List<SongResponse>> getTop10RecentlyReleasedSongs(){
         return ResponseEntity.ok(songService.getRecentlyReleasedSong());
     }
 

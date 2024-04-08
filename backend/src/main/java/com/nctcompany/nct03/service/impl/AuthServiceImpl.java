@@ -6,7 +6,6 @@ import com.nctcompany.nct03.dto.auth.AuthRequest;
 import com.nctcompany.nct03.dto.auth.AuthResponse;
 import com.nctcompany.nct03.dto.auth.RegisterRequest;
 import com.nctcompany.nct03.exception.DuplicateResourceException;
-import com.nctcompany.nct03.exception.ResourceNotFoundException;
 import com.nctcompany.nct03.model.Role;
 import com.nctcompany.nct03.model.User;
 import com.nctcompany.nct03.repository.RoleRepository;
@@ -16,6 +15,8 @@ import com.nctcompany.nct03.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -52,15 +53,18 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse authenticate(AuthRequest request) {
-        authenticationManager.authenticate(
+        Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
                         request.getPassword()
                 )
         );
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("User with email=[%s] not found".formatted(request.getEmail())));
-        var jwtToken = jwtService.generateToken(user);
-        return new AuthResponse(jwtToken, SecurityConstants.JWT_TYPE);
+        if (authentication.isAuthenticated()){
+            User user = (User) authentication.getPrincipal();
+            var jwtToken = jwtService.generateToken(user);
+            return new AuthResponse(jwtToken, SecurityConstants.JWT_TYPE);
+        }else {
+            throw new UsernameNotFoundException("Email not found");
+        }
     }
 }

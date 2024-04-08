@@ -1,12 +1,11 @@
 package com.nctcompany.nct03.config;
 
-import com.nctcompany.nct03.constant.SecurityConstants;
 import com.nctcompany.nct03.filter.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -40,7 +39,7 @@ public class SecurityConfig {
                                 config.setAllowedMethods(Collections.singletonList("*"));
                                 config.setAllowCredentials(false);
                                 config.setAllowedHeaders(Collections.singletonList("*"));
-                                config.setExposedHeaders(Arrays.asList(SecurityConstants.JWT_HEADER));
+                                config.setExposedHeaders(Arrays.asList(HttpHeaders.AUTHORIZATION));
                                 config.setMaxAge(3600L);
                                 return config;
                             }

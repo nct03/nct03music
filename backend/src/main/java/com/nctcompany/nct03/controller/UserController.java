@@ -1,10 +1,8 @@
 package com.nctcompany.nct03.controller;
 
 import com.nctcompany.nct03.constant.ApplicationConstants;
-import com.nctcompany.nct03.constant.SecurityConstants;
 import com.nctcompany.nct03.dto.user.ChangePasswordRequest;
 import com.nctcompany.nct03.dto.user.UserResponse;
-import com.nctcompany.nct03.model.User;
 import com.nctcompany.nct03.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -13,9 +11,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.Path;
@@ -44,7 +42,7 @@ public class UserController {
     )
     @GetMapping("/profile")
     public ResponseEntity<UserResponse> getUserProfile(
-            @RequestHeader(SecurityConstants.JWT_HEADER) String jwt
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt
     ){
         String token = jwt.substring(7);
         return ResponseEntity.ok(userService.getUserFromToken(token));

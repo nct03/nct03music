@@ -2,6 +2,7 @@ package com.nctcompany.nct03.service.impl;
 
 import com.nctcompany.nct03.dto.artist.ArtistDetails;
 import com.nctcompany.nct03.dto.artist.ArtistResponse;
+import com.nctcompany.nct03.dto.common.PageableResult;
 import com.nctcompany.nct03.dto.song.SongResponse;
 import com.nctcompany.nct03.exception.ResourceNotFoundException;
 import com.nctcompany.nct03.mapper.ArtistMapper;
@@ -10,6 +11,8 @@ import com.nctcompany.nct03.model.Artist;
 import com.nctcompany.nct03.repository.ArtistRepository;
 import com.nctcompany.nct03.service.ArtistService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,11 +25,18 @@ public class ArtistServiceImpl implements ArtistService {
     private final ArtistRepository artistRepository;
 
     @Override
-    public List<ArtistResponse> getAllArtists() {
-        List<Artist> artists = artistRepository.findAll();
-        return artists.stream()
+    public PageableResult<ArtistResponse> getAllArtists(Integer pageNum, Integer pageSize) {
+        Page<Artist> artistsPage = artistRepository.findAll(PageRequest.of(pageNum, pageSize));
+        List<ArtistResponse> artists = artistsPage.getContent().stream()
                 .map(ArtistMapper::mapToResponse)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList());;
+        return PageableResult.<ArtistResponse>builder()
+                .items(artists)
+                .pageNum(artistsPage.getNumber() + 1)
+                .pageSize(artistsPage.getSize())
+                .totalItems(artistsPage.getTotalElements())
+                .totalPages(artistsPage.getTotalPages())
+                .build();
     }
 
     @Override

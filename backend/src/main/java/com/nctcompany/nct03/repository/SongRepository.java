@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface SongRepository extends JpaRepository<Song, Long> {
 
-    List<Song> findTop5ByOrderByReleasedOnDesc();
+    List<Song> findTop10ByOrderByReleasedOnDesc();
     List<Song> findByNameContainingIgnoreCase(String name);
 }
