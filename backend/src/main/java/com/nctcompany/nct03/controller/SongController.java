@@ -4,8 +4,10 @@ import com.nctcompany.nct03.constant.ApplicationConstants;
 import com.nctcompany.nct03.dto.song.SongRequest;
 import com.nctcompany.nct03.dto.song.SongResponse;
 import com.nctcompany.nct03.service.SongService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,16 +28,15 @@ import java.util.List;
 @Tag(
         name = "Song API"
 )
+@SecurityRequirement(
+        name = "Bear Authentication"
+)
 public class SongController {
 
     private final SongService songService;
 
     @Operation(
-            summary = "Read Song By Id"
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Http Status 200 OK"
+            summary = "Get song by id"
     )
     @GetMapping("/{id}")
     public ResponseEntity<SongResponse> getSongById(@PathVariable Long id){
@@ -43,11 +44,7 @@ public class SongController {
     }
 
     @Operation(
-            summary = "Read Recently Released Songs"
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Http Status 200 OK"
+            summary = "Get top 10 recently released songs"
     )
     @GetMapping("/recently")
     public ResponseEntity<List<SongResponse>> getTop10RecentlyReleasedSongs(){
@@ -55,17 +52,14 @@ public class SongController {
     }
 
     @Operation(
-            summary = "Search Songs by name"
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Http Status 200 OK"
+            summary = "Search songs by name"
     )
     @GetMapping("/search")
     public ResponseEntity<List<SongResponse>> searchSongs(@RequestParam String keyword) {
         return ResponseEntity.ok(songService.searchSongs(keyword));
     }
 
+    @Hidden
     @GetMapping("/images/{imageName}")
     public ResponseEntity<?> viewSongImage(
             @PathVariable String imageName
@@ -86,6 +80,7 @@ public class SongController {
 
     }
 
+    @Hidden
     @GetMapping("/files/{songName}")
     public ResponseEntity<?> viewSongFile(
             @PathVariable String songName
@@ -106,6 +101,7 @@ public class SongController {
 
     }
 
+    @Hidden
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<SongResponse> createSong(@Valid @ModelAttribute SongRequest songRequest) throws IOException {
         return new ResponseEntity<>(songService.createSong(songRequest), HttpStatus.CREATED);

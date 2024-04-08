@@ -6,8 +6,12 @@ import com.nctcompany.nct03.dto.artist.ArtistResponse;
 import com.nctcompany.nct03.dto.common.PageableResult;
 import com.nctcompany.nct03.dto.song.SongResponse;
 import com.nctcompany.nct03.service.ArtistService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -29,32 +33,27 @@ import java.util.List;
 @Tag(
         name = "Artist API"
 )
+@SecurityRequirement(name = "Bear Authentication")
 public class ArtistController {
 
     private final ArtistService artistService;
 
     @Operation(
-            summary = "Read All Artists"
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Http Status 200 OK"
+            summary = "Get all artists"
     )
     @GetMapping
-    public ResponseEntity<?> getAllArtists(
-            @RequestParam(value="pageNum", required = false, defaultValue = "1") @Min(value = 1) Integer pageNum,
-            @RequestParam(value="pageSize", required = false, defaultValue = "10") @Min(value = 5) @Max(value = 20)  Integer pageSize
+    public ResponseEntity<PageableResult<ArtistResponse>> getAllArtists(
+            @Parameter(description = "Page number (default: 1)", example = "1", in = ParameterIn.QUERY, required = false)
+                @RequestParam(value="pageNum", required = false, defaultValue = "1") @Min(value = 1) Integer pageNum,
+            @Parameter(description = "Page size (default: 10, min: 5, max: 20)", example = "10", in = ParameterIn.QUERY, required = false)
+                @RequestParam(value="pageSize", required = false, defaultValue = "10") @Min(value = 5) @Max(value = 20)  Integer pageSize
     ){
         PageableResult<ArtistResponse> artists = artistService.getAllArtists(pageNum - 1, pageSize);
         return ResponseEntity.ok(artists);
     }
 
     @Operation(
-            summary = "Read Artist Details"
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Http Status 200 OK"
+            summary = "Get artist details"
     )
     @GetMapping("/{artistId}")
     public ResponseEntity<ArtistDetails> getArtistDetails(
@@ -64,11 +63,7 @@ public class ArtistController {
     }
 
     @Operation(
-            summary = "Read Artist's Songs"
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Http Status 200 OK"
+            summary = "Get artist's songs"
     )
     @GetMapping("/{artistId}/songs")
     public ResponseEntity<List<SongResponse>> getSongsByArtist(
@@ -78,17 +73,14 @@ public class ArtistController {
     }
 
     @Operation(
-            summary = "Search Artists by name"
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Http Status 200 OK"
+            summary = "Search artists by name"
     )
     @GetMapping("/search")
     public ResponseEntity<List<ArtistResponse>> searchArtists(@RequestParam String keyword) {
         return ResponseEntity.ok(artistService.searchArtists(keyword));
     }
 
+    @Hidden
     @GetMapping("/images/{imageName}")
     public ResponseEntity<?> viewArtistImage(@PathVariable String imageName) {
         try {

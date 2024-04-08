@@ -5,6 +5,7 @@ import com.nctcompany.nct03.dto.song.SongResponse;
 import com.nctcompany.nct03.service.GenreService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,16 +22,15 @@ import java.util.List;
 @Tag(
         name = "Genre API"
 )
+@SecurityRequirement(
+        name = "Bear Authentication"
+)
 public class GenreController {
 
     private final GenreService genreService;
 
     @Operation(
-            summary = "Read All Genres"
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Http Status 200 OK"
+            summary = "Get all genres"
     )
     @GetMapping
     public ResponseEntity<List<GenreResponse>> getAllGenres(){
@@ -38,11 +38,7 @@ public class GenreController {
     }
 
     @Operation(
-            summary = "Read Genre's Songs"
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Http Status 200 OK"
+            summary = "Get genre's songs"
     )
     @GetMapping("/{genreId}/songs")
     public ResponseEntity<List<SongResponse>> getSongsByGenre(

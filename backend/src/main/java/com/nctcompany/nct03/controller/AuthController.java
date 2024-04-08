@@ -26,11 +26,7 @@ public class AuthController {
     private final AuthService authService;
 
     @Operation(
-            summary = "User Register"
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Http Status 200 OK"
+            summary = "Register user"
     )
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(
@@ -40,11 +36,7 @@ public class AuthController {
     }
 
     @Operation(
-            summary = "User Login"
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Http Status 200 OK"
+            summary = "Login"
     )
     @PostMapping("/authenticate")
     public ResponseEntity<AuthResponse> authenticate(

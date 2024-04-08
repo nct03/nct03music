@@ -4,6 +4,7 @@ import com.nctcompany.nct03.constant.ApplicationConstants;
 import com.nctcompany.nct03.dto.user.ChangePasswordRequest;
 import com.nctcompany.nct03.dto.user.UserResponse;
 import com.nctcompany.nct03.service.UserService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -26,19 +27,15 @@ import java.security.Principal;
 @Tag(
         name = "User API"
 )
+@SecurityRequirement(
+        name = "Bear Authentication"
+)
 public class UserController {
 
     private final UserService userService;
 
     @Operation(
-            summary = "Read User Profile"
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Http Status 200 OK"
-    )
-    @SecurityRequirement(
-            name = "Bear Authentication"
+            summary = "Get user profile"
     )
     @GetMapping("/profile")
     public ResponseEntity<UserResponse> getUserProfile(
@@ -49,14 +46,7 @@ public class UserController {
     }
 
     @Operation(
-            summary = "Read User Profile"
-    )
-    @ApiResponse(
-            responseCode = "204",
-            description = "Http Status 204 No Content"
-    )
-    @SecurityRequirement(
-            name = "Bear Authentication"
+            summary = "Change user password"
     )
     @PatchMapping("/change-password")
     public ResponseEntity<?> changePassword(
@@ -67,6 +57,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+    @Hidden
     @GetMapping("/images/{imageName}")
     public ResponseEntity<?> viewUserImage(@PathVariable String imageName) {
         try {
