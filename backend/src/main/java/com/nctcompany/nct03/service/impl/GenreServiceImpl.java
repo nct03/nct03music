@@ -1,5 +1,6 @@
 package com.nctcompany.nct03.service.impl;
 
+import com.nctcompany.nct03.dto.common.PageableResult;
 import com.nctcompany.nct03.dto.genre.GenreResponse;
 import com.nctcompany.nct03.dto.song.SongResponse;
 import com.nctcompany.nct03.exception.ResourceNotFoundException;
@@ -11,6 +12,7 @@ import com.nctcompany.nct03.service.GenreService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,12 +31,26 @@ public class GenreServiceImpl implements GenreService {
     }
 
     @Override
-    public List<SongResponse> getSongsByGenre(Integer genreId) {
+    public PageableResult<SongResponse> getSongsByGenre(Integer genreId, Integer pageNum, Integer pageSize) {
         Genre genre = genreRepository.findById(genreId)
                 .orElseThrow(() -> new ResourceNotFoundException("Genre with id=[%s] not found!".formatted(genreId)));
-        return genre.getSongs().stream()
+        List<SongResponse> songResponses = genre.getSongs().stream()
                 .map(SongMapper::mapToSongResponse)
                 .collect(Collectors.toList());
+        songResponses.sort(Comparator.comparing(SongResponse::getReleasedOn).reversed());
+
+        int totalItems = songResponses.size();
+        int totalPages = (int) Math.ceil((double) totalItems / pageSize);
+        int fromIndex = (pageNum - 1) * pageSize;
+        int toIndex = Math.min(fromIndex + pageSize, totalItems);
+
+        return PageableResult.<SongResponse>builder()
+                .items(songResponses.subList(fromIndex, toIndex))
+                .pageNum(pageNum)
+                .pageSize(pageSize)
+                .totalItems(totalItems)
+                .totalPages(totalPages)
+                .build();
 
     }
 }

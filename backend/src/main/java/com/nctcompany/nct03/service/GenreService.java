@@ -1,5 +1,6 @@
 package com.nctcompany.nct03.service;
 
+import com.nctcompany.nct03.dto.common.PageableResult;
 import com.nctcompany.nct03.dto.genre.GenreResponse;
 import com.nctcompany.nct03.dto.song.SongResponse;
 
@@ -9,5 +10,5 @@ public interface GenreService {
 
     List<GenreResponse> getAllGenres();
 
-    List<SongResponse> getSongsByGenre(Integer genreId);
+    PageableResult<SongResponse> getSongsByGenre(Integer genreId, Integer pageNum, Integer pageSize);
 }

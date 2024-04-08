@@ -52,6 +52,7 @@ public class SongSerivceImpl implements SongService {
     @Override
     public List<SongResponse> searchSongs(String keyword) {
         List<Song> songs = songRepository.findByNameContainingIgnoreCase(keyword);
+        songs.sort(Comparator.comparing(Song::getReleasedOn).reversed());
         return songs.stream()
                 .map(SongMapper::mapToSongResponse)
                 .collect(Collectors.toList());

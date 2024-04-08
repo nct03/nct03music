@@ -11,6 +11,6 @@ public interface ArtistService {
 
     PageableResult<ArtistResponse> getAllArtists(Integer pageNum, Integer pageSize);
     ArtistDetails getArtistDetails(Long artistId);
-    List<SongResponse> getSongsByArtist(Long artistId);
+    PageableResult<SongResponse> getSongsByArtist(Long artistId, Integer pageNum, Integer pageSize);
     List<ArtistResponse> searchArtists(String keyword);
 }
