@@ -3,10 +3,11 @@ package com.nctcompany.nct03.controller;
 import com.nctcompany.nct03.constant.ApplicationConstants;
 import com.nctcompany.nct03.dto.song.SongRequest;
 import com.nctcompany.nct03.dto.song.SongResponse;
+import com.nctcompany.nct03.exception.ResourceNotFoundException;
 import com.nctcompany.nct03.service.SongService;
+import com.nctcompany.nct03.util.FileUploadUtil;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -18,8 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.MalformedURLException;
 import java.util.List;
 
 @RestController
@@ -65,17 +65,13 @@ public class SongController {
             @PathVariable String imageName
     )  {
         try {
-            Path imagePath = Paths.get(ApplicationConstants.SONGS_IMG_FOLDER + imageName);
-            UrlResource resource = new UrlResource(imagePath.toUri());
-            if (resource.exists()) {
-                return ResponseEntity.ok()
-                        .contentType(MediaType.IMAGE_JPEG)
-                        .body(resource);
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        }catch (Exception e){
-            return ResponseEntity.notFound().build();
+            UrlResource resource = FileUploadUtil.getUrlResource(imageName, ApplicationConstants.SONGS_IMG_FOLDER);
+            MediaType mediaType = FileUploadUtil.determineMediaType(imageName);
+            return ResponseEntity.ok()
+                    .contentType(mediaType)
+                    .body(resource);
+        }catch (MalformedURLException e){
+            throw new ResourceNotFoundException("Could not found image name: " + imageName);
         }
 
     }
@@ -86,17 +82,13 @@ public class SongController {
             @PathVariable String songName
     )  {
         try {
-            Path songPath = Paths.get(ApplicationConstants.SONGS_FILE_FOLDER + songName);
-            UrlResource resource = new UrlResource(songPath.toUri());
-            if (resource.exists()) {
-                return ResponseEntity.ok()
-                        .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                        .body(resource);
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        }catch (Exception e){
-            return ResponseEntity.notFound().build();
+            UrlResource resource = FileUploadUtil.getUrlResource(songName, ApplicationConstants.SONGS_FILE_FOLDER);
+            MediaType mediaType = FileUploadUtil.determineMediaType(songName);
+            return ResponseEntity.ok()
+                    .contentType(mediaType)
+                    .body(resource);
+        }catch (MalformedURLException e){
+            throw new ResourceNotFoundException("Could not found song name: " + songName);
         }
 
     }

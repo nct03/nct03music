@@ -5,7 +5,9 @@ import com.nctcompany.nct03.dto.artist.ArtistDetails;
 import com.nctcompany.nct03.dto.artist.ArtistResponse;
 import com.nctcompany.nct03.dto.common.PageableResult;
 import com.nctcompany.nct03.dto.song.SongResponse;
+import com.nctcompany.nct03.exception.ResourceNotFoundException;
 import com.nctcompany.nct03.service.ArtistService;
+import com.nctcompany.nct03.util.FileUploadUtil;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -22,8 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.MalformedURLException;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -151,17 +152,13 @@ public class ArtistController {
     @GetMapping("/images/{imageName}")
     public ResponseEntity<?> viewArtistImage(@PathVariable String imageName) {
         try {
-            Path imagePath = Paths.get(ApplicationConstants.ARTISTS_FOLDER + imageName);
-            UrlResource resource = new UrlResource(imagePath.toUri());
-            if (resource.exists()) {
-                return ResponseEntity.ok()
-                        .contentType(MediaType.IMAGE_JPEG)
-                        .body(resource);
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        }catch (Exception e){
-            return ResponseEntity.notFound().build();
+            UrlResource resource = FileUploadUtil.getUrlResource(imageName, ApplicationConstants.ARTISTS_FOLDER);
+            MediaType mediaType = FileUploadUtil.determineMediaType(imageName);
+            return ResponseEntity.ok()
+                    .contentType(mediaType)
+                    .body(resource);
+        }catch (MalformedURLException e){
+            throw new ResourceNotFoundException("Could not found image name: " + imageName);
         }
     }
 }

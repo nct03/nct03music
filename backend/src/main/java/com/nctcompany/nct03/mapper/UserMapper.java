@@ -4,8 +4,6 @@ import com.nctcompany.nct03.constant.ApplicationConstants;
 import com.nctcompany.nct03.dto.user.UserResponse;
 import com.nctcompany.nct03.model.User;
 
-import java.io.File;
-
 public class UserMapper {
 
     public static UserResponse mapToResponse(User user){
@@ -15,7 +13,8 @@ public class UserMapper {
                 .email(user.getEmail())
                 .role(user.getRole().getName())
                 .build();
-        String photo = ApplicationConstants.APP_URL + "/users/images/" + user.getPhoto();
+        String photoName = user.getPhoto() != null ? user.getPhoto() : ApplicationConstants.DEFAULT_IMAGE;
+        String photo = ApplicationConstants.APP_URL + "/users/images/" + photoName;
         userResponse.setPhoto(photo);
         return userResponse;
     }

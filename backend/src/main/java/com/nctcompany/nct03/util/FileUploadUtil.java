@@ -1,19 +1,22 @@
 package com.nctcompany.nct03.util;
 
+import com.nctcompany.nct03.exception.ResourceNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.Normalizer;
-import java.util.Arrays;
-import java.util.List;
+import java.util.UUID;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 @Slf4j
 public class FileUploadUtil {
@@ -33,26 +36,61 @@ public class FileUploadUtil {
         }
     }
 
-    public static void cleanDir (String dir) {
+    public static void deleteImage(String dir, String imageName) {
         Path dirPath = Paths.get(dir);
 
-        try {
-            Files.list(dirPath).forEach(file -> {
-                if(!Files.isDirectory(file)) {
-                    try {
-                        Files.delete(file);
-                    }catch (IOException ex) {
-//                        System.out.println("Could not delete file: " + file);
-                        log.error("Could not delete file: {}", file, ex);
-                    }
-
-                }
-            });
-        }catch(IOException ex) {
-//            System.out.println("Could not list directory: " + dirPath);
-            log.error("Could not list directory: {}", dirPath, ex);
+        try (Stream<Path> paths = Files.list(dirPath)) {
+            paths.filter(file -> !Files.isDirectory(file))
+                    .filter(file -> file.getFileName().toString().equals(imageName))
+                    .forEach(file -> {
+                        try {
+                            Files.delete(file);
+                        } catch (IOException ex) {
+                            throw new RuntimeException("Could not delete file: " + file, ex);
+                        }
+                    });
+        } catch (IOException ex) {
+            throw new RuntimeException("Could not list directory: " + dirPath, ex);
         }
     }
+
+    public static UrlResource getUrlResource(String fileName, String folder) throws MalformedURLException {
+        Path imagePath = Paths.get(folder + fileName);
+        UrlResource resource = new UrlResource(imagePath.toUri());
+        if (!resource.exists()) {
+            throw new ResourceNotFoundException("Can not found file name: " + fileName);
+        }
+        return resource;
+    }
+
+    public static MediaType determineMediaType(String fileName) {
+        String fileExtension = getFileExtension(fileName);
+        switch (fileExtension) {
+            case ".png":
+                return MediaType.IMAGE_PNG;
+            case ".jpg":
+            case ".jpeg":
+                return MediaType.IMAGE_JPEG;
+            case ".mp3":
+                return MediaType.APPLICATION_OCTET_STREAM;
+            default:
+                return MediaType.ALL;
+        }
+    }
+
+    public static String generateImageName(MultipartFile file){
+        String fileExtension = getFileExtension(file);
+
+        String imageName = UUID.randomUUID().toString().substring(0,10);
+        return imageName + fileExtension;
+    }
+
+    public static String getFileExtension(MultipartFile file){
+        String originalFileName = file.getOriginalFilename();
+        String fileExtension = getFileExtension(originalFileName);
+        return fileExtension;
+    }
+
 
     // Chuẩn hoá tiếng việt có dấu về không dấu
     public static String removeAccent(String s) {

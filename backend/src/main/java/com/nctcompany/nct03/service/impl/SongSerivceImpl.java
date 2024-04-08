@@ -19,10 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.text.Normalizer;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -71,7 +69,7 @@ public class SongSerivceImpl implements SongService {
             if (!FileUploadUtil.checkUploadImageTypeFile(songRequest.getImageFile())){
                 throw new BadRequestException("Please provide the song image in JPG/PNG format");
             }
-            imgName = generateImageName(songRequest.getImageFile());
+            imgName = FileUploadUtil.generateImageName(songRequest.getImageFile());
         }
 
         Song song = new Song();
@@ -100,16 +98,9 @@ public class SongSerivceImpl implements SongService {
 
         return SongMapper.mapToSongResponse(song);
     }
-
-    private String generateImageName(MultipartFile file){
-        String fileExtension = getFileExtension(file);
-
-        String imageName = UUID.randomUUID().toString().substring(0,10);
-        return imageName + fileExtension;
-    }
     
     private String generateFileName(String songName, MultipartFile file){
-        String fileExtension = getFileExtension(file);
+        String fileExtension = FileUploadUtil.getFileExtension(file);
     
         songName = FileUploadUtil.removeAccent(songName);
         String randomString = UUID.randomUUID().toString().substring(0, 7);
@@ -119,10 +110,6 @@ public class SongSerivceImpl implements SongService {
     }
 
 
-    private String getFileExtension(MultipartFile file){
-        String originalFileName = file.getOriginalFilename();
-        String fileExtension = FileUploadUtil.getFileExtension(originalFileName);
-        return fileExtension;
-    }
+
 
 }
