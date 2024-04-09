@@ -46,7 +46,7 @@ public class GenreController {
     }
 
     @Operation(
-            summary = "Get genre's songs"
+            summary = "Get genre's songs (include pagination)"
     )
     @GetMapping("/{genreId}/songs")
     public ResponseEntity<PageableResult<SongResponse>> getSongsByGenre(

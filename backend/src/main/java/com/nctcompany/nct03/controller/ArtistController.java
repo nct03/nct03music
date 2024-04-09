@@ -43,7 +43,7 @@ public class ArtistController {
     private final ArtistService artistService;
 
     @Operation(
-            summary = "Get all artists"
+            summary = "Get all artists (include pagination)"
     )
     @GetMapping
     public ResponseEntity<PageableResult<ArtistResponse>> getAllArtists(
@@ -98,7 +98,7 @@ public class ArtistController {
     }
 
     @Operation(
-            summary = "Get artist's songs"
+            summary = "Get artist's songs (include pagination)"
     )
     @GetMapping("/{artistId}/songs")
     public ResponseEntity<PageableResult<SongResponse>> getSongsByArtist(

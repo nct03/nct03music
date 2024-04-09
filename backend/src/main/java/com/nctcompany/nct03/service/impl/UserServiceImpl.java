@@ -1,31 +1,36 @@
 package com.nctcompany.nct03.service.impl;
 
 import com.nctcompany.nct03.constant.ApplicationConstants;
+import com.nctcompany.nct03.dto.playlist.PlaylistResponse;
 import com.nctcompany.nct03.dto.user.ChangePasswordRequest;
 import com.nctcompany.nct03.dto.user.UpdateUserRequest;
 import com.nctcompany.nct03.dto.user.UserResponse;
 import com.nctcompany.nct03.exception.BadRequestException;
+import com.nctcompany.nct03.mapper.PlaylistMapper;
 import com.nctcompany.nct03.mapper.UserMapper;
 import com.nctcompany.nct03.model.User;
 import com.nctcompany.nct03.repository.UserRepository;
-import com.nctcompany.nct03.security.JwtService;
 import com.nctcompany.nct03.service.UserService;
 import com.nctcompany.nct03.util.FileUploadUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final JwtService jwtService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PlaylistMapper playlistMapper;
 
     @Override
     public UserResponse getUserProfile(Principal loggedUser) {
@@ -69,5 +74,14 @@ public class UserServiceImpl implements UserService {
 
         User udpatedUser = userRepository.save(user);
         return UserMapper.mapToResponse(udpatedUser);
+    }
+
+    @Override
+    public List<PlaylistResponse> getCurrentUserPlaylists() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        return user.getPlaylists().stream()
+                .map(playlistMapper::mapToResponse)
+                .collect(Collectors.toList());
     }
 }

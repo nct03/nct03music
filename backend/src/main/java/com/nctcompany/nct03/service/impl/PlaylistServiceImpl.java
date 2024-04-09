@@ -5,7 +5,6 @@ import com.nctcompany.nct03.dto.playlist.PlaylistRequest;
 import com.nctcompany.nct03.dto.playlist.PlaylistDetailsResponse;
 import com.nctcompany.nct03.dto.playlist.PlaylistResponse;
 import com.nctcompany.nct03.dto.song.SongResponse;
-import com.nctcompany.nct03.dto.user.AddSongPlaylistRequest;
 import com.nctcompany.nct03.exception.BadRequestException;
 import com.nctcompany.nct03.exception.DuplicateResourceException;
 import com.nctcompany.nct03.exception.ResourceNotFoundException;
@@ -19,11 +18,9 @@ import com.nctcompany.nct03.repository.SongRepository;
 import com.nctcompany.nct03.repository.UserRepository;
 import com.nctcompany.nct03.service.PlaylistService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,8 +35,7 @@ public class PlaylistServiceImpl implements PlaylistService {
     private final UserRepository userRepository;
 
     @Override
-    public PlaylistResponse createPlaylist(PlaylistRequest request, Principal loggedUser) {
-        User user = (User) ((UsernamePasswordAuthenticationToken) loggedUser).getPrincipal();
+    public PlaylistResponse createPlaylist(PlaylistRequest request, User user) {
         if (playlistRepository.existsByNameAndUser(request.getName(), user)){
             throw new DuplicateResourceException("Playlist name=[%s] already existed!".formatted(request.getName()));
         }
@@ -52,20 +48,11 @@ public class PlaylistServiceImpl implements PlaylistService {
     }
 
     @Override
-    public List<PlaylistResponse> getCurrentUserPlaylists(Principal loggedUser) {
-        User user = (User) ((UsernamePasswordAuthenticationToken) loggedUser).getPrincipal();
-        return user.getPlaylists().stream()
-                .map(playlistMapper::mapToResponse)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public PlaylistDetailsResponse addSongToPlaylist(Long playlistId, AddSongPlaylistRequest request, Principal loggedUser) {
-        User user = (User) ((UsernamePasswordAuthenticationToken) loggedUser).getPrincipal();
+    public PlaylistDetailsResponse addSongToPlaylist(Long playlistId, Long songId, User user) {
         Playlist playlist = playlistRepository.findByIdAndUserId(playlistId, user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Playlist with id=[%s] not found".formatted(playlistId)));
-        Song song = songRepository.findById(request.getSongId())
-                .orElseThrow(() -> new ResourceNotFoundException("Song with id=[%s] not found".formatted(request.getSongId())));
+        Song song = songRepository.findById(songId)
+                .orElseThrow(() -> new ResourceNotFoundException("Song with id=[%s] not found".formatted(songId)));
         if (playlist.getSongs().contains(song)){
             throw new BadRequestException("Song with id=[%s] already existed in playlist with id=[%s]".formatted(song.getId(), playlist.getId()));
         }
@@ -77,8 +64,7 @@ public class PlaylistServiceImpl implements PlaylistService {
     }
 
     @Override
-    public PlaylistDetailsResponse removeSongInPlaylist(Long playlistId, Long songId, Principal loggedUser) {
-        User user = (User) ((UsernamePasswordAuthenticationToken) loggedUser).getPrincipal();
+    public PlaylistDetailsResponse removeSongInPlaylist(Long playlistId, Long songId, User user) {
         Playlist playlist = playlistRepository.findByIdAndUserId(playlistId, user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Playlist with id=[%s] not found".formatted(playlistId)));
         Song song = songRepository.findById(songId)
@@ -94,8 +80,7 @@ public class PlaylistServiceImpl implements PlaylistService {
 
     @Transactional
     @Override
-    public void deletePlaylist(Long playlistId, Principal loggedUser) {
-        User user = (User) ((UsernamePasswordAuthenticationToken) loggedUser).getPrincipal();
+    public void deletePlaylist(Long playlistId, User user) {
         Playlist playlist = playlistRepository.findByIdAndUserId(playlistId, user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Playlist with id=[%s] not found".formatted(playlistId)));
         user.getPlaylists().remove(playlist);

@@ -1,0 +1,141 @@
+package com.nctcompany.nct03.controller;
+
+import com.nctcompany.nct03.dto.common.PageableResult;
+import com.nctcompany.nct03.dto.playlist.PlaylistDetailsResponse;
+import com.nctcompany.nct03.dto.playlist.PlaylistRequest;
+import com.nctcompany.nct03.dto.playlist.PlaylistResponse;
+import com.nctcompany.nct03.dto.song.SongResponse;
+import com.nctcompany.nct03.model.User;
+import com.nctcompany.nct03.service.PlaylistService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
+@RequestMapping("/v1/playlists")
+@RestController
+@RequiredArgsConstructor
+@Validated
+@Tag(
+        name = "Playlist API"
+)
+@SecurityRequirement(
+        name = "Bear Authentication"
+)
+public class PlaylistController {
+
+    private final PlaylistService playlistService;
+
+    @Operation(
+            summary = "Create new playlist"
+    )
+    @PostMapping
+    public ResponseEntity<PlaylistResponse> createPlaylist(
+            @Valid @RequestBody PlaylistRequest request
+    ){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User loggedUser = (User) authentication.getPrincipal();
+        PlaylistResponse playlist = playlistService.createPlaylist(request, loggedUser);
+        return new ResponseEntity<>(playlist, HttpStatus.CREATED);
+    }
+
+    @Operation(
+            summary = "Delete playlist"
+    )
+    @DeleteMapping("/{playlistId}")
+    public ResponseEntity<Void> deletePlaylist(
+            @PathVariable Long playlistId
+    ){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User loggedUser = (User) authentication.getPrincipal();
+        playlistService.deletePlaylist(playlistId, loggedUser);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
+            summary = "Add song to playlist"
+    )
+    @PostMapping("/{playlistId}/songs/{songId}")
+    public ResponseEntity<PlaylistDetailsResponse> addSongToPlaylist(
+            @PathVariable Long playlistId,
+            @PathVariable Long songId
+    ){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User loggedUser = (User) authentication.getPrincipal();
+        PlaylistDetailsResponse response = playlistService.addSongToPlaylist(playlistId, songId, loggedUser);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @Operation(
+            summary = "Get songs in playlist (include pagination)"
+    )
+    @GetMapping("/{playlistId}/songs")
+    public ResponseEntity<PageableResult<SongResponse>> getSongsInPlaylist(
+            @PathVariable Long playlistId,
+            @Parameter(description = "Page number (default: 1)", example = "1", in = ParameterIn.QUERY, required = false)
+            @RequestParam(value="pageNum", required = false, defaultValue = "1") @Min(value = 1) Integer pageNum,
+            @Parameter(description = "Page size (default: 5, min: 5, max: 20)", example = "5", in = ParameterIn.QUERY, required = false)
+            @RequestParam(value="pageSize", required = false, defaultValue = "5") @Min(value = 5) @Max(value = 20)  Integer pageSize
+    ){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User loggedUser = (User) authentication.getPrincipal();
+        PageableResult<SongResponse> songsPage = playlistService.getSongInPlaylist(playlistId, loggedUser, pageNum, pageSize);
+        return ResponseEntity.ok(addLinksToSongsPage(songsPage, playlistId));
+    }
+
+    private PageableResult<SongResponse> addLinksToSongsPage(PageableResult<SongResponse> songsPage, long playlistId){
+        int pageSize = songsPage.getPageSize();
+        int pageNum = songsPage.getPageNum();
+        int totalPages = songsPage.getTotalPages();
+
+        if (pageNum > 1) {
+            songsPage.add(
+                    linkTo(methodOn(PlaylistController.class).getSongsInPlaylist(playlistId, 1, pageSize))
+                            .withRel(IanaLinkRelations.FIRST));
+
+            songsPage.add(
+                    linkTo(methodOn(PlaylistController.class).getSongsInPlaylist(playlistId, pageNum - 1, pageSize))
+                            .withRel(IanaLinkRelations.PREV));
+        }
+
+        if (pageNum < totalPages) {
+            songsPage.add(
+                    linkTo(methodOn(PlaylistController.class).getSongsInPlaylist(playlistId, pageNum + 1, pageSize))
+                            .withRel(IanaLinkRelations.NEXT));
+
+            songsPage.add(
+                    linkTo(methodOn(PlaylistController.class).getSongsInPlaylist(playlistId, totalPages, pageSize))
+                            .withRel(IanaLinkRelations.LAST));
+        }
+        return songsPage;
+    }
+
+    @Operation(
+            summary = "Remove song from playlist"
+    )
+    @DeleteMapping("/{playlistId}/songs/{songId}")
+    public ResponseEntity<PlaylistDetailsResponse> removeSongFromPlaylist(
+            @PathVariable Long playlistId,
+            @PathVariable Long songId
+    ){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User loggedUser = (User) authentication.getPrincipal();
+        PlaylistDetailsResponse response = playlistService.removeSongInPlaylist(playlistId, songId, loggedUser);
+        return ResponseEntity.ok(response);
+    }
+}
