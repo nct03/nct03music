@@ -18,17 +18,21 @@ const Tab = createBottomTabNavigator()
 
 const BottomNavigator = () => {
     return (
-        <Tab.Navigator>
+        <Tab.Navigator
+            initialRouteName='AboutScreen'
+            screenOptions={{
+                headerShown: false,
+            }}>
             <Tab.Screen name="AboutScreen" component={AboutScreen} options={{
-                tabBarIcon: () => (<Ionicons name="home-outline" size={24} color="#fff" padding={10} />)
+                tabBarIcon: () => (<Ionicons name="home-outline" size={24}  />)
             }} />
             <Tab.Screen name="Player" component={Player} options={{
-                tabBarIcon: () => (<Feather name="music" size={24} color="#fff" padding={10} />)
+                tabBarIcon: () => (<Feather name="music" size={24}  />)
             }} />
             <Tab.Screen name="Favorite" component={Favorite} options={{
-                tabBarIcon: () => (<MaterialIcons name="favorite-border" size={24} color="#fff" padding={10} />)
+                tabBarIcon: () => (<MaterialIcons name="favorite-border" size={24}  />)
             }} />
-        </Tab.Navigator>
+        </Tab.Navigator >
     )
 }
 

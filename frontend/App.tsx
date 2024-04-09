@@ -19,7 +19,7 @@ export default function App() {
                 <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ title: 'Login' }} />
                 <Stack.Screen name="SignupScreen" component={SignupScreen} options={{ title: 'Sign Up' }} />
                 <Stack.Screen name="AboutScreen" component={AboutScreen} options={{ title: 'Trang chủ' }} />
-                <Stack.Screen name="BottomNavigator" component={BottomNavigator} options={{ title: 'Trình phát nhạc' }} />
+                <Stack.Screen name="BottomNavigator" component={BottomNavigator}/>
 
             </Stack.Navigator>
         </NavigationContainer>

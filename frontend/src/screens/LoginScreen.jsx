@@ -45,61 +45,6 @@ export default function LoginScreen({ navigation }) {
         }
     };
 
-    // useEffect(() => {
-    //     handleLogin()
-    // }, [])
-
-    // const loginAPi = (email, password) => {
-    //     return axios.post('http://192.168.100.177:8080/v1/auth/authenticate', { email, password });
-    // }
-
-    // const handleLogin = async () => {
-
-
-    //     let res = await loginAPi(email, password);
-    //     if (res && res.token) {
-    //         alert("token", res.token)
-    //         navigation.navigate('DangNhapThanhCong')
-    //     }
-
-    // let urlCheckLogin = "https://660bdd483a0766e85dbcbb9c.mockapi.io/account/account?email=" + email;
-
-    // //Thực hiện lấy dữ liệu
-    // fetch(urlCheckLogin)
-    //     .then((res) => {
-    //         return res.json();
-    //     })
-    //     .then(async (res_login) => {
-    //         if (res_login.length != 1) {
-    //             alert("Email của bạn nhập đã bị sai");
-    //             return
-    //         }
-    //         else {
-    //             let objUser = res_login[0];
-    //             if (objUser.password != password) {
-    //                 alert("sai mật khẩu");
-    //                 return
-    //             }
-    //             else {
-    //                 //Đúng password lưu vào storage
-    //                 try {
-    //                     // await AsyncStorage.setItem('loginInfo', JSON.stringify(objUser));
-    //                     navigation.navigate('DangNhapThanhCong')
-    //                 } catch (error) {
-    //                     alert(error)
-    //                 }
-    //             }
-    //         }
-    //     })
-    // }
-
-    // useEffect(() => {
-    //     let token = AsyncStorage.getItem("token");
-    //     if (token) {
-    //         navigation.navigate('DangNhapThanhCong')
-    //     }
-    // }, [])
-
     return (
         <View style={styles.container}>
             <Text style={{ ...styles.header, fontSize: 16, marginTop: 60 }}>WELLCOME BACK</Text>
