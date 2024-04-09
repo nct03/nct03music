@@ -1,5 +1,7 @@
 package com.nctcompany.nct03.constant;
 
+import com.nctcompany.nct03.util.Utils;
+
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.Set;
@@ -14,6 +16,6 @@ public class ApplicationConstants {
 
     public static final String DEFAULT_IMAGE = "default.jpg";
 
-    public static final String APP_URL = "http://localhost:8080/v1";
-
+//    public static final String APP_URL = "http://localhost:8080/v1";
+    public static final String APP_URL = "http://%s:8080/v1".formatted(Utils.getIpAddress());
 }
