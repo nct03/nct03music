@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
 import { IP } from '../constant/Constants';
 
@@ -32,7 +33,7 @@ export default function LoginScreen({ navigation }) {
             if (response.ok) {
                 // Save token to AsyncStorage or SecureStore
                 console.log("Ok");
-                await AsyncStorage.setItem('token', data.token);
+                await SecureStore.setItemAsync('token', data.token);
                 navigation.navigate('AboutScreen'); // Navigate to Home screen on successful login
             } else {
                 // Handle error
