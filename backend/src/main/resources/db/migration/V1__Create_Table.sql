@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS artist_songs (
 
 CREATE TABLE playlists (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(128) NOT NULL UNIQUE,
+    name VARCHAR(128) NOT NULL,
     user_id BIGINT,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );

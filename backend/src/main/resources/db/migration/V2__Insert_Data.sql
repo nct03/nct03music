@@ -200,3 +200,18 @@ VALUES
 INSERT INTO users(name, email, password, role_id)
 VALUES
     ("Tran Bao Minh", "minh@gmail.com", "$2a$10$L467UvjUkML/xLurSelhi.yKtXEthY3bFhAZI9e6jncWFsg.ZyBDq", 2);
+
+INSERT INTO playlists(id, name, user_id)
+VALUES
+    (1, "Mih playlist", 1);
+
+INSERT INTO playlist_songs(playlist_id, song_id)
+VALUES
+    (1, 10),
+    (1, 12),
+    (1, 14),
+    (1, 16),
+    (1, 18),
+    (1, 20),
+    (1, 22),
+    (1, 24);

@@ -7,6 +7,7 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "songs")
@@ -40,4 +41,19 @@ public class Song {
             inverseJoinColumns = @JoinColumn(name = "artist_id", referencedColumnName = "id")
     )
     private List<Artist> artists = new ArrayList<>();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Song song = (Song) o;
+
+        return Objects.equals(id, song.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 }

@@ -29,7 +29,7 @@ public class User extends Person implements UserDetails {
 
     @OneToMany(
             cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY,
+            fetch = FetchType.EAGER,
             mappedBy = "user"
     )
     private List<Playlist> playlists = new ArrayList<>();
