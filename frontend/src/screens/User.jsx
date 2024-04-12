@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, TextInput, Button, Image, AsyncStorage, Alert } from 'react-native';
+import { BasicIP } from '../constant/Constants';
 
 const User = () => {
   const [token, setToken] = useState('');
@@ -18,7 +19,7 @@ const User = () => {
       if (storedToken) {
         setToken(storedToken);
 
-        const response = await fetch('http://${IP}:8080/v1/users/profile', {
+        const response = await fetch(`${BasicIP}/users/profile`, {
           headers: {
             Authorization: `Bearer ${storedToken}`,
           },

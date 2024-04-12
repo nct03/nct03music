@@ -1,73 +1,40 @@
 import { useState, useEffect } from "react";
-import { StyleSheet, View, Text, Image, FlatList, ActivityIndicator, TextInput, Button, TouchableOpacity, ScrollView } from "react-native";
-import * as SecureStore from 'expo-secure-store';
-// import BottomNavigator from "../components/BottomNagivator";
-import { IP } from "../constant/Constants";
+import { StyleSheet, View, Text, Image, FlatList, TextInput, TouchableOpacity, ScrollView } from "react-native";
 import { EvilIcons } from '@expo/vector-icons';
+import { fetchMusicList, fetchSingers, searchSongs, searchArtists} from "../apis/About";
+
 
 export default function AboutScreen({ navigation }) {
   const [musicList, setMusicList] = useState([]);
-  // const [searchTerm, setSearchTerm] = useState('');
-  // const [searchResults, setSearchResults] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState('');
   // const [noResults, setNoResults] = useState(false);
   const [singers, setSingers] = useState([]);
 
-
   useEffect(() => {
-    checkToken()
-    fetchMusicList();
-    fetchSingers();
+    fetchInitialData();
   }, []);
 
-  const checkToken = async () => {
+  const fetchInitialData = async () => {
     try {
-      const token = await SecureStore.getItemAsync('token');
-      if (token) {
-        setToken(token);
-      } else {
-        // Redirect to login or display message
-        Alert.alert('Token not found');
-      }
+      const singersData = await fetchSingers();
+      const musicListData = await fetchMusicList();
+      setSingers(singersData);
+      setMusicList(musicListData);
+      setLoading(false);
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error fetching initial data:', error.message);
     }
   };
 
-  const fetchSingers = async () => {
+  const handleSearch = async () => {
     try {
-      const token = await SecureStore.getItemAsync('token');
-      setLoading(true); // Start loading indicator
-      const response = await fetch(`http://${IP}:8080/v1/artists?pageNum=1&pageSize=10`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await response.json();
-      setSingers(data);
+      const songResults = await searchSongs(searchTerm);
+      const artistResults = await searchArtists(searchTerm);
+      navigation.navigate('SearchResultScreen', { songResults, artistResults });
     } catch (error) {
-      console.error('Error fetching top singers:', error);
-    } finally {
-      setLoading(false); // Stop loading indicator
-    }
-  };
-
-  const fetchMusicList = async () => {
-    try {
-      const token = await SecureStore.getItemAsync('token');
-      setLoading(true); // Start loading indicator
-      const response = await fetch(`http://${IP}:8080/v1/songs/recently`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await response.json();
-      setMusicList(data);
-    } catch (error) {
-      console.error('Error fetching recently released songs:', error);
-    } finally {
-      setLoading(false); // Stop loading indicator
+      console.error('Error searching:', error.message);
     }
   };
 
@@ -76,16 +43,21 @@ export default function AboutScreen({ navigation }) {
 
       <View style={styles.container}>
 
-        <View style={styles.input}>
-          <View style={{ flexDirection: "row", borderColor: "#fff", borderWidth: 1, borderRadius: 20, width: 360, alignSelf: "center" }}>
-            <TouchableOpacity>
-              <EvilIcons name="search" size={28} color="#fff" padding={10} />
-            </TouchableOpacity>
-            <TextInput autoCapitalize='none' placeholder="Nhập tên bài hát hoặc ca sĩ" placeholderTextColor="#fff" style={{
-              padding: 10, paddingLeft: -5, color: "#fff"
-            }} />
-          </View>
+      <View >
+        <View style={{ flexDirection: "row", borderColor: "#fff", borderWidth: 1, borderRadius: 20, width: 360, alignSelf: "center" }}>
+          <TouchableOpacity onPress={handleSearch}>
+            <EvilIcons name="search" size={28} color="#fff" padding={10} />
+          </TouchableOpacity>
+          <TextInput
+            autoCapitalize='none'
+            placeholder="Search songs or artists"
+            placeholderTextColor="#fff"
+            style={{ padding: 10, paddingLeft: -5, color: "#fff" }}
+            value={searchTerm}
+            onChangeText={setSearchTerm}
+          />
         </View>
+      </View>
 
         <View style={styles.artist}>
           <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold" }}> Nghệ sĩ tiêu biểu: </Text>
@@ -129,11 +101,9 @@ export default function AboutScreen({ navigation }) {
         </View>
 
         <View style={styles.recentlyRelease}>
-          <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold" }}> Top bảng xếp hạng được ưa thích: </Text>
-          <FlatList
-            data={musicList}
-            renderItem={({ item }) => (
-              <TouchableOpacity style={styles.wrapper}>
+        <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold" }}> Top bảng xếp hạng được ưa thích: </Text>
+        {musicList.map((item, index) => (
+              <TouchableOpacity key={index} style={styles.wrapper}>
                 <Image
                   source={{ uri: item.imagePath }}
                   style={{ width: 100, height: 100, borderRadius: 10 }}
@@ -144,10 +114,8 @@ export default function AboutScreen({ navigation }) {
                   <Text style={styles.text}>Ngày phát hành: {item.releasedOn}</Text>
                 </View>
               </TouchableOpacity>
-            )}
-            keyExtractor={(item) => item.id.toString()}
-          />
-        </View>
+            ))}
+      </View>
 
       </View>
 

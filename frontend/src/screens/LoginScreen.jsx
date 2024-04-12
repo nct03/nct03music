@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
-import { IP } from '../constant/Constants';
+import { BasicIP } from '../constant/Constants';
 
 export default function LoginScreen({ navigation }) {
 
@@ -21,7 +21,7 @@ export default function LoginScreen({ navigation }) {
             return
         }
         try {
-            const response = await fetch(`http://${IP}:8080/v1/auth/authenticate`, {
+            const response = await fetch(`${BasicIP}/auth/authenticate`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Pressable } from 'react-native';
-import { IP } from '../constant/Constants';
+import { BasicIP } from '../constant/Constants';
 
 export default function SignupScreen({ navigation }) {
     const [name, setName] = useState("");
@@ -36,7 +36,7 @@ export default function SignupScreen({ navigation }) {
             password: password,
         }
 
-        fetch(url = `http://${IP}:8080/v1/auth/register`, {
+        fetch(url = `${BasicIP}/auth/register`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
