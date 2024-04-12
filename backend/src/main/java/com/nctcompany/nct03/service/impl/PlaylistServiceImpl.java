@@ -1,6 +1,7 @@
 package com.nctcompany.nct03.service.impl;
 
 import com.nctcompany.nct03.dto.common.PageableResult;
+import com.nctcompany.nct03.dto.playlist.AddSongPlaylistRequest;
 import com.nctcompany.nct03.dto.playlist.PlaylistRequest;
 import com.nctcompany.nct03.dto.playlist.PlaylistDetailsResponse;
 import com.nctcompany.nct03.dto.playlist.PlaylistResponse;
@@ -48,11 +49,11 @@ public class PlaylistServiceImpl implements PlaylistService {
     }
 
     @Override
-    public PlaylistDetailsResponse addSongToPlaylist(Long playlistId, Long songId, User user) {
+    public PlaylistDetailsResponse addSongToPlaylist(Long playlistId, AddSongPlaylistRequest request, User user) {
         Playlist playlist = playlistRepository.findByIdAndUserId(playlistId, user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Playlist with id=[%s] not found".formatted(playlistId)));
-        Song song = songRepository.findById(songId)
-                .orElseThrow(() -> new ResourceNotFoundException("Song with id=[%s] not found".formatted(songId)));
+        Song song = songRepository.findById(request.getSongId())
+                .orElseThrow(() -> new ResourceNotFoundException("Song with id=[%s] not found".formatted(request.getSongId())));
         if (playlist.getSongs().contains(song)){
             throw new BadRequestException("Song with id=[%s] already existed in playlist with id=[%s]".formatted(song.getId(), playlist.getId()));
         }
@@ -111,5 +112,15 @@ public class PlaylistServiceImpl implements PlaylistService {
                 .totalItems(totalItems)
                 .totalPages(totalPages)
                 .build();
+    }
+
+    @Override
+    public boolean isSongInPlaylist(Long playlistId, Long songId) {
+        Playlist playlist = playlistRepository.findById(playlistId)
+                .orElseThrow(() -> new ResourceNotFoundException("Playlist with id=[%s] not found".formatted(playlistId)));
+        return playlist.getSongs().stream()
+                .filter(song -> song.getId().equals(songId))
+                .findFirst()
+                .isPresent();
     }
 }
