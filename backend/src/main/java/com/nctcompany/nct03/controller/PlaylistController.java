@@ -1,6 +1,7 @@
 package com.nctcompany.nct03.controller;
 
 import com.nctcompany.nct03.dto.common.PageableResult;
+import com.nctcompany.nct03.dto.playlist.AddSongPlaylistRequest;
 import com.nctcompany.nct03.dto.playlist.PlaylistDetailsResponse;
 import com.nctcompany.nct03.dto.playlist.PlaylistRequest;
 import com.nctcompany.nct03.dto.playlist.PlaylistResponse;
@@ -68,16 +69,32 @@ public class PlaylistController {
     }
 
     @Operation(
-            summary = "Add song to playlist"
+            summary = "Check song in playlist"
     )
-    @PostMapping("/{playlistId}/songs/{songId}")
-    public ResponseEntity<PlaylistDetailsResponse> addSongToPlaylist(
+    @GetMapping("/{playlistId}/songs/{songId}")
+    public ResponseEntity<String> checkSongInPlaylist(
             @PathVariable Long playlistId,
             @PathVariable Long songId
-    ){
+    ) {
+        boolean songInPlaylist = playlistService.isSongInPlaylist(playlistId, songId);
+        if (songInPlaylist) {
+            return ResponseEntity.ok("Song is in the playlist.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Song is not in the playlist.");
+        }
+    }
+
+    @Operation(
+            summary = "Add song to playlist"
+    )
+    @PostMapping("/{playlistId}/songs")
+    public ResponseEntity<PlaylistDetailsResponse> addSongToPlaylist(
+            @PathVariable Long playlistId,
+            @Valid @RequestBody AddSongPlaylistRequest request
+            ){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User loggedUser = (User) authentication.getPrincipal();
-        PlaylistDetailsResponse response = playlistService.addSongToPlaylist(playlistId, songId, loggedUser);
+        PlaylistDetailsResponse response = playlistService.addSongToPlaylist(playlistId, request, loggedUser);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
