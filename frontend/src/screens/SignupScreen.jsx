@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Pressable } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { BasicIP } from '../constant/Constants';
 
 export default function SignupScreen({ navigation }) {
@@ -54,32 +54,34 @@ export default function SignupScreen({ navigation }) {
     // }, [])
 
     return (
-        <View style={styles.container}>
-            <Text style={{ ...styles.header, fontSize: 16, marginTop: 60 }}>LET'S GET YOU STARTED</Text>
-            <Text style={{ ...styles.header, fontSize: 24, fontWeight: "bold", marginTop: 10 }}>Create an Account</Text>
-            <View style={styles.wrapper}>
-                <TextInput placeholder="Your name" style={styles.ip} onChangeText={(text) => setName(text)}></TextInput>
-                <TextInput autoCapitalize='none' placeholder="Email" style={styles.ip} onChangeText={(text) => setEmail(text)}></TextInput>
-                <TextInput autoCapitalize='none' placeholder="Password" style={styles.ip} onChangeText={(text) => setPassword(text)} textContentType="password" secureTextEntry={true}></TextInput>
-                <TextInput autoCapitalize='none' placeholder="Cofirm Password" style={styles.ip} onChangeText={(text) => setConfirmPass(text)} textContentType="password" secureTextEntry={true}></TextInput>
-            </View>
-            <View style={styles.btn}>
-                <TouchableOpacity>
-                    <Text style={{
-                        color: "#fff", fontWeight: "bold", textAlign: "center", paddingVertical: 15,
-                        paddingHorizontal: 118,
-                    }} onPress={doSignup}>GET STARTED</Text>
-                </TouchableOpacity>
-            </View>
-            <View style={{ marginTop: 160, justifyContent: "center", alignItems: 'center', justifyContent: 'center', }}>
-                <Text style={{ marginTop: 10 }}>Already have an account?
+        <ScrollView style={{ flex: 1 }}>
+            <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'position'}>
+                <View style={styles.container}>
+                    <Text style={{ ...styles.header, fontSize: 16, marginTop: 60 }}>LET'S GET YOU STARTED</Text>
+                    <Text style={{ ...styles.header, fontSize: 24, fontWeight: "bold", marginTop: 10 }}>Create an Account</Text>
+                    <View style={styles.wrapper}>
+                        <TextInput placeholder="Your name" style={styles.ip} onChangeText={(text) => setName(text)}></TextInput>
+                        <TextInput autoCapitalize='none' placeholder="Email" style={styles.ip} onChangeText={(text) => setEmail(text)}></TextInput>
+                        <TextInput autoCapitalize='none' placeholder="Password" style={styles.ip} onChangeText={(text) => setPassword(text)} textContentType="password" secureTextEntry={true}></TextInput>
+                        <TextInput autoCapitalize='none' placeholder="Cofirm Password" style={styles.ip} onChangeText={(text) => setConfirmPass(text)} textContentType="password" secureTextEntry={true}></TextInput>
+                    </View>
+                    <View style={styles.btn}>
+                        <TouchableOpacity>
+                            <Text style={{
+                                color: "#fff", fontWeight: "bold", textAlign: "center", paddingVertical: 15,
+                                paddingHorizontal: 118,
+                            }} onPress={doSignup}>GET STARTED</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={{ justifyContent: "center", alignItems: 'center' }}>
+                        <Text style={{ marginTop: 10 }}>Already have an account?
 
-                    <Text style={{ color: "#000", fontWeight: "bold", textDecorationLine: "underline" }} onPress={() => navigation.navigate('LoginScreen')}> LOGIN HERE</Text>
-                </Text>
-            </View>
-
-
-        </View>
+                            <Text style={{ color: "#000", fontWeight: "bold", textDecorationLine: "underline" }} onPress={() => navigation.navigate('LoginScreen')}> LOGIN HERE</Text>
+                        </Text>
+                    </View>
+                </View>
+            </KeyboardAvoidingView>
+        </ScrollView >
     )
 }
 
