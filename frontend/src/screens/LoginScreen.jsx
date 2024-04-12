@@ -1,9 +1,8 @@
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { useEffect, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useState } from 'react';
+
 import * as SecureStore from 'expo-secure-store';
-import axios from 'axios';
-import { BasicIP } from '../constant/Constants';
+import { login } from '../apis/Authencation';
 
 export default function LoginScreen({ navigation }) {
 
@@ -11,39 +10,25 @@ export default function LoginScreen({ navigation }) {
     const [password, setPassword] = useState('');
 
     const handleLogin = async () => {
-        // Kiểm tra đã nhâp password và email hay chưa 
-        if (email.length == 0) {
-            alert("Bạn hãy nhập email ");
-            return
-        }
-        if (8 > password.length && password > 32) {
-            alert("Mật khẩu phải nằm trong khoảng 8 - 32 kí tự");
-            return
-        }
         try {
-            const response = await fetch(`${BasicIP}/auth/authenticate`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password }),
-            });
-            const data = await response.json();
-
-            if (response.ok) {
-                // Save token to AsyncStorage or SecureStore
-                console.log("Ok");
-                await SecureStore.setItemAsync('token', data.token);
-                navigation.navigate('AboutScreen'); // Navigate to Home screen on successful login
-            } else {
-                // Handle error
-                alert('Login failed:' + data.errors[0]);
-                console.log(data.errors[0]);
+            // Kiểm tra đã nhâp password và email hay chưa 
+            if (email.length == 0) {
+                alert("Bạn hãy nhập email ");
+                return
             }
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    };
+            if (8 > password.length && password > 32) {
+                alert("Mật khẩu phải nằm trong khoảng 8 - 32 kí tự");
+                return
+            }
+                // Save token to AsyncStorage or SecureStore
+                token = await login(email, password);
+                await SecureStore.setItemAsync('token', token);
+                navigation.navigate('AboutScreen'); // Navigate to Home screen on successful login
+            } 
+            catch (error) {
+                console.error('Error:', error);
+            }
+    }
 
     return (
         <ScrollView style={{ flex: 1 }}>
@@ -72,7 +57,7 @@ export default function LoginScreen({ navigation }) {
             </KeyboardAvoidingView>
         </ScrollView >
     )
-}
+};
 
 const styles = StyleSheet.create({
     container: {

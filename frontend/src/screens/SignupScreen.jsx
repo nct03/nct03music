@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { BasicIP } from '../constant/Constants';
+import { signup } from '../apis/Authencation';
 
 export default function SignupScreen({ navigation }) {
     const [name, setName] = useState("");
@@ -8,50 +8,34 @@ export default function SignupScreen({ navigation }) {
     const [password, setPassword] = useState("");
     const [confimPass, setConfirmPass] = useState("");
 
-    const doSignup = () => {
-
-        if (name.length == 0) {
-            alert("Bạn hãy nhập tên của bạn");
-            return
+    const doSignup = async () => {
+        try {
+            if (name.length == 0) {
+                alert("Bạn hãy nhập tên của bạn");
+                return
+            }
+    
+            if (email.length == 0) {
+                alert("Bạn hãy nhập email ");
+                return
+            }
+    
+            if (8 > password.length && password > 32) {
+                alert("Mật khẩu phải nằm trong khoảng từ 8 - 32 kí tự");
+                return
+            }
+    
+            if (confimPass !== password) {
+                alert("Nhập lại mật khẩu không đúng")
+                return
+            }
+            await signup(name, email, password);
+            alert(`Chúc mừng bạn ${name} đã đăng kí thành công`)
+            navigation.navigate('AboutScreen')
+        } catch (err) {
+            alert(err.message);
         }
-
-        if (email.length == 0) {
-            alert("Bạn hãy nhập email ");
-            return
-        }
-
-        if (8 > password.length && password > 32) {
-            alert("Mật khẩu phải nằm trong khoảng từ 8 - 32 kí tự");
-            return
-        }
-
-        if (confimPass !== password) {
-            alert("Nhập lại mật khẩu không đúng")
-            return
-        }
-
-        let fomrData = {
-            name: name,
-            email: email,
-            password: password,
-        }
-
-        fetch(url = `${BasicIP}/auth/register`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(fomrData)
-        }).then((res) => {
-            alert(`Chúc mừng bạn ${name} đã đăng ký thành công`)
-            return res.json();
-        }).then(() => navigation.navigate('AboutScreen'))
-            .catch((err) => alert(err))
-    }
-
-    // useEffect(() => {
-    //     doSignup()
-    // }, [])
+    };
 
     return (
         <ScrollView style={{ flex: 1 }}>

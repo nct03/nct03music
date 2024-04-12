@@ -9,7 +9,6 @@ export default function AboutScreen({ navigation }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState('');
-  // const [noResults, setNoResults] = useState(false);
   const [singers, setSingers] = useState([]);
 
   useEffect(() => {
@@ -109,9 +108,9 @@ export default function AboutScreen({ navigation }) {
                   style={{ width: 100, height: 100, borderRadius: 10 }}
                 />
                 <View style={styles.childWrapper}>
-                  <Text style={styles.text}>{item.name}</Text>
-                  <Text style={styles.text}>{item.artists[0].name}</Text>
-                  <Text style={styles.text}>Ngày phát hành: {item.releasedOn}</Text>
+                  <Text style={{...styles.text, fontSize: 20}}>{item.name}</Text>
+                  <Text style={{...styles.text, opacity:0.6}}>{item.artists[0].name}</Text>
+                  <Text style={{...styles.text, opacity:0.6}}>Ngày phát hành: {item.releasedOn}</Text>
                 </View>
               </TouchableOpacity>
             ))}
@@ -130,8 +129,9 @@ const styles = StyleSheet.create({
   },
 
   container: {
+    padding:20,
     marginTop: 20,
-    width: 380,
+    width: 400,
     alignSelf: 'center',
   },
 
