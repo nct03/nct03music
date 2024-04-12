@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, TextInput, Button, Image, AsyncStorage, Alert } from 'react-native';
 
-const UserScreen = () => {
+const User = () => {
   const [token, setToken] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -58,30 +58,30 @@ const UserScreen = () => {
     }
   };
 
-  const changePassword = async () => {
-    try {
-      const response = await fetch('https://your-api-url/changePassword', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ newPassword: password }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        Alert.alert('Password changed successfully');
-      } else {
-        Alert.alert('Failed to change password', data.message);
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
+  // const changePassword = async () => {
+  //   try {
+  //     const response = await fetch('https://your-api-url/changePassword', {
+  //       method: 'PUT',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //       body: JSON.stringify({ newPassword: password }),
+  //     });
+  //     const data = await response.json();
+  //     if (response.ok) {
+  //       Alert.alert('Password changed successfully');
+  //     } else {
+  //       Alert.alert('Failed to change password', data.message);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error:', error);
+  //   }
+  // };
 
-  const changeAvatar = async () => {
-    // Implement logic to change avatar
-  };
+  // const changeAvatar = async () => {
+  //   // Implement logic to change avatar
+  // };
 
   return (
     <View>
@@ -111,4 +111,4 @@ const UserScreen = () => {
   );
 };
 
-export default UserScreen;
+export default User;
