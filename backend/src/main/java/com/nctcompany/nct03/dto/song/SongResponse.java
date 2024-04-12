@@ -19,5 +19,6 @@ public class SongResponse {
     private String url;
     private LocalDate releasedOn;
     private String genre;
+    private Integer numberLikes;
     private List<ArtistResponse> artists;
 }

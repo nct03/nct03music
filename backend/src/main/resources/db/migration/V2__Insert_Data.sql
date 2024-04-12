@@ -197,9 +197,12 @@ VALUES
 	(64,21),
 	(64,13);
 
-INSERT INTO users(name, email, password, role_id)
+INSERT INTO users(id, name, photo, email, password, role_id)
 VALUES
-    ("Tran Bao Minh", "minh@gmail.com", "$2a$10$L467UvjUkML/xLurSelhi.yKtXEthY3bFhAZI9e6jncWFsg.ZyBDq", 2);
+    (1, "Tran Bao Minh", "default.jpg", "minh@gmail.com", "$2a$10$L467UvjUkML/xLurSelhi.yKtXEthY3bFhAZI9e6jncWFsg.ZyBDq", 2),
+    (2, "Nguyen Van Binh", "default.jpg", "binh@gmail.com", "$2a$10$RgAG7tyb5MrArUNcRYUa0e.8VyA0yxSi40b3RkZq0JsEP1YavBeRG", 2),
+    (3, "Hanh", "default.jpg", "hanh@gmail.com", "$2a$10$NmktYiT8tbNr0gdyKNYgZu0YpdzcxjT/UMr7iSOjS01VnXhb44z9y", 2),
+    (4, "Thanh", "default.jpg", "thanh@gmail.com", "$2a$10$BNQczHJGU9P486Smd8PeEeVN8g0.PYyaYUR5wFZ4CHZyBevK8lwlq", 2);
 
 INSERT INTO playlists(id, name, user_id)
 VALUES
@@ -207,11 +210,13 @@ VALUES
 
 INSERT INTO playlist_songs(playlist_id, song_id)
 VALUES
+    (1, 6),
+    (1, 7),
+    (1, 8),
+    (1, 9),
     (1, 10),
+    (1, 11),
     (1, 12),
+    (1, 13),
     (1, 14),
-    (1, 16),
-    (1, 18),
-    (1, 20),
-    (1, 22),
-    (1, 24);
+    (1, 15);

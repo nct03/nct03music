@@ -6,7 +6,6 @@ import com.nctcompany.nct03.dto.song.SongResponse;
 import com.nctcompany.nct03.model.Artist;
 import com.nctcompany.nct03.model.Song;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +23,8 @@ public class SongMapper {
             artists.add(ArtistMapper.mapToResponse(artist));
         }
         songResponse.setArtists(artists);
+
+        songResponse.setNumberLikes(song.getLikedByUsers().size());
 
         String url = ApplicationConstants.APP_URL + "/songs/files/" + song.getFileName();
         songResponse.setUrl(url);

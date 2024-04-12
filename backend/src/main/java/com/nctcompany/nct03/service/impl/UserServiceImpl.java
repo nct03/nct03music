@@ -1,14 +1,20 @@
 package com.nctcompany.nct03.service.impl;
 
 import com.nctcompany.nct03.constant.ApplicationConstants;
+import com.nctcompany.nct03.dto.common.PageableResult;
 import com.nctcompany.nct03.dto.playlist.PlaylistResponse;
+import com.nctcompany.nct03.dto.song.SongResponse;
 import com.nctcompany.nct03.dto.user.ChangePasswordRequest;
 import com.nctcompany.nct03.dto.user.UpdateUserRequest;
 import com.nctcompany.nct03.dto.user.UserResponse;
 import com.nctcompany.nct03.exception.BadRequestException;
+import com.nctcompany.nct03.exception.ResourceNotFoundException;
 import com.nctcompany.nct03.mapper.PlaylistMapper;
+import com.nctcompany.nct03.mapper.SongMapper;
 import com.nctcompany.nct03.mapper.UserMapper;
+import com.nctcompany.nct03.model.Song;
 import com.nctcompany.nct03.model.User;
+import com.nctcompany.nct03.repository.SongRepository;
 import com.nctcompany.nct03.repository.UserRepository;
 import com.nctcompany.nct03.service.UserService;
 import com.nctcompany.nct03.util.FileUploadUtil;
@@ -21,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,6 +38,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final PlaylistMapper playlistMapper;
+    private final SongRepository songRepository;
 
     @Override
     public UserResponse getUserProfile(Principal loggedUser) {
@@ -83,5 +91,57 @@ public class UserServiceImpl implements UserService {
         return user.getPlaylists().stream()
                 .map(playlistMapper::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void likesSong(User loggedUser, Long songId) {
+        Song song = songRepository.findById(songId)
+                .orElseThrow(() -> new ResourceNotFoundException("Song with id=[%s] not found".formatted(songId)));
+        if (loggedUser.getLikedSongs().contains(song)){
+            throw new BadRequestException("You already like this song");
+        }
+        loggedUser.getLikedSongs().add(song);
+        userRepository.save(loggedUser);
+    }
+
+    @Override
+    public void unlikeSong(User loggedUser, Long songId) {
+        Song song = songRepository.findById(songId)
+                .orElseThrow(() -> new ResourceNotFoundException("Song with id=[%s] not found".formatted(songId)));
+        if (!loggedUser.getLikedSongs().contains(song)){
+            throw new BadRequestException("You don't like this song");
+        }
+        loggedUser.getLikedSongs().remove(song);
+        userRepository.save(loggedUser);
+    }
+
+    @Override
+    public boolean isUserLikeSong(User loggedUser, Long songId) {
+        return loggedUser.getLikedSongs().stream()
+                .filter(s -> s.getId().equals(songId))
+                .findFirst()
+                .isPresent();
+    }
+
+    @Override
+    public PageableResult<SongResponse> getFavoriteSongs(User loggedUser, Integer pageNum, Integer pageSize) {
+        List<SongResponse> songResponses = loggedUser.getLikedSongs().stream()
+                .map(SongMapper::mapToSongResponse)
+                .collect(Collectors.toList());
+
+        Collections.reverse(songResponses);
+
+        int totalItems = songResponses.size();
+        int totalPages = (int) Math.ceil((double) totalItems / pageSize);
+        int fromIndex = (pageNum - 1) * pageSize;
+        int toIndex = Math.min(fromIndex + pageSize, totalItems);
+
+        return PageableResult.<SongResponse>builder()
+                .items(songResponses.subList(fromIndex, toIndex))
+                .pageNum(pageNum)
+                .pageSize(pageSize)
+                .totalItems(totalItems)
+                .totalPages(totalPages)
+                .build();
     }
 }

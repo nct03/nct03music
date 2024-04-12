@@ -34,13 +34,21 @@ public class Song {
     @JoinColumn(name="genre_id", referencedColumnName = "id")
     private Genre genre;
 
-    @ManyToMany
+    @ManyToMany(
+            fetch = FetchType.EAGER
+    )
     @JoinTable(
             name = "artist_songs",
             joinColumns = @JoinColumn(name = "song_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "artist_id", referencedColumnName = "id")
     )
     private List<Artist> artists = new ArrayList<>();
+
+    @ManyToMany(
+            fetch = FetchType.EAGER,
+            mappedBy = "likedSongs"
+    )
+    private List<User> likedByUsers = new ArrayList<>();
 
     @Override
     public boolean equals(Object o) {

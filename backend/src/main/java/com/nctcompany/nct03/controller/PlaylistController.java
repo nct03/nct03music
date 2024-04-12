@@ -72,15 +72,15 @@ public class PlaylistController {
             summary = "Check song in playlist"
     )
     @GetMapping("/{playlistId}/songs/{songId}")
-    public ResponseEntity<String> checkSongInPlaylist(
+    public ResponseEntity<Boolean> checkSongInPlaylist(
             @PathVariable Long playlistId,
             @PathVariable Long songId
     ) {
         boolean songInPlaylist = playlistService.isSongInPlaylist(playlistId, songId);
         if (songInPlaylist) {
-            return ResponseEntity.ok("Song is in the playlist.");
+            return ResponseEntity.ok(true);
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Song is not in the playlist.");
+            return ResponseEntity.ok(false);
         }
     }
 
