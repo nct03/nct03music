@@ -8,7 +8,6 @@ export default function AboutScreen({ navigation }) {
   const [musicList, setMusicList] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState('');
   const [singers, setSingers] = useState([]);
 
   useEffect(() => {
