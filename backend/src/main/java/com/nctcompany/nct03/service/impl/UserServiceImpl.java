@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
 
         if (request.getPhotoFile() != null && !request.getPhotoFile().isEmpty()){
             if (!FileUploadUtil.checkUploadImageTypeFile(request.getPhotoFile())){
-                throw new BadRequestException("Please provide the song image in JPG/PNG format");
+                throw new BadRequestException("Please provide the user image in JPG/PNG format");
             }
             if (!(user.getPhoto() == null) && !user.getPhoto().equals(ApplicationConstants.DEFAULT_IMAGE)){
                 FileUploadUtil.deleteImage(ApplicationConstants.USERS_FOLDER, user.getPhoto());

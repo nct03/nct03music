@@ -77,7 +77,7 @@ public class UserController {
     @Operation(
             summary = "Update username or photo"
     )
-    @PatchMapping("/profile/update")
+    @PatchMapping(value = "/profile/update", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<UserResponse> updateProfile(
             @Valid @ModelAttribute UpdateUserRequest request,
             Principal loggedUser
