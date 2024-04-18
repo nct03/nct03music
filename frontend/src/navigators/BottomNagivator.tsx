@@ -1,6 +1,6 @@
 // import { View ,StyleSheet} from 'react-native';
 import { Ionicons, Feather, MaterialIcons, AntDesign } from '@expo/vector-icons';
-import { HomeScreen, LoginScreen, SignupScreen, Player, Favorite, User, AboutScreen, SearchResultScreen } from '../screens'
+import { HomeScreen, LoginScreen, SignupScreen, Player, Favorite, User, AboutScreen, SearchResultScreen, SongScreen } from '../screens'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from '@react-navigation/native';
@@ -49,6 +49,7 @@ const AboutNavigator = () => {
                 <Stack.Screen name="SignupScreen" component={SignupScreen} options={{ title: 'Sign Up' }} />
                 <Stack.Screen name="SearchResultScreen" component={SearchResultScreen}/>
                 <Stack.Screen name="AboutScreen" component={BottomNavigator} options={{ title: 'Trang chủ' }} /> 
+                <Stack.Screen name="SongScreen" component={SongScreen}/>
             </Stack.Navigator>
         </NavigationContainer>
     );

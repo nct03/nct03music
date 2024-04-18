@@ -10,10 +10,12 @@ import {
   Button,
   Platform,
 } from 'react-native'
-import { Ionicons } from '@expo/vector-icons'
-import * as SecureStore from 'expo-secure-store'
-import * as ImagePicker from 'expo-image-picker'
-import { BasicIP } from '../constant/Constants'
+import { FontAwesome } from '@expo/vector-icons';
+import * as SecureStore from 'expo-secure-store';
+import * as ImagePicker from 'expo-image-picker';
+import { BasicIP } from '../constant/Constants';
+import { checkToken } from '../apis/About';
+import { fetchUserData, changePassword, updateProfile } from '../apis/UserApi';
 
 const User = ({ navigation }) => {
   const [token, setToken] = useState('')
@@ -34,7 +36,7 @@ const User = ({ navigation }) => {
 
   const fetchUserData = async () => {
     try {
-      const token = await SecureStore.getItemAsync('token')
+      const token = await checkToken();
       if (token) {
         setToken(token)
 
@@ -64,7 +66,7 @@ const User = ({ navigation }) => {
       }
 
       // Gọi API để xác nhận mật khẩu cũ và cập nhật mật khẩu mới
-      const token = await SecureStore.getItemAsync('token')
+      const token = await checkToken();
       const response = await fetch(`${BasicIP}/users/change-password`, {
         method: 'PATCH',
         headers: {
@@ -95,12 +97,8 @@ const User = ({ navigation }) => {
     }
   }
 
-  const handleIsChangePassword = async () => {
-    setIsChangePassword(true)
-  }
-
   const updateUserProfile = async () => {
-    const token = await SecureStore.getItemAsync('token')
+    const token = await checkToken();
     try {
       const formData = new FormData()
 
@@ -126,10 +124,16 @@ const User = ({ navigation }) => {
       })
 
       console.log('Profile updated successfully')
+      fetchUserData()
+      setIsEditingProfile(false)
     } catch (error) {
       console.error('Error updating profile:', error)
     }
   }
+  const handleIsChangePassword = async () => {
+    setIsChangePassword(true)
+  }
+
 
   const handleImageSelection = async () => {
     try {
@@ -162,7 +166,8 @@ const User = ({ navigation }) => {
   }
 
   const handleEditProfile = async () => {
-    setIsEditingProfile(true) // Enable editing again
+    setIsEditingProfile(true)
+    setPhoto(null)
   }
 
   const handleLogout = async () => {
@@ -172,14 +177,13 @@ const User = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* <FontAwesome name="pencil-square-o" size={24} color="#fff" /> */}
-
       {isEditingProfile ? (
         <View
           style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
         >
           <TextInput
-            placeholder="Enter your name"
+            placeholder="Nhập tên nếu bạn muốn thay đổi..."
+            placeholderTextColor={"#fff"}
             value={newName}
             onChangeText={setNewName}
             style={{
@@ -192,15 +196,24 @@ const User = ({ navigation }) => {
               color: '#fff',
             }}
           />
-          {photo && (
+          {photo ? (
             <Image
               source={{ uri: photo.uri }}
               style={{ width: 200, height: 200, marginBottom: 20 }}
             />
+          ) : (
+            <View>
+              <TouchableOpacity style={{ marginLeft: 180}} onPress={handleImageSelection}>
+                <FontAwesome name="pencil-square-o" size={24} color="#fff" paddingTop= {20}/>
+              </TouchableOpacity>
+              <Image
+                source={{ uri: avatar }}
+                style={{ width: 200, height: 200, marginBottom: 20 }}
+              />
+            </View>
           )}
-          <Button title="Select Photo" onPress={handleImageSelection} />
           <Button
-            title="Update Profile"
+            title="Cập nhật hồ sơ cá nhân"
             onPress={() => updateUserProfile()}
             disabled={!newName && !photo}
           />
@@ -235,24 +248,7 @@ const User = ({ navigation }) => {
       )}
       {isChangePassword ? (
         <View>
-          <View style={styles.wrapper}>
-            <Image
-              source={{ uri: avatar }}
-              style={{ width: 100, height: 100, borderRadius: 10 }}
-            />
-
-            <View style={{ flexDirection: 'column' }}>
-              <Text style={{ ...styles.text, fontSize: 20, paddingTop: 4 }}>
-                {name}
-              </Text>
-
-              <Text style={{ ...styles.text, opacity: 0.6, paddingTop: 4 }}>
-                {email}
-              </Text>
-            </View>
-          </View>
           <View style={{ flexDirection: 'column', marginTop: 10 }}>
-            {/* <Text style={styles.label}>Mật khẩu cũ: </Text> */}
             <TextInput
               style={styles.input}
               placeholder="Nhập mật khẩu cũ"
@@ -261,7 +257,6 @@ const User = ({ navigation }) => {
               onChangeText={setOldPassword}
               secureTextEntry
             />
-            {/* <Text style={styles.label}>Mật khẩu mới</Text> */}
             <TextInput
               style={styles.input}
               placeholder="Nhập mật khẩu mới"
@@ -270,7 +265,6 @@ const User = ({ navigation }) => {
               onChangeText={setNewPassword}
               secureTextEntry
             />
-            {/* <Text style={styles.label}>Xác nhận mật khẩu mới</Text> */}
             <TextInput
               style={styles.input}
               placeholder="Xác nhận mật khẩu mới"

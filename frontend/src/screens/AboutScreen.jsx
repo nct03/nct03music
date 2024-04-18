@@ -77,9 +77,7 @@ export default function AboutScreen({ navigation }) {
 
         <View>
 
-          <TouchableOpacity>
-            <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold", marginTop: 10 }}> Thể loại: </Text>
-          </TouchableOpacity>
+          <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold", marginTop: 10 }}> Thể loại: </Text>
 
           <TouchableOpacity>
             <Text style={{ color: "#fff", margin: 10 }}>Rock</Text>
