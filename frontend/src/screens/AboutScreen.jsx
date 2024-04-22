@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { StyleSheet, View, Text, Image, FlatList, TextInput, TouchableOpacity, ScrollView } from "react-native";
 import { EvilIcons } from '@expo/vector-icons';
-import { fetchMusicList, fetchSingers, searchSongs, searchArtists} from "../apis/About";
-import { getSongsOfArtist } from "../apis/MusicApi";
+import { fetchMusicList, fetchSingers, searchSongs, searchArtists, fetchGenres } from "../apis/About";
+import { getSongsOfArtist, getSongsOfGenre } from "../apis/MusicApi";
 
 
 export default function AboutScreen({ navigation }) {
@@ -10,6 +10,7 @@ export default function AboutScreen({ navigation }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [singers, setSingers] = useState([]);
+  const [genres, setGenres] = useState([])
 
   useEffect(() => {
     fetchInitialData();
@@ -19,8 +20,10 @@ export default function AboutScreen({ navigation }) {
     try {
       const singersData = await fetchSingers();
       const musicListData = await fetchMusicList();
+      const genresData = await fetchGenres();
       setSingers(singersData);
       setMusicList(musicListData);
+      setGenres(genresData);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching initial data:', error.message);
@@ -39,14 +42,25 @@ export default function AboutScreen({ navigation }) {
 
   const handleGetSongsOfArtist = async (id) => {
     try {
-        const songResults = await getSongsOfArtist(id)
-        const favoriteSongs = songResults.items
-        navigation.navigate('SongScreen', { favoriteSongs });
+      const songResults = await getSongsOfArtist(id)
+      const favoriteSongs = songResults.items
+      navigation.navigate('SongScreen', { favoriteSongs });
     }
     catch (error) {
-        console.error(error.message)
+      console.error(error.message)
     }
-} 
+  }
+
+  const handleGetSongsOfGenre = async (id) => {
+    try {
+      const songResults = await getSongsOfArtist(id)
+      const favoriteSongs = songResults.items
+      navigation.navigate('SongScreen', { favoriteSongs });
+    }
+    catch (error) {
+      console.error(error.message)
+    }
+  }
 
   const handleSongPress = (songData) => {
     navigation.navigate('Player', { songData });
@@ -57,29 +71,29 @@ export default function AboutScreen({ navigation }) {
 
       <View style={styles.container}>
 
-      <View >
-        <View style={{ flexDirection: "row", borderColor: "#fff", borderWidth: 1, borderRadius: 20, width: 360, alignSelf: "center" }}>
-          <TouchableOpacity onPress={handleSearch}>
-            <EvilIcons name="search" size={28} color="#fff" padding={10} />
-          </TouchableOpacity>
-          <TextInput
-            autoCapitalize='none'
-            placeholder="Search songs or artists"
-            placeholderTextColor="#fff"
-            style={{ padding: 10, paddingLeft: -5, color: "#fff" }}
-            value={searchTerm}
-            onChangeText={setSearchTerm}
-          />
+        <View >
+          <View style={{ flexDirection: "row", borderColor: "#fff", borderWidth: 1, borderRadius: 20, width: 360, alignSelf: "center" }}>
+            <TouchableOpacity onPress={handleSearch}>
+              <EvilIcons name="search" size={28} color="#fff" padding={10} />
+            </TouchableOpacity>
+            <TextInput
+              autoCapitalize='none'
+              placeholder="Search songs or artists"
+              placeholderTextColor="#fff"
+              style={{ padding: 10, paddingLeft: -5, color: "#fff" }}
+              value={searchTerm}
+              onChangeText={setSearchTerm}
+            />
+          </View>
         </View>
-      </View>
 
-        <View style={styles.artist}>
-          <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold" }}> Nghệ sĩ tiêu biểu: </Text>
+        <View style={styles.title}>
+          <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold" }}> Nghệ sĩ tiêu biểu </Text>
           <FlatList
             horizontal
             data={singers.items}
             renderItem={({ item }) => (
-              <TouchableOpacity style={{ ...styles.wrapperCol, alignItems: "center" }} onPress={() =>handleGetSongsOfArtist(item.id)}>
+              <TouchableOpacity style={{alignItems: "center"}} onPress={() => handleGetSongsOfArtist(item.id)}>
                 <Image
                   source={{ uri: item.photo }}
                   style={{ width: 100, height: 100, borderRadius: 10, margin: 10 }}
@@ -91,43 +105,42 @@ export default function AboutScreen({ navigation }) {
           />
         </View>
 
-        <View>
+        <View style={styles.title}>
 
-          <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold", marginTop: 10 }}> Thể loại: </Text>
+          <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold", marginTop: 10 }}> Thể loại </Text>
 
-          <TouchableOpacity>
-            <Text style={{ color: "#fff", margin: 10 }}>Rock</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity>
-            <Text style={{ color: "#fff", margin: 10 }}>Pop</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity>
-            <Text style={{ color: "#fff", margin: 10 }}>US - UK</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity>
-            <Text style={{ color: "#fff", margin: 10 }}>Jazz</Text>
-          </TouchableOpacity>
+          <FlatList
+            horizontal
+            data={genres}
+            renderItem={({ item }) => (
+              <TouchableOpacity style={{alignItems: "center"}} onPress={() => handleGetSongsOfGenre(item.id)}>
+                <Image
+                  source={require('../assets/TheLoai.png')}
+                  style={{ width: 100, height: 100, borderRadius: 10, margin: 10 }}
+                />
+                <Text style={{ ...styles.text, position: "absolute",fontSize: 16, fontWeight:"bold", marginTop:70}}>{item.name}</Text>
+              </TouchableOpacity>
+            )}
+            keyExtractor={(item) => item.id.toString()}
+          />
         </View>
 
-        <View style={styles.recentlyRelease}>
-        <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold" }}> Top bảng xếp hạng được ưa thích: </Text>
-        {musicList.map((item, index) => (
-              <TouchableOpacity key={index} style={styles.wrapper} onPress={() => handleSongPress(item)} >
-                <Image
-                  source={{ uri: item.imagePath }}
-                  style={{ width: 100, height: 100, borderRadius: 10 }}
-                />
-                <View style={styles.childWrapper}>
-                  <Text style={{...styles.text, fontSize: 20}}>{item.name}</Text>
-                  <Text style={{...styles.text, opacity:0.6}}>{item.artists[0].name}</Text>
-                  <Text style={{...styles.text, opacity:0.6}}>Ngày phát hành: {item.releasedOn}</Text>
-                </View>
-              </TouchableOpacity>
-            ))}
-      </View>
+        <View style={styles.title}>
+          <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold" }}> Top bảng xếp hạng được ưa thích </Text>
+          {musicList.map((item, index) => (
+            <TouchableOpacity key={index} style={styles.wrapper} onPress={() => handleSongPress(item)} >
+              <Image
+                source={{ uri: item.imagePath }}
+                style={{ width: 100, height: 100, borderRadius: 10 }}
+              />
+              <View style={styles.childWrapper}>
+                <Text style={{ ...styles.text, fontSize: 20 }}>{item.name}</Text>
+                <Text style={{ ...styles.text, opacity: 0.6 }}>{item.artists[0].name}</Text>
+                <Text style={{ ...styles.text, opacity: 0.6 }}>Ngày phát hành: {item.releasedOn}</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
 
       </View>
 
@@ -143,8 +156,7 @@ const styles = StyleSheet.create({
   },
 
   container: {
-    padding:20,
-    marginTop: 20,
+    padding: 20,
     width: 400,
     alignSelf: 'center',
   },
@@ -154,15 +166,11 @@ const styles = StyleSheet.create({
     maxHeight: 200,
   },
 
-  artist: {
-    marginTop: 10
-  },
-
   wrapperCol: {
     flexDirection: "column"
   },
 
-  recentlyRelease: {
+  title: {
     marginTop: 20,
   }
   , wrapper: {

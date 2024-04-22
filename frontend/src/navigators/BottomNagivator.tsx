@@ -13,9 +13,11 @@ export const BottomNavigator = () => {
             screenOptions={{
                 headerShown: false,
                 tabBarStyle: {
-                    backgroundColor: '#0A071E',
-                    justifyContent: 'center',
-                    alignItems: 'center',
+                    backgroundColor: '#000',
+                    position:"absolute",
+                    borderTopLeftRadius: 20,
+                    borderTopRightRadius:20,
+                    borderTopWidth:0,
                 }
             }}
             >

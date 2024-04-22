@@ -42,6 +42,22 @@ export const fetchMusicList = async () => {
     throw new Error('Error fetching recently released songs: ' + error.message);
   }
 };
+
+export const fetchGenres = async () => {
+  try {
+    const token = await checkToken();
+    const response = await fetch(`${BasicIP}/genres`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    throw new Error('Error fetching recently released songs: ' + error.message);
+  }
+};
+
 export const searchSongs = async (keyword) => {
     try {
       const token = await checkToken();

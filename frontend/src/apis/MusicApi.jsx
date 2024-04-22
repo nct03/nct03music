@@ -96,3 +96,19 @@ export const getSongsOfArtist = async (id) => {
         console.error(err) 
     }
 }
+
+export const getSongsOfGenre = async (id) => {
+    try {
+        const token = await checkToken();
+        const response = await fetch(`${BasicIP}/genres/${id}/songs`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        const data = response.json()
+        return data
+    } catch (err) {
+        console.error(err) 
+    }
+}
