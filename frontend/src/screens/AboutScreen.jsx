@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { StyleSheet, View, Text, Image, FlatList, TextInput, TouchableOpacity, ScrollView } from "react-native";
 import { EvilIcons } from '@expo/vector-icons';
 import { fetchMusicList, fetchSingers, searchSongs, searchArtists} from "../apis/About";
+import { getSongsOfArtist } from "../apis/MusicApi";
 
 
 export default function AboutScreen({ navigation }) {
@@ -36,6 +37,21 @@ export default function AboutScreen({ navigation }) {
     }
   };
 
+  const handleGetSongsOfArtist = async (id) => {
+    try {
+        const songResults = await getSongsOfArtist(id)
+        const favoriteSongs = songResults.items
+        navigation.navigate('SongScreen', { favoriteSongs });
+    }
+    catch (error) {
+        console.error(error.message)
+    }
+} 
+
+  const handleSongPress = (songData) => {
+    navigation.navigate('Player', { songData });
+  };
+
   return (
     <ScrollView style={styles.background} >
 
@@ -63,7 +79,7 @@ export default function AboutScreen({ navigation }) {
             horizontal
             data={singers.items}
             renderItem={({ item }) => (
-              <TouchableOpacity style={{ ...styles.wrapperCol, alignItems: "center" }}>
+              <TouchableOpacity style={{ ...styles.wrapperCol, alignItems: "center" }} onPress={() =>handleGetSongsOfArtist(item.id)}>
                 <Image
                   source={{ uri: item.photo }}
                   style={{ width: 100, height: 100, borderRadius: 10, margin: 10 }}
@@ -99,7 +115,7 @@ export default function AboutScreen({ navigation }) {
         <View style={styles.recentlyRelease}>
         <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold" }}> Top bảng xếp hạng được ưa thích: </Text>
         {musicList.map((item, index) => (
-              <TouchableOpacity key={index} style={styles.wrapper}>
+              <TouchableOpacity key={index} style={styles.wrapper} onPress={() => handleSongPress(item)} >
                 <Image
                   source={{ uri: item.imagePath }}
                   style={{ width: 100, height: 100, borderRadius: 10 }}
@@ -122,7 +138,8 @@ export default function AboutScreen({ navigation }) {
 const styles = StyleSheet.create({
 
   background: {
-    backgroundColor: "#0A071E"
+    backgroundColor: "#0A071E",
+    marginTop: "6%"
   },
 
   container: {

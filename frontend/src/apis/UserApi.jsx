@@ -1,6 +1,7 @@
 import * as SecureStore from 'expo-secure-store';
 import { BasicIP } from '../constant/Constants';
 
+
 export const fetchUserData = async () => {
   try {
     const token = await SecureStore.getItemAsync('token');

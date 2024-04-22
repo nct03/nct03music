@@ -155,7 +155,7 @@ const User = ({ navigation }) => {
       if (!result.cancelled && result.assets.length > 0) {
         const selectedImage = result.assets[0]
         // console.log('Selected image URI:', selectedImage.uri)
-        console.log(selectedImage)
+        // console.log(selectedImage)
         setPhoto(selectedImage)
       } else {
         console.log('Image selection cancelled or URI is undefined')
@@ -184,8 +184,8 @@ const User = ({ navigation }) => {
           <TextInput
             placeholder="Nhập tên nếu bạn muốn thay đổi..."
             placeholderTextColor={"#fff"}
-            value={newName}
-            onChangeText={setNewName}
+            // value={newName}
+            onChangeText={(text) => setNewName(text)}
             style={{
               marginBottom: 20,
               padding: 10,
@@ -253,24 +253,23 @@ const User = ({ navigation }) => {
               style={styles.input}
               placeholder="Nhập mật khẩu cũ"
               placeholderTextColor="#fff"
-              value={oldPassword}
-              onChangeText={setOldPassword}
+              onChangeText={(text)=>setOldPassword(text)}
               secureTextEntry
             />
             <TextInput
               style={styles.input}
               placeholder="Nhập mật khẩu mới"
               placeholderTextColor="#fff"
-              value={newPassword}
-              onChangeText={setNewPassword}
+              // value={newPassword}
+              onChangeText={(text)=>setNewPassword(text)}
               secureTextEntry
             />
             <TextInput
               style={styles.input}
               placeholder="Xác nhận mật khẩu mới"
               placeholderTextColor="#fff"
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
+              // value={confirmPassword}
+              onChangeText={(text)=>setConfirmPassword(text)}
               secureTextEntry
             />
             <TouchableOpacity onPress={() => setIsChangePassword(false)}>
@@ -304,6 +303,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#0A071E',
     padding: 20,
+    marginTop: "6%",
   },
   wrapper: {
     flexDirection: 'row',

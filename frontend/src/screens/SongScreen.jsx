@@ -29,6 +29,7 @@ const styles = StyleSheet.create({
       backgroundColor: "#0A071E",
       flex: 1,
       padding: 20,
+      marginTop: "6%",
     },
     section: {
       marginBottom: 20,
@@ -53,7 +54,8 @@ const styles = StyleSheet.create({
     },
     text: {
       fontSize: 16,
-      color: "#fff"
+      color: "#fff",
+      padding: 10,
     },
   });
   

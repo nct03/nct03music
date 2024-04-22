@@ -27,7 +27,7 @@ export default function Playlist({ navigation }) {
             // Gọi hàm API để xóa album
             await deletePlaylistAlbum(id)
         } catch (error) {
-            throw error
+            console.error(error.message) 
         } finally {
             fetchInitialData()
         }
@@ -43,152 +43,155 @@ export default function Playlist({ navigation }) {
             fetchInitialData()
             setIsModalVisible(false)
         } catch (err) {
+            console.error(err.message)
         }
     }
 
-    const handleGetFavoriteSongs = async() => {
+    const handleGetFavoriteSongs = async () => {
         try {
             const songResults = await getFavoriteSongs();
             const favoriteSongs = songResults.items
-            navigation.navigate('SongScreen', {favoriteSongs});
-          } catch (error) {
+            navigation.navigate('SongScreen', { favoriteSongs });
+        } catch (error) {
             console.error('Error searching:', error.message);
-          }
+        }
     }
-    // const handleGetSongsInList = async (id) => {
-    //     try {
-    //         await getSongsInPlaylist(id)
-    //         navigation.navigate('S')
 
-    //     }
-    //     catch (error) {
-    //         throw error
-    // }
+    const handleGetSongsInList = async (id) => {
+        try {
+            const songResults = await getSongsInPlaylist(id)
+            const favoriteSongs = songResults.items
+            navigation.navigate('SongScreen', { favoriteSongs });
+        }
+        catch (error) {
+            console.error(error.message)
+        }
+    } 
 
-    return (
-        <ScrollView style={styles.container}>
-            <Text style={styles.title}>
-                Danh sách album đã lưu
-            </Text>
-            <TouchableOpacity style={{ flexDirection: "row" }} onPress={() => setIsModalVisible(true)}>
-                <Image
-                    source={require('../assets/musicAlbum.jpg')}
-                    style={{ width: 100, height: 100, borderRadius: 10, margin: 10, opacity: 0.4 }}
-                />
-                <Text style={{ ...styles.text, fontSize: 20, alignSelf: "center" }}>Tạo danh sách mới</Text>
-            </TouchableOpacity>
-            <View style={styles.centeredView}>
-                <Modal
-                    visible={isModalVisible}
-                    onRequestClose={() => setIsModalVisible(false)}
-                    animationType="fade"
-                >
-                    <View style={styles.modalView}>
-                        <TextInput
-                            placeholder="Tên album mới..."
-                            value={albumName}
-                            onChangeText={setAlbumName}
-                            style={{
-                                marginBottom: 20,
-                                padding: 10,
-                                borderWidth: 1,
-                                borderColor: '#fff',
-                                borderRadius: 5,
-                                width: 300,
-                            }} />
-                        <Pressable
-                            onPress={handleCreatePlayListAlbum}>
-                            <Text style={{
-                                ...styles.button,
-                                color: "#fff",
-                                paddingHorizontal: 20,
-                                paddingVertical: 10,
-                                fontWeight: "bold"
-                            }}>Xác nhận</Text>
-                        </Pressable>
-                        <Pressable
-                            onPress={() => setIsModalVisible(false)}>
-                            <Text style={{
-                                ...styles.button,
-                                color: "#fff",
-                                paddingHorizontal: 36,
-                                paddingVertical: 10,
-                                fontWeight: "bold"
-                            }}>Hủy</Text>
-                        </Pressable>
-                    </View>
-                </Modal>
-            </View>
-            <View style={{ flexDirection: "row" }}>
-                <TouchableOpacity
-                    style={{ flexDirection: "row", width: "60%" }}
-                    onPress={handleGetFavoriteSongs}
-                >
+        return (
+            <ScrollView style={styles.container}>
+                <Text style={styles.title}>
+                    Danh sách album đã lưu
+                </Text>
+                <TouchableOpacity style={{ flexDirection: "row" }} onPress={() => setIsModalVisible(true)}>
                     <Image
-                        source={require('../assets/FavoriteAlbum.png')}
-                        style={{ width: 100, height: 100, borderRadius: 10, margin: 10 }}
+                        source={require('../assets/musicAlbum.jpg')}
+                        style={{ width: 100, height: 100, borderRadius: 10, margin: 10, opacity: 0.4 }}
                     />
-                    <Text style={{ ...styles.text, fontSize: 20, alignSelf: "center" }}>Danh sách bài hát yêu thích</Text>
+                    <Text style={{ ...styles.text, fontSize: 20, alignSelf: "center" }}>Tạo danh sách mới</Text>
                 </TouchableOpacity>
-            </View>
-            {albums.map((item) => (
+                <View style={styles.centeredView}>
+                    <Modal
+                        visible={isModalVisible}
+                        onRequestClose={() => setIsModalVisible(false)}
+                        animationType="fade"
+                    >
+                        <View style={styles.modalView}>
+                            <TextInput
+                                placeholder="Tên album mới..."
+                                onChangeText={(text) => setAlbumName(text)}
+                                style={{
+                                    marginBottom: 20,
+                                    padding: 10,
+                                    borderWidth: 1,
+                                    borderColor: '#fff',
+                                    borderRadius: 5,
+                                    width: 300,
+                                }} />
+                            <Pressable
+                                onPress={handleCreatePlayListAlbum}>
+                                <Text style={{
+                                    ...styles.button,
+                                    color: "#fff",
+                                    paddingHorizontal: 20,
+                                    paddingVertical: 10,
+                                    fontWeight: "bold"
+                                }}>Xác nhận</Text>
+                            </Pressable>
+                            <Pressable
+                                onPress={() => setIsModalVisible(false)}>
+                                <Text style={{
+                                    ...styles.button,
+                                    color: "#fff",
+                                    paddingHorizontal: 36,
+                                    paddingVertical: 10,
+                                    fontWeight: "bold"
+                                }}>Hủy</Text>
+                            </Pressable>
+                        </View>
+                    </Modal>
+                </View>
                 <View style={{ flexDirection: "row" }}>
                     <TouchableOpacity
                         style={{ flexDirection: "row", width: "60%" }}
-                        key={item.id}
+                        onPress={handleGetFavoriteSongs}
                     >
                         <Image
-                            source={require('../assets/musicAlbum.jpg')}
+                            source={require('../assets/FavoriteAlbum.png')}
                             style={{ width: 100, height: 100, borderRadius: 10, margin: 10 }}
                         />
-                        <Text style={{ ...styles.text, fontSize: 20, alignSelf: "center" }}>{item.name}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={{ marginLeft: "30%", marginTop: "10%" }} onPress={() => handleRemoveAlbum(item.id)} >
-                        <FontAwesome name="remove" size={24} color="#fff" />
+                        <Text style={{ ...styles.text, fontSize: 20, alignSelf: "center" }}>Danh sách bài hát yêu thích</Text>
                     </TouchableOpacity>
                 </View>
-            ))}
-        </ScrollView>
-    )
-}
-
-const styles = StyleSheet.create({
-    container: {
-        backgroundColor: "#0A071E",
-        flex: 1,
-        padding: 20,
-    },
-    modalView: {
-        marginTop: "80%",
-        alignSelf: "center",
-        justifyContent: "center",
-        backgroundColor: 'white',
-        borderRadius: 20,
-        padding: 35,
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
-    },
-    button: {
-        alignSelf: "center",
-        borderRadius: 4,
-        marginBottom: 10,
-        backgroundColor: '#2196F3',
-    },
-    title: {
-        fontSize: 20,
-        fontWeight: "bold",
-        marginBottom: 10,
-        color: "#fff"
-    },
-    text: {
-        color: "#fff"
-
+                {albums.map((item) => (
+                    <View key={item.id} style={{ flexDirection: "row" }}>
+                        <TouchableOpacity
+                            style={{ flexDirection: "row", width: "60%" }}
+                            onPress={() =>handleGetSongsInList (item.id)}
+                        >
+                            <Image
+                                source={require('../assets/musicAlbum.jpg')}
+                                style={{ width: 100, height: 100, borderRadius: 10, margin: 10 }}
+                            />
+                            <Text style={{ ...styles.text, fontSize: 20, alignSelf: "center" }}>{item.name}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{ marginLeft: "30%", marginTop: "10%" }} onPress={() => handleRemoveAlbum(item.id)} >
+                            <FontAwesome name="remove" size={24} color="#fff" />
+                        </TouchableOpacity>
+                    </View>
+                ))}
+            </ScrollView>
+        )
     }
-})
+
+    const styles = StyleSheet.create({
+        container: {
+            backgroundColor: "#0A071E",
+            flex: 1,
+            padding: 20,
+            marginTop: "6%",
+        },
+        modalView: {
+            marginTop: "80%",
+            alignSelf: "center",
+            justifyContent: "center",
+            backgroundColor: 'white',
+            borderRadius: 20,
+            padding: 35,
+            alignItems: 'center',
+            shadowColor: '#000',
+            shadowOffset: {
+                width: 0,
+                height: 2,
+            },
+            shadowOpacity: 0.25,
+            shadowRadius: 4,
+            elevation: 5,
+        },
+        button: {
+            alignSelf: "center",
+            borderRadius: 4,
+            marginBottom: 10,
+            backgroundColor: '#2196F3',
+        },
+        title: {
+            fontSize: 20,
+            fontWeight: "bold",
+            marginBottom: 10,
+            color: "#fff"
+        },
+        text: {
+            color: "#fff"
+
+        }
+    })

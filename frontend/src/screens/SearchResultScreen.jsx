@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { StyleSheet, View, Text, Image, TextInput, TouchableOpacity, ScrollView } from "react-native";
 import { searchArtists, searchSongs } from "../apis/About";
 import { EvilIcons, Ionicons } from '@expo/vector-icons';
+import { getSongsOfArtist } from "../apis/MusicApi";
 
 const SearchResultScreen = ({ route, navigation }) => {
   const { songResults, artistResults } = route.params;
@@ -24,6 +25,17 @@ const SearchResultScreen = ({ route, navigation }) => {
       console.error("Error fetching search results:", error);
     }
   };
+
+  const handleGetSongsOfArtist = async (id) => {
+    try {
+        const songResults = await getSongsOfArtist(id)
+        const favoriteSongs = songResults.items
+        navigation.navigate('SongScreen', { favoriteSongs });
+    }
+    catch (error) {
+        console.error(error.message)
+    }
+} 
 
   return (
     <ScrollView style={styles.container}>
@@ -52,7 +64,7 @@ const SearchResultScreen = ({ route, navigation }) => {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Artists</Text>
             {newArtistResults.map((artist) => (
-              <TouchableOpacity style={styles.item} key={artist.id}>
+              <TouchableOpacity style={styles.item} key={artist.id} onPress={() =>handleGetSongsOfArtist(artist.id)}>
                 <Image source={{ uri: artist.photo }} style={styles.image} />
                 <Text style={styles.text}>{artist.name}</Text>
               </TouchableOpacity>
@@ -78,6 +90,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#0A071E",
     flex: 1,
     padding: 20,
+    marginTop: "6%",
   },
   section: {
     marginBottom: 20,
