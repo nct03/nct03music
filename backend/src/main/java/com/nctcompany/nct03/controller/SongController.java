@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -83,12 +84,17 @@ public class SongController {
     )  {
         try {
             UrlResource resource = FileUploadUtil.getUrlResource(songName, ApplicationConstants.SONGS_FILE_FOLDER);
-            MediaType mediaType = FileUploadUtil.determineMediaType(songName);
-            return ResponseEntity.ok()
-                    .contentType(mediaType)
-                    .body(resource);
+            MediaType mediaType = FileUploadUtil.determineMediaType(resource.getFilename());
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(mediaType);
+            headers.setContentLength(resource.contentLength());
+            headers.setContentDispositionFormData("attachment", songName + ".mp3");
+
+            return new ResponseEntity<>(resource, headers, HttpStatus.OK);
         }catch (MalformedURLException e){
             throw new ResourceNotFoundException("Could not found song name: " + songName);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
     }

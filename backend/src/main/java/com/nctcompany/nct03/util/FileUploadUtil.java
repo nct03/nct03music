@@ -55,7 +55,7 @@ public class FileUploadUtil {
     }
 
     public static UrlResource getUrlResource(String fileName, String folder) throws MalformedURLException {
-        Path imagePath = Paths.get(folder + fileName);
+        Path imagePath = Paths.get(folder + fileName + ".mp3");
         UrlResource resource = new UrlResource(imagePath.toUri());
         if (!resource.exists()) {
             throw new ResourceNotFoundException("Can not found file name: " + fileName);
