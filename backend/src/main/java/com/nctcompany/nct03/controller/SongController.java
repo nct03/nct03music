@@ -88,7 +88,7 @@ public class SongController {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(mediaType);
             headers.setContentLength(resource.contentLength());
-            headers.setContentDispositionFormData("attachment", songName + ".mp3");
+            headers.setContentDispositionFormData("attachment", songName);
 
             return new ResponseEntity<>(resource, headers, HttpStatus.OK);
         }catch (MalformedURLException e){
