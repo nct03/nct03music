@@ -1,7 +1,9 @@
 {
+  "name": "NCT_Music_App",
+  "displayName": "NCT_Music_App",
   "expo": {
-    "name": "GiuaKi",
-    "slug": "GiuaKi",
+    "name": "NCT_Music_App",
+    "slug": "NCT_Music_App",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

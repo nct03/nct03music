@@ -125,8 +125,8 @@ export default function AboutScreen({ navigation }) {
           />
         </View>
 
-        <View style={styles.title}>
-          <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold" }}> Top bảng xếp hạng được ưa thích </Text>
+        <View style={{...styles.title, paddingBottom:40}}>
+          <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold"}}> Top bảng xếp hạng được ưa thích </Text>
           {musicList.map((item, index) => (
             <TouchableOpacity key={index} style={styles.wrapper} onPress={() => handleSongPress(item)} >
               <Image
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
 
   background: {
     backgroundColor: "#0A071E",
-    marginTop: "6%"
+    marginTop: "6%",
   },
 
   container: {
@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    marginTop: 20,
+    marginTop: 10,
   }
   , wrapper: {
     flex: 1,
