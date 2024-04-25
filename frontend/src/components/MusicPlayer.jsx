@@ -1,108 +1,135 @@
+import { fetchMusicList } from '../apis/About';
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, Image } from 'react-native';
+import { View, Text, Image, TouchableOpacity } from 'react-native';
+import Slider from '@react-native-community/slider';
 import { Audio } from 'expo-av';
+import { AntDesign, FontAwesome6, Ionicons } from '@expo/vector-icons';
 
-export default function MusicPlayer({ song }) {
+export default function MusicPlayer() {
   const [sound, setSound] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [currentSongIndex, setCurrentSongIndex] = useState(0);
+  const [songs, setSongs] = useState([]);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [isLooping, setIsLooping] = useState(false);
+  const [isShuffle, setIsShuffle] = useState(false);
 
   useEffect(() => {
-    return sound
-      ? () => {
-          sound.unloadAsync();
-        }
-      : undefined;
+    loadSongsFromAPI();
+  }, []);
+
+  useEffect(() => {
+    if (sound) {
+      sound.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate);
+    }
   }, [sound]);
 
-  const playSound = async () => {
-    const { sound } = await Audio.Sound.createAsync({ uri: song.url });
-    setSound(sound);
-    await sound.playAsync();
-    setIsPlaying(true);
-  };
-
-  const stopSound = async () => {
-    if (sound) {
-      await sound.stopAsync();
-      setIsPlaying(false);
+  const loadSongsFromAPI = async () => {
+    try {
+      const data = await fetchMusicList();
+      setSongs(data);
+      await loadSong(data[currentSongIndex].url);
+    } catch (error) {
+      console.error('Error fetching songs:', error);
     }
   };
 
+  const loadSong = async (uri) => {
+    const { sound: newSound, status } = await Audio.Sound.createAsync({ uri }, { shouldPlay: isPlaying });
+    setSound(newSound);
+    setIsPlaying(status.isPlaying);
+    setDuration(status.durationMillis);
+  };
+
+  const onPlaybackStatusUpdate = (status) => {
+    if (status.isLoaded && status.isPlaying) {
+      setProgress(status.positionMillis / status.durationMillis);
+    }
+    if (status.didJustFinish) {
+      if (isLooping) {
+        sound.replayAsync();
+      } else if (isShuffle) {
+        const nextIndex = Math.floor(Math.random() * songs.length);
+        setCurrentSongIndex(nextIndex);
+        loadSong(songs[nextIndex].url);
+      } else {
+        nextSong();
+      }
+    }
+  };
+
+  const playPause = async () => {
+    if (!sound) return;
+    if (isPlaying) {
+      await sound.pauseAsync();
+      setIsPlaying(false);
+    } else {
+      await sound.playAsync();
+      setIsPlaying(true);
+    }
+  };
+
+  const nextSong = async () => {
+    const nextIndex = (currentSongIndex + 1) % songs.length;
+    setCurrentSongIndex(nextIndex);
+    await sound.unloadAsync();
+    await loadSong(songs[nextIndex].url);
+  };
+
+  const previousSong = async () => {
+    const prevIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+    setCurrentSongIndex(prevIndex);
+    await sound.unloadAsync();
+    await loadSong(songs[prevIndex].url);
+  };
+
+  const toggleLooping = () => {
+    setIsLooping(!isLooping);
+  };
+
+  const toggleShuffle = () => {
+    setIsShuffle(!isShuffle);
+  };
+
+  const formatTime = (time) => {
+    const minutes = Math.floor(time / 60000);
+    const seconds = ((time % 60000) / 1000).toFixed(0);
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  };
+
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        
-      <Image source={{ uri: song.imagePath }} style={{ width: 200, height: 200 }} />
-      <Text>{song.name}</Text>
-      <Text>{song.artists[0].name}</Text>
-      <View style={{ flexDirection: 'row', marginTop: 20 }}>
-        <Button title={isPlaying ? 'Stop' : 'Play'} onPress={isPlaying ? stopSound : playSound} />
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Image
+        source={{ uri: songs[currentSongIndex]?.imagePath }}
+        style={{ width: 200, height: 200, borderRadius: 10 }}
+        resizeMode="cover"
+      />
+      <Text style= {{fontSize:28}}>{songs[currentSongIndex]?.name}</Text>
+      <Text style= {{opacity: 0.6, fontSize:20}}>{songs[currentSongIndex]?.artists[0].name}</Text>
+      <Slider
+        style={{ width: 380, marginTop: 20 }}
+        minimumValue={0}
+        maximumValue={1}
+        value={progress}
+        onSlidingComplete={(value) => {
+          if (sound) {
+            const newPosition = value * duration;
+            sound.setPositionAsync(newPosition);
+          }
+        }}
+      />
+      <View style={{ width: 380, flexDirection: "row", justifyContent: "space-between" }}>
+        <Text>{formatTime(progress * duration)}</Text>
+        <Text> {formatTime(duration)}</Text>
+      </View>
+      <View style={{ flexDirection: "row", width: 380, alignContent: "space-around", justifyContent: "space-around" }}>
+        <FontAwesome6 name="shuffle" size={24} color={isShuffle ? "rgba(0,0,0,0.5)" : "black"} onPress={toggleShuffle} />
+        <AntDesign name="stepbackward" size={24} color="black" onPress={previousSong} />
+        <AntDesign name={isPlaying ? 'pausecircle' : 'caretright'} size={24} color="black" onPress={playPause} />
+        <AntDesign name="stepforward" size={24} color="black" title="Next" onPress={nextSong} />
+        <AntDesign name="retweet" size={24} color={isLooping ? "rgba(0,0,0,0.5)" : "black"} onPress={toggleLooping} />
       </View>
     </View>
   );
 }
-
-// import React, { useState, useEffect } from 'react';
-// import { View, Text, Button, Image, FlatList } from 'react-native';
-// import { Audio } from 'expo-av';
-
-// export default function MusicPlayer({ songs }) {
-//   const [sound, setSound] = useState(null);
-//   const [isPlaying, setIsPlaying] = useState(false);
-//   const [currentSong, setCurrentSong] = useState(null);
-
-//   useEffect(() => {
-//     return sound
-//       ? () => {
-//           sound.unloadAsync();
-//         }
-//       : undefined;
-//   }, [sound]);
-
-//   const playSound = async (song) => {
-//     if (sound) {
-//       await sound.stopAsync();
-//       setSound(null);
-//     }
-
-//     const { sound: newSound } = await Audio.Sound.createAsync({ uri: song.url });
-//     setSound(newSound);
-//     setCurrentSong(song);
-//     await newSound.playAsync();
-//     setIsPlaying(true);
-//   };
-
-//   const stopSound = async () => {
-//     if (sound) {
-//       await sound.stopAsync();
-//       setIsPlaying(false);
-//     }
-//   };
-
-//   const renderSongItem = ({ item }) => (
-//     <Button title={item.name} onPress={() => playSound(item)} />
-//   );
-
-//   return (
-//     <View style={{ flex: 1 }}>
-//       <FlatList
-//         data={songs}
-//         renderItem={renderSongItem}
-//         keyExtractor={(item) => item.id.toString()}
-//         ListHeaderComponent={() => (
-//           <View style={{ alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
-//             {currentSong && (
-//               <>
-//                 <Image source={{ uri: currentSong.imagePath }} style={{ width: 200, height: 200 }} />
-//                 <Text>{currentSong.name}</Text>
-//                 <Text>{currentSong.artists[0].name}</Text>
-//               </>
-//             )}
-//             <View style={{ flexDirection: 'row', marginTop: 20 }}>
-//               <Button title={isPlaying ? 'Stop' : 'Play'} onPress={isPlaying ? stopSound : () => playSound(songs[0])} />
-//             </View>
-//           </View>
-//         )}
-//       />
-//     </View>
-//   );
-// }

@@ -1,7 +1,7 @@
 // import React, { useEffect, useState, useContext } from "react";
 // import { BasicIP } from "../constant/Constants";
 // import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-// import { fetchMusicList } from "../apis/About";
+import { fetchMusicList } from "../apis/About";
 // import { Audio } from "expo-av";
 // import { Player_ } from "../helpers/PlayerContext";
 
@@ -151,7 +151,7 @@
 //     },
 // });
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import MusicPlayer from '../components/MusicPlayer';
 
@@ -172,10 +172,12 @@ const songFromApi = {
   ]
 };
 
+
+
 export default function Player() {
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <MusicPlayer song={songFromApi} />
+      <MusicPlayer />
     </View>
   );
 }
