@@ -112,3 +112,35 @@ export const getSongsOfGenre = async (id) => {
         console.error(err) 
     }
 }
+
+export const addSongToPlaylist = async (id) => {
+    try {
+        const token = await checkToken();
+        const response = await fetch(`${BasicIP}/playlists/${id}/songs`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        const data =response.json()
+        return data
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+export const removeSongInPlaylist = async (id) => {
+    try {
+        const token = await checkToken();
+        const response = await fetch (`${BasicIP}/users/unlike/${id}`,{
+            method: 'DELETE',
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        const data = response.json()
+        return data 
+    } catch (err) {
+        console.log(err)
+    }
+}

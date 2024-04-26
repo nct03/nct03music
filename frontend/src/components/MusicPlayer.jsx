@@ -105,10 +105,13 @@ export default function MusicPlayer() {
         style={{ width: 200, height: 200, borderRadius: 10 }}
         resizeMode="cover"
       />
-      <Text style= {{color:"#fff",fontSize:28}}>{songs[currentSongIndex]?.name}</Text>
-      <Text style= {{opacity: 0.6, color:"#fff",fontSize:20}}>{songs[currentSongIndex]?.artists[0].name}</Text>
+      <Text style= {{color:"#fff",fontSize:28, marginTop: 30}}>{songs[currentSongIndex]?.name}</Text>
+      <Text style= {{opacity: 0.6, color:"#fff",fontSize:16, marginTop: 10}}>{songs[currentSongIndex]?.artists[0].name}</Text>
       <Slider
         style={{ width: 380, marginTop: 20 }}
+        minimumTrackTintColor={'#6156E2'}
+        maximumTrackTintColor={'#fff'}
+        thumbTintColor='#6156E2'
         minimumValue={0}
         maximumValue={1}
         value={progress}
@@ -120,15 +123,15 @@ export default function MusicPlayer() {
         }}
       />
       <View style={{ width: 380, flexDirection: "row", justifyContent: "space-between" }}>
-        <Text>{formatTime(progress * duration)}</Text>
-        <Text> {formatTime(duration)}</Text>
+        <Text style={{color:"#fff"}}>{formatTime(progress * duration)}</Text>
+        <Text style={{color:"#fff"}}> {formatTime(duration)}</Text>
       </View>
-      <View style={{ flexDirection: "row", width: 380, alignContent: "space-around", justifyContent: "space-around" }}>
-        <FontAwesome6 name="shuffle" size={24} color={isShuffle ? "rgba(255,255,255,0.5)" : "#fff"} onPress={toggleShuffle} />
-        <AntDesign name="stepbackward" size={24} color="#fff" onPress={previousSong} />
-        <AntDesign name={isPlaying ? 'pausecircle' : 'caretright'} size={24} color="#fff" onPress={playPause} />
-        <AntDesign name="stepforward" size={24} color="#fff" title="Next" onPress={nextSong} />
-        <AntDesign name="retweet" size={24} color={isLooping ? "rgba(255,255,255,0.5)" : "#fff"} onPress={toggleLooping} />
+      <View style={{ flexDirection: "row", width: 380, alignContent: "space-around", justifyContent: "space-around", marginTop: 30 }}>
+        <FontAwesome6 name="shuffle" size={28} color={isShuffle ? "rgba(255,255,255,0.5)" : "#fff"} onPress={toggleShuffle} />
+        <AntDesign name="stepbackward" size={28} color="#fff" onPress={previousSong} />
+        <AntDesign name={isPlaying ? 'pausecircle' : 'caretright'} size={28} color="#fff" onPress={playPause} />
+        <AntDesign name="stepforward" size={28} color="#fff" title="Next" onPress={nextSong} />
+        <AntDesign name="retweet" size={28} color={isLooping ? "rgba(255,255,255,0.5)" : "#fff"} onPress={toggleLooping} />
       </View>
     </View>
   );
