@@ -154,8 +154,6 @@ const User = ({ navigation }) => {
 
       if (!result.cancelled && result.assets.length > 0) {
         const selectedImage = result.assets[0]
-        // console.log('Selected image URI:', selectedImage.uri)
-        // console.log(selectedImage)
         setPhoto(selectedImage)
       } else {
         console.log('Image selection cancelled or URI is undefined')
