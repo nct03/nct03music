@@ -71,10 +71,16 @@ export default function MusicPlayer() {
   };
 
   const nextSong = async () => {
-    const nextIndex = (currentSongIndex + 1) % songs.length;
-    setCurrentSongIndex(nextIndex);
-    await sound.unloadAsync();
-    await loadSong(songs[nextIndex].url);
+    if (isShuffle) {
+      const nextIndex = Math.floor(Math.random() * songs.length);
+      setCurrentSongIndex(nextIndex);
+      loadSong(songs[nextIndex].url);
+    } else {
+      const nextIndex = (currentSongIndex + 1) % songs.length;
+      setCurrentSongIndex(nextIndex);
+      await sound.unloadAsync();
+      await loadSong(songs[nextIndex].url);
+    }
   };
 
   const previousSong = async () => {
@@ -127,11 +133,11 @@ export default function MusicPlayer() {
         <Text style={{color:"#fff"}}> {formatTime(duration)}</Text>
       </View>
       <View style={{ flexDirection: "row", width: 380, alignContent: "space-around", justifyContent: "space-around", marginTop: 30 }}>
-        <FontAwesome6 name="shuffle" size={28} color={isShuffle ? "rgba(255,255,255,0.5)" : "#fff"} onPress={toggleShuffle} />
+        <FontAwesome6 name="shuffle" size={28} color={isShuffle ? "#fff" : "rgba(255,255,255,0.5)" } onPress={toggleShuffle} />
         <AntDesign name="stepbackward" size={28} color="#fff" onPress={previousSong} />
         <AntDesign name={isPlaying ? 'pausecircle' : 'caretright'} size={28} color="#fff" onPress={playPause} />
         <AntDesign name="stepforward" size={28} color="#fff" title="Next" onPress={nextSong} />
-        <AntDesign name="retweet" size={28} color={isLooping ? "rgba(255,255,255,0.5)" : "#fff"} onPress={toggleLooping} />
+        <AntDesign name="retweet" size={28} color={isLooping ? "#fff" : "rgba(255,255,255,0.5)"} onPress={toggleLooping} />
       </View>
     </View>
   );
