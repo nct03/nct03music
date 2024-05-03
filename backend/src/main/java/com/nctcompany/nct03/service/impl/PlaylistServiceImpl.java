@@ -20,7 +20,6 @@ import com.nctcompany.nct03.repository.UserRepository;
 import com.nctcompany.nct03.service.PlaylistService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
@@ -79,14 +78,11 @@ public class PlaylistServiceImpl implements PlaylistService {
         return playlistMapper.mapToDetailsResponse(updatedPlaylist);
     }
 
-    @Transactional
     @Override
     public void deletePlaylist(Long playlistId, User user) {
         Playlist playlist = playlistRepository.findByIdAndUserId(playlistId, user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Playlist with id=[%s] not found".formatted(playlistId)));
-        user.getPlaylists().remove(playlist);
         playlistRepository.deleteById(playlist.getId());
-        userRepository.save(user);
     }
 
     @Override

@@ -12,8 +12,10 @@ import com.nctcompany.nct03.exception.ResourceNotFoundException;
 import com.nctcompany.nct03.mapper.PlaylistMapper;
 import com.nctcompany.nct03.mapper.SongMapper;
 import com.nctcompany.nct03.mapper.UserMapper;
+import com.nctcompany.nct03.model.Playlist;
 import com.nctcompany.nct03.model.Song;
 import com.nctcompany.nct03.model.User;
+import com.nctcompany.nct03.repository.PlaylistRepository;
 import com.nctcompany.nct03.repository.SongRepository;
 import com.nctcompany.nct03.repository.UserRepository;
 import com.nctcompany.nct03.service.UserService;
@@ -39,6 +41,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final PlaylistMapper playlistMapper;
     private final SongRepository songRepository;
+    private final PlaylistRepository playlistRepository;
 
     @Override
     public UserResponse getUserProfile(Principal loggedUser) {
@@ -88,7 +91,8 @@ public class UserServiceImpl implements UserService {
     public List<PlaylistResponse> getCurrentUserPlaylists() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
-        return user.getPlaylists().stream()
+        List<Playlist> playlists = playlistRepository.findByUserId(user.getId());
+        return playlists.stream()
                 .map(playlistMapper::mapToResponse)
                 .collect(Collectors.toList());
     }
