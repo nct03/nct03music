@@ -101,27 +101,28 @@ public class UserServiceImpl implements UserService {
     public void likesSong(User loggedUser, Long songId) {
         Song song = songRepository.findById(songId)
                 .orElseThrow(() -> new ResourceNotFoundException("Song with id=[%s] not found".formatted(songId)));
-        if (loggedUser.getLikedSongs().contains(song)){
+        List<Song> likedSongs = userRepository.findLikedSongsByUserId(loggedUser.getId());
+        if (likedSongs.contains(song)){
             throw new BadRequestException("You already like this song");
         }
-        loggedUser.getLikedSongs().add(song);
-        userRepository.save(loggedUser);
+        userRepository.likeSong(loggedUser.getId(), songId);
     }
 
     @Override
     public void unlikeSong(User loggedUser, Long songId) {
         Song song = songRepository.findById(songId)
                 .orElseThrow(() -> new ResourceNotFoundException("Song with id=[%s] not found".formatted(songId)));
-        if (!loggedUser.getLikedSongs().contains(song)){
+        List<Song> likedSongs = userRepository.findLikedSongsByUserId(loggedUser.getId());
+        if (!likedSongs.contains(song)){
             throw new BadRequestException("You don't like this song");
         }
-        loggedUser.getLikedSongs().remove(song);
-        userRepository.save(loggedUser);
+        userRepository.unlikeSong(loggedUser.getId(), songId);
     }
 
     @Override
     public boolean isUserLikeSong(User loggedUser, Long songId) {
-        return loggedUser.getLikedSongs().stream()
+        List<Song> likedSongs = userRepository.findLikedSongsByUserId(loggedUser.getId());
+        return likedSongs.stream()
                 .filter(s -> s.getId().equals(songId))
                 .findFirst()
                 .isPresent();
@@ -129,7 +130,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public PageableResult<SongResponse> getFavoriteSongs(User loggedUser, Integer pageNum, Integer pageSize) {
-        List<SongResponse> songResponses = loggedUser.getLikedSongs().stream()
+        List<Song> likedSongs = userRepository.findLikedSongsByUserId(loggedUser.getId());
+        List<SongResponse> songResponses = likedSongs.stream()
                 .map(SongMapper::mapToSongResponse)
                 .collect(Collectors.toList());
 

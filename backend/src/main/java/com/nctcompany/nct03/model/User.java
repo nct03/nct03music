@@ -35,7 +35,8 @@ public class User extends Person implements UserDetails {
     private List<Playlist> playlists = new ArrayList<>();
 
     @ManyToMany(
-            fetch = FetchType.EAGER
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY
     )
     @JoinTable(
             name = "user_likes_song",
