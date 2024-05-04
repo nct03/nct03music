@@ -1,11 +1,14 @@
 package com.nctcompany.nct03.security;
 
 import com.nctcompany.nct03.constant.SecurityConstants;
+import com.nctcompany.nct03.model.Token;
+import com.nctcompany.nct03.repository.TokenRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -15,8 +18,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+@RequiredArgsConstructor
 @Service
 public class JwtService {
+
+    private final TokenRepository tokenRepository;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -58,6 +64,15 @@ public class JwtService {
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    public boolean isAccessTokenFound(String token){
+        Token dbToken = tokenRepository.findByToken(token)
+                .orElse(null);
+        if (dbToken == null){
+            return false;
+        }
+        return true;
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails){
