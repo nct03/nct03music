@@ -9,6 +9,7 @@ import {
   TextInput,
   Button,
   Platform,
+  ScrollView,
 } from 'react-native'
 import { FontAwesome } from '@expo/vector-icons';
 import * as SecureStore from 'expo-secure-store';
@@ -54,6 +55,7 @@ const User = ({ navigation }) => {
       }
     } catch (error) {
       console.error('Error:', error)
+      Alert.alert('Lỗi', error.message);
     }
   }
 
@@ -128,6 +130,7 @@ const User = ({ navigation }) => {
       setIsEditingProfile(false)
     } catch (error) {
       console.error('Error updating profile:', error)
+      Alert.alert('Lỗi', error.message);
     }
   }
   const handleIsChangePassword = async () => {
@@ -160,6 +163,7 @@ const User = ({ navigation }) => {
       }
     } catch (error) {
       console.error('Error selecting image:', error)
+      Alert.alert('Lỗi', error.message);
     }
   }
 
@@ -174,129 +178,135 @@ const User = ({ navigation }) => {
   }
 
   return (
-    <View style={styles.container}>
-      {isEditingProfile ? (
-        <View
-          style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
-        >
-          <TextInput
-            placeholder="Nhập tên nếu bạn muốn thay đổi..."
-            placeholderTextColor={"#fff"}
-            // value={newName}
-            onChangeText={(text) => setNewName(text)}
-            style={{
-              marginBottom: 20,
-              padding: 10,
-              borderWidth: 1,
-              borderColor: '#fff',
-              borderRadius: 5,
-              width: 300,
-              color: '#fff',
-            }}
-          />
-          {photo ? (
-            <Image
-              source={{ uri: photo.uri }}
-              style={{ width: 200, height: 200, marginBottom: 20 }}
+    <ScrollView style={styles.background} >
+      <View style={styles.container}>
+        {isEditingProfile ? (
+          <View
+            style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
+          >
+            <TextInput
+              placeholder="Nhập tên nếu bạn muốn thay đổi..."
+              placeholderTextColor={"#fff"}
+              // value={newName}
+              onChangeText={(text) => setNewName(text)}
+              style={{
+                marginBottom: 20,
+                padding: 10,
+                borderWidth: 1,
+                borderColor: '#fff',
+                borderRadius: 5,
+                width: 300,
+                color: '#fff',
+              }}
             />
-          ) : (
-            <View>
-              <TouchableOpacity style={{ marginLeft: 180}} onPress={handleImageSelection}>
-                <FontAwesome name="pencil-square-o" size={24} color="#fff" paddingTop= {20}/>
-              </TouchableOpacity>
+            {photo ? (
               <Image
-                source={{ uri: avatar }}
+                source={{ uri: photo.uri }}
                 style={{ width: 200, height: 200, marginBottom: 20 }}
               />
-            </View>
-          )}
-          <Button
-            title="Cập nhật hồ sơ cá nhân"
-            onPress={() => updateUserProfile()}
-            disabled={!newName && !photo}
-          />
-          <TouchableOpacity onPress={() => setIsEditingProfile(false)}>
-            <Text style={{ color: '#fff', paddingLeft: '90%', paddingTop: 10 }}>
-              Hủy
-            </Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <View>
-          <View style={styles.wrapper}>
-            <Image
-              source={{ uri: avatar }}
-              style={{ width: 100, height: 100, borderRadius: 10 }}
+            ) : (
+              <View>
+                <TouchableOpacity style={{ marginLeft: 180}} onPress={handleImageSelection}>
+                  <FontAwesome name="pencil-square-o" size={24} color="#fff" paddingTop= {20}/>
+                </TouchableOpacity>
+                <Image
+                  source={{ uri: avatar }}
+                  style={{ width: 200, height: 200, marginBottom: 20 }}
+                />
+              </View>
+            )}
+            <Button
+              title="Cập nhật hồ sơ cá nhân"
+              onPress={() => updateUserProfile()}
+              disabled={!newName && !photo}
             />
-
-            <View style={{ flexDirection: 'column' }}>
-              <Text style={{ ...styles.text, fontSize: 20, paddingTop: 4 }}>
-                {name}
-              </Text>
-
-              <Text style={{ ...styles.text, opacity: 0.6, paddingTop: 4 }}>
-                {email}
-              </Text>
-            </View>
-          </View>
-          <TouchableOpacity style={styles.btn} onPress={handleEditProfile}>
-            <Text style={styles.btnText}>Chỉnh sửa hồ sơ</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-      {isChangePassword ? (
-        <View>
-          <View style={{ flexDirection: 'column', marginTop: 10 }}>
-            <TextInput
-              style={styles.input}
-              placeholder="Nhập mật khẩu cũ"
-              placeholderTextColor="#fff"
-              onChangeText={(text)=>setOldPassword(text)}
-              secureTextEntry
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Nhập mật khẩu mới"
-              placeholderTextColor="#fff"
-              // value={newPassword}
-              onChangeText={(text)=>setNewPassword(text)}
-              secureTextEntry
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Xác nhận mật khẩu mới"
-              placeholderTextColor="#fff"
-              // value={confirmPassword}
-              onChangeText={(text)=>setConfirmPassword(text)}
-              secureTextEntry
-            />
-            <TouchableOpacity onPress={() => setIsChangePassword(false)}>
-              <Text
-                style={{ color: '#fff', paddingLeft: '90%', paddingTop: 10 }}
-              >
+            <TouchableOpacity onPress={() => setIsEditingProfile(false)}>
+              <Text style={{ color: '#fff', paddingLeft: '90%', paddingTop: 10 }}>
                 Hủy
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.btn} onPress={handleChangePassword}>
-              <Text style={styles.btnText}>Lưu</Text>
+          </View>
+        ) : (
+          <View>
+            <View style={styles.wrapper}>
+              <Image
+                source={{ uri: avatar }}
+                style={{ width: 100, height: 100, borderRadius: 10 }}
+              />
+
+              <View style={{ flexDirection: 'column' }}>
+                <Text style={{ ...styles.text, fontSize: 20, paddingTop: 4 }}>
+                  {name}
+                </Text>
+
+                <Text style={{ ...styles.text, opacity: 0.6, paddingTop: 4 }}>
+                  {email}
+                </Text>
+              </View>
+            </View>
+            <TouchableOpacity style={styles.btn} onPress={handleEditProfile}>
+              <Text style={styles.btnText}>Chỉnh sửa hồ sơ</Text>
             </TouchableOpacity>
           </View>
-        </View>
-      ) : (
-        <View>
-          <TouchableOpacity style={styles.btn} onPress={handleIsChangePassword}>
-            <Text style={styles.btnText}>Đổi mật khẩu</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-      <TouchableOpacity style={styles.btn} onPress={handleLogout}>
-        <Text style={styles.btnText}>Đăng xuất</Text>
-      </TouchableOpacity>
-    </View>
+        )}
+        {isChangePassword ? (
+          <View>
+            <View style={{ flexDirection: 'column', marginTop: 10 }}>
+              <TextInput
+                style={styles.input}
+                placeholder="Nhập mật khẩu cũ"
+                placeholderTextColor="#fff"
+                onChangeText={(text)=>setOldPassword(text)}
+                secureTextEntry
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Nhập mật khẩu mới"
+                placeholderTextColor="#fff"
+                // value={newPassword}
+                onChangeText={(text)=>setNewPassword(text)}
+                secureTextEntry
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Xác nhận mật khẩu mới"
+                placeholderTextColor="#fff"
+                // value={confirmPassword}
+                onChangeText={(text)=>setConfirmPassword(text)}
+                secureTextEntry
+              />
+              <TouchableOpacity onPress={() => setIsChangePassword(false)}>
+                <Text
+                  style={{ color: '#fff', paddingLeft: '90%', paddingTop: 10 }}
+                >
+                  Hủy
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.btn} onPress={handleChangePassword}>
+                <Text style={styles.btnText}>Lưu</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : (
+          <View>
+            <TouchableOpacity style={styles.btn} onPress={handleIsChangePassword}>
+              <Text style={styles.btnText}>Đổi mật khẩu</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        <TouchableOpacity style={styles.btn} onPress={handleLogout}>
+          <Text style={styles.btnText}>Đăng xuất</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   )
 }
 
 const styles = StyleSheet.create({
+  background: {
+    backgroundColor: "#0A071E",
+    marginTop: "6%",
+  },
   container: {
     flex: 1,
     backgroundColor: '#0A071E',

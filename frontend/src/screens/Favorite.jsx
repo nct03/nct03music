@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Image, Modal, Pressable, TextInput } from "react-native";
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Image, Modal, Pressable, TextInput, Alert } from "react-native";
 import { getAllPlaylistAlbum, deletePlaylistAlbum, createPlayListAlbum, getSongsInPlaylist, getFavoriteSongs } from "../apis/MusicApi";
 import { FontAwesome } from '@expo/vector-icons';
 
@@ -19,6 +19,7 @@ export default function Playlist({ navigation }) {
         }
         catch (err) {
             console.error('Error fetching initial data:', err.message)
+            Alert.alert('Lỗi', error.message);
         }
     }
 
@@ -29,6 +30,7 @@ export default function Playlist({ navigation }) {
             fetchInitialData()
         } catch (error) {
             console.error(error.message)
+            Alert.alert('Lỗi', error.message);
         }
     };
 
@@ -43,6 +45,7 @@ export default function Playlist({ navigation }) {
             setIsModalVisible(false)
         } catch (err) {
             console.error(err.message)
+            Alert.alert('Lỗi', error.message);
         }
     }
 
@@ -53,6 +56,7 @@ export default function Playlist({ navigation }) {
             navigation.navigate('SongScreen', { favoriteSongs });
         } catch (error) {
             console.error('Error searching:', error.message);
+            Alert.alert('Lỗi', error.message);
         }
     }
 
@@ -64,6 +68,7 @@ export default function Playlist({ navigation }) {
         }
         catch (error) {
             console.error(error.message)
+            Alert.alert('Lỗi', error.message);
         }
     }
 

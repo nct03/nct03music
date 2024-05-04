@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { StyleSheet, View, Text, Image, FlatList, TextInput, TouchableOpacity, ScrollView } from "react-native";
+import { StyleSheet, View, Text, Image, FlatList, TextInput, TouchableOpacity, ScrollView, Alert } from "react-native";
 import { EvilIcons } from '@expo/vector-icons';
 import { fetchMusicList, fetchSingers, searchSongs, searchArtists, fetchGenres } from "../apis/About";
 import { getSongsOfArtist, getSongsOfGenre } from "../apis/MusicApi";
@@ -27,6 +27,7 @@ export default function AboutScreen({ navigation }) {
       setLoading(false);
     } catch (error) {
       console.error('Error fetching initial data:', error.message);
+      Alert.alert('Lỗi', error.message);
     }
   };
 
@@ -37,6 +38,7 @@ export default function AboutScreen({ navigation }) {
       navigation.navigate('SearchResultScreen', { songResults, artistResults });
     } catch (error) {
       console.error('Error searching:', error.message);
+      Alert.alert('Lỗi', error.message);
     }
   };
 
@@ -48,6 +50,7 @@ export default function AboutScreen({ navigation }) {
     }
     catch (error) {
       console.error(error.message)
+      Alert.alert('Lỗi', error.message);
     }
   }
 
@@ -59,6 +62,7 @@ export default function AboutScreen({ navigation }) {
     }
     catch (error) {
       console.error(error.message)
+      Alert.alert('Lỗi', error.message);
     }
   }
 

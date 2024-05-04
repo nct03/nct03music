@@ -17,11 +17,11 @@ export const BottomNavigator = () => {
                     position:"absolute",
                     borderTopLeftRadius: 20,
                     borderTopRightRadius:20,
-                    borderTopWidth:0,
+                    borderTopWidth:0,                   
                 }
             }}
             >
-            <Tab.Screen name="About" component={AboutScreen} options={{
+            <Tab.Screen name="Home" component={AboutScreen} options={{
                 tabBarIcon: () => (<Ionicons name="home-outline" size={24} color={"#fff"}  />)
             }} />
             <Tab.Screen name="Player" component={Player} options={{

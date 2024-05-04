@@ -1,16 +1,20 @@
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
 import { useState } from 'react';
 
 import * as SecureStore from 'expo-secure-store';
 import { login } from '../apis/Authencation';
 
+import { LoadingScreen } from './LoadingScreen';
+
 export default function LoginScreen({ navigation }) {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleLogin = async () => {
         try {
+            setLoading(true);
             // Kiểm tra đã nhâp password và email hay chưa 
             if (email.length == 0) {
                 alert("Bạn hãy nhập email ");
@@ -27,35 +31,43 @@ export default function LoginScreen({ navigation }) {
             } 
             catch (error) {
                 console.error('Error:', error);
+                Alert.alert('Lỗi', error.message);
+            }
+            finally {
+                setLoading(false);
             }
     }
 
+    if (loading) {
+        return <LoadingScreen />;
+      }
+
     return (
-        <ScrollView style={{ flex: 1 }}>
-            <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'position'}>
-                <View style={styles.container}>
-                    <Text style={{ ...styles.header, fontSize: 16, marginTop: 60 }}>WELLCOME BACK</Text>
-                    <Text style={{ ...styles.header, fontSize: 24, fontWeight: "bold", marginTop: 10 }}>LOGIN into your account</Text>
-                    <View style={styles.wrapper}>
-                        <TextInput autoCapitalize='none' placeholder="Email" style={styles.ip} onChangeText={(text) => setEmail(text)}></TextInput>
-                        <TextInput autoCapitalize='none' placeholder="Password" style={styles.ip} onChangeText={(text) => setPassword(text)} textContentType="password" secureTextEntry={true}></TextInput>
+            <ScrollView style={{ flex: 1 }}>
+                <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'position'}>
+                    <View style={styles.container}>
+                        <Text style={{ ...styles.header, fontSize: 16, marginTop: 60 }}>WELLCOME BACK</Text>
+                        <Text style={{ ...styles.header, fontSize: 24, fontWeight: "bold", marginTop: 10 }}>LOGIN into your account</Text>
+                        <View style={styles.wrapper}>
+                            <TextInput autoCapitalize='none' placeholder="Email" style={styles.ip} onChangeText={(text) => setEmail(text)}></TextInput>
+                            <TextInput autoCapitalize='none' placeholder="Password" style={styles.ip} onChangeText={(text) => setPassword(text)} textContentType="password" secureTextEntry={true}></TextInput>
+                        </View>
+                        <View style={styles.btn} >
+                            <TouchableOpacity>
+                                <Text style={{
+                                    color: "#fff", fontWeight: "bold", textAlign: "center", paddingVertical: 15,
+                                    paddingHorizontal: 118,
+                                }} onPress={handleLogin}>LOGIN</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={{ justifyContent: "center", alignItems: 'center' }}>
+                            <Text style={{ marginTop: 10 }}>New User?
+                                <Text style={{ color: "#000", fontWeight: "bold", textDecorationLine: "underline" }} onPress={() => navigation.navigate('SignupScreen')}> SIGN UP HERE</Text>
+                            </Text>
+                        </View>
                     </View>
-                    <View style={styles.btn} >
-                        <TouchableOpacity>
-                            <Text style={{
-                                color: "#fff", fontWeight: "bold", textAlign: "center", paddingVertical: 15,
-                                paddingHorizontal: 118,
-                            }} onPress={handleLogin}>LOGIN</Text>
-                        </TouchableOpacity>
-                    </View>
-                    <View style={{ justifyContent: "center", alignItems: 'center' }}>
-                        <Text style={{ marginTop: 10 }}>New User?
-                            <Text style={{ color: "#000", fontWeight: "bold", textDecorationLine: "underline" }} onPress={() => navigation.navigate('SignupScreen')}> SIGN UP HERE</Text>
-                        </Text>
-                    </View>
-                </View>
-            </KeyboardAvoidingView>
-        </ScrollView >
+                </KeyboardAvoidingView>
+            </ScrollView >
     )
 };
 

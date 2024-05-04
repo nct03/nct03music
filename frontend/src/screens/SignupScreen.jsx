@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
 import { signup } from '../apis/Authencation';
 
 export default function SignupScreen({ navigation }) {
@@ -34,6 +34,7 @@ export default function SignupScreen({ navigation }) {
             navigation.navigate('AboutScreen')
         } catch (err) {
             alert(err.message);
+            Alert.alert('Lỗi', error.message);
         }
     };
 

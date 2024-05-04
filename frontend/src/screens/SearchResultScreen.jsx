@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Text, Image, TextInput, TouchableOpacity, ScrollView } from "react-native";
+import { StyleSheet, View, Text, Image, TextInput, TouchableOpacity, ScrollView, Alert } from "react-native";
 import { searchArtists, searchSongs } from "../apis/About";
 import { EvilIcons, Ionicons } from '@expo/vector-icons';
 import { getSongsOfArtist } from "../apis/MusicApi";
@@ -23,6 +23,7 @@ const SearchResultScreen = ({ route, navigation }) => {
       setNewArtistResults(artistsResponse);
     } catch (error) {
       console.error("Error fetching search results:", error);
+      Alert.alert('Lỗi', error.message);
     }
   };
 
@@ -34,6 +35,7 @@ const SearchResultScreen = ({ route, navigation }) => {
     }
     catch (error) {
         console.error(error.message)
+        Alert.alert('Lỗi', error.message);
     }
 } 
 
