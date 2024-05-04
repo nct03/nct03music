@@ -7,8 +7,11 @@ import com.nctcompany.nct03.dto.auth.AuthResponse;
 import com.nctcompany.nct03.dto.auth.RegisterRequest;
 import com.nctcompany.nct03.exception.DuplicateResourceException;
 import com.nctcompany.nct03.model.Role;
+import com.nctcompany.nct03.model.Token;
+import com.nctcompany.nct03.model.TokenType;
 import com.nctcompany.nct03.model.User;
 import com.nctcompany.nct03.repository.RoleRepository;
+import com.nctcompany.nct03.repository.TokenRepository;
 import com.nctcompany.nct03.repository.UserRepository;
 import com.nctcompany.nct03.security.JwtService;
 import com.nctcompany.nct03.service.AuthService;
@@ -19,6 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +33,9 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final TokenRepository tokenRepository;
 
+    @Transactional
     @Override
     public AuthResponse register(RegisterRequest request) {
         String email = request.getEmail();
@@ -44,13 +50,25 @@ public class AuthServiceImpl implements AuthService {
 
         Role role = roleRepository.findByName(Role.ROLE_FREE_USER);
         user.setRole(role);
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
 
         var jwtToken = jwtService.generateToken(user);
+        saveUserToken(savedUser, jwtToken);
         return new AuthResponse(jwtToken, SecurityConstants.JWT_TYPE);
 
     }
 
+    private void saveUserToken(User user, String jwtToken) {
+        var token = Token.builder()
+                .user(user)
+                .token(jwtToken)
+                .tokenType(TokenType.BEARER)
+                .expiredDate(jwtService.extractExpiration(jwtToken))
+                .build();
+        tokenRepository.save(token);
+    }
+
+    @Transactional
     @Override
     public AuthResponse authenticate(AuthRequest request) {
         Authentication authentication = authenticationManager.authenticate(
@@ -62,9 +80,21 @@ public class AuthServiceImpl implements AuthService {
         if (authentication.isAuthenticated()){
             User user = (User) authentication.getPrincipal();
             var jwtToken = jwtService.generateToken(user);
+            revokeUserTokens(user);
+            saveUserToken(user, jwtToken);
             return new AuthResponse(jwtToken, SecurityConstants.JWT_TYPE);
         }else {
             throw new UsernameNotFoundException("Email not found");
+        }
+    }
+
+    private void revokeUserTokens(User user){
+        var tokens = tokenRepository.findByUserId(user.getId());
+        if (tokens.isEmpty())
+            return;
+        if (tokens.size() >= ApplicationConstants.MIN_TOKEN_SIZE){
+            Token deleteToken = tokens.get(0);
+            tokenRepository.deleteById(deleteToken.getId());
         }
     }
 }

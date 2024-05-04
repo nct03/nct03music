@@ -7,7 +7,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -32,7 +31,7 @@ public class User extends Person implements UserDetails {
             fetch = FetchType.LAZY,
             mappedBy = "user"
     )
-    private List<Playlist> playlists = new ArrayList<>();
+    private List<Playlist> playlists;
 
     @ManyToMany(
             cascade = CascadeType.ALL,
@@ -43,7 +42,13 @@ public class User extends Person implements UserDetails {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "song_id")
     )
-    private List<Song> likedSongs = new ArrayList<>();
+    private List<Song> likedSongs;
+
+    @OneToMany(
+            cascade = CascadeType.REMOVE,
+            mappedBy = "user"
+    )
+    private List<Token> tokens;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
