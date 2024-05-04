@@ -31,16 +31,31 @@ public class JwtService {
         return generateToken(new HashMap<>(), userDetails);
     }
 
+
     public String generateToken(
             Map<String, Object> extraClaims,
             UserDetails userDetails
     ){
+        return buildToken(extraClaims, userDetails, SecurityConstants.TOKEN_EXPIRED_TIME);
+    }
+
+    public String generateRefreshToken(
+            UserDetails userDetails
+    ) {
+        return buildToken(new HashMap<>(), userDetails, SecurityConstants.REFRESH_TOKEN_EXPIRED_TIME);
+    }
+
+    private String buildToken(
+            Map<String, Object> extraClaims,
+            UserDetails userDetails,
+            long expiration
+    ) {
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + SecurityConstants.TOKEN_EXPIRED_TIME))
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
