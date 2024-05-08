@@ -7,6 +7,7 @@ export default function Playlist({ navigation }) {
     const [albumName, setAlbumName] = useState("");
     const [albums, setAlbums] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         fetchInitialData()
@@ -54,7 +55,7 @@ export default function Playlist({ navigation }) {
             setIsModalVisible(false)
         } catch (err) {
             console.error(err.message)
-            Alert.alert('Lỗi', error.message);
+            Alert.alert('Lỗi', err.message);
         }
         finally {
             setLoading(false);

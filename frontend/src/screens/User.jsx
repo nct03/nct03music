@@ -30,13 +30,15 @@ const User = ({ navigation }) => {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [isEditingProfile, setIsEditingProfile] = useState(false)
   const [isChangePassword, setIsChangePassword] = useState(false)
-
+  const [loading, setLoading] = useState(false);
+  
   useEffect(() => {
     fetchUserData()
   }, [])
 
   const fetchUserData = async () => {
     try {
+      setLoading(true);
       const token = await checkToken();
       if (token) {
         setToken(token)
@@ -57,6 +59,9 @@ const User = ({ navigation }) => {
       console.error('Error:', error)
       Alert.alert('Lỗi', error.message);
     }
+    finally {
+      setLoading(false);
+    }
   }
 
   const handleChangePassword = async () => {
@@ -68,6 +73,7 @@ const User = ({ navigation }) => {
       }
 
       // Gọi API để xác nhận mật khẩu cũ và cập nhật mật khẩu mới
+      setLoading(true);
       const token = await checkToken();
       const response = await fetch(`${BasicIP}/users/change-password`, {
         method: 'PATCH',
@@ -96,6 +102,7 @@ const User = ({ navigation }) => {
       Alert.alert('Có lỗi xảy ra khi đổi mật khẩu')
     } finally {
       setIsChangePassword(false)
+      setLoading(false);
     }
   }
 

@@ -7,9 +7,11 @@ export default function SignupScreen({ navigation }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confimPass, setConfirmPass] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const doSignup = async () => {
         try {
+            setLoading(true);
             if (name.length == 0) {
                 alert("Bạn hãy nhập tên của bạn");
                 return
@@ -35,6 +37,9 @@ export default function SignupScreen({ navigation }) {
         } catch (err) {
             alert(err.message);
             Alert.alert('Lỗi', error.message);
+        }
+        finally {
+            setLoading(false);
         }
     };
 
