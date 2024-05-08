@@ -17,7 +17,7 @@ const RootNavigator = () => {
   useEffect(() => {
     dispatch(fetchTokenFromStorage())
   }, [dispatch])
-  console.log(token)
+
   return (
     <NavigationContainer>
       {!token ?

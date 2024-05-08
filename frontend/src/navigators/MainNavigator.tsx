@@ -17,20 +17,21 @@ export const BottomNavigator = () => {
           borderTopLeftRadius: 20,
           borderTopRightRadius: 20,
           borderTopWidth: 0,
-        }
+        },
+        tabBarActiveTintColor: '#3c25d3'
       }}
     >
       <Tab.Screen name="Home" component={HomeScreen} options={{
-        tabBarIcon: () => (<Ionicons name="home-outline" size={24} color={"#fff"} />)
+        tabBarIcon: ({ color }) => (<Ionicons name="home-outline" size={24} color={color} />)
       }} />
       <Tab.Screen name="Player" component={Player} options={{
-        tabBarIcon: () => (<Feather name="music" size={24} color={"#fff"} />)
+        tabBarIcon: ({ color }) => (<Feather name="music" size={24} color={color} />)
       }} />
       <Tab.Screen name="Favorite" component={Favorite} options={{
-        tabBarIcon: () => (<MaterialIcons name="favorite-border" size={24} color={"#fff"} />)
+        tabBarIcon: ({ color }) => (<MaterialIcons name="favorite-border" size={24} color={color} />)
       }} />
       <Tab.Screen name="User" component={User} options={{
-        tabBarIcon: () => (<AntDesign name="user" size={24} color="#fff" />)
+        tabBarIcon: ({ color }) => (<AntDesign name="user" size={24} color={color} />)
       }} />
     </Tab.Navigator >
   )
@@ -45,7 +46,7 @@ const MainNavigator = () => {
         headerShown: false,
       }}>
       <Stack.Screen name="SearchResultScreen" component={SearchResultScreen} />
-      <Stack.Screen name="HomeScreen" component={BottomNavigator} options={{ title: 'Trang chủ' }} />
+      <Stack.Screen name="HomeScreen" component={BottomNavigator} />
       <Stack.Screen name="SongScreen" component={SongScreen} />
     </Stack.Navigator>
   );

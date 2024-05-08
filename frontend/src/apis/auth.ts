@@ -14,7 +14,7 @@ export const signup = async (register: RegisterRequest): Promise<JWToken> => {
   }
 }
 
-export const login = async (login: LoginRequest) => {
+export const login = async (login: LoginRequest): Promise<JWToken> => {
   try {
     const response = await customFetch.post<JWToken>(
       `/auth/authenticate`,
