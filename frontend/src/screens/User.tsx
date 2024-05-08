@@ -16,6 +16,9 @@ import * as ImagePicker from 'expo-image-picker';
 import { BasicIP } from '../constant/Constants';
 import { checkToken } from '../apis/About';
 import { fetchUserData, changePassword, updateProfile } from '../apis/UserApi';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../redux/store';
+import { logoutUser } from '../redux/auth/authSlice';
 
 const User = ({ navigation }) => {
   const [token, setToken] = useState('')
@@ -30,32 +33,34 @@ const User = ({ navigation }) => {
   const [isEditingProfile, setIsEditingProfile] = useState(false)
   const [isChangePassword, setIsChangePassword] = useState(false)
 
-  useEffect(() => {
-    fetchUserData()
-  }, [])
+  const dispatch = useDispatch<AppDispatch>()
 
-  const fetchUserData = async () => {
-    try {
-      const token = await checkToken();
-      if (token) {
-        setToken(token)
+  // useEffect(() => {
+  //   fetchUserData()
+  // }, [])
 
-        const response = await fetch(`${BasicIP}/users/profile`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        const userData = await response.json()
-        setName(userData.name)
-        setEmail(userData.email)
-        setAvatar(userData.photo)
-      } else {
-        Alert.alert('Token not found')
-      }
-    } catch (error) {
-      console.error('Error:', error)
-    }
-  }
+  // const fetchUserData = async () => {
+  //   try {
+  //     const token = await checkToken();
+  //     if (token) {
+  //       setToken(token)
+
+  //       const response = await fetch(`${BasicIP}/users/profile`, {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       })
+  //       const userData = await response.json()
+  //       setName(userData.name)
+  //       setEmail(userData.email)
+  //       setAvatar(userData.photo)
+  //     } else {
+  //       Alert.alert('Token not found')
+  //     }
+  //   } catch (error) {
+  //     console.error('Error:', error)
+  //   }
+  // }
 
   const handleChangePassword = async () => {
     try {
@@ -171,8 +176,9 @@ const User = ({ navigation }) => {
   }
 
   const handleLogout = async () => {
-    await SecureStore.deleteItemAsync('token')
-    navigation.navigate('HomeScreen')
+    // await SecureStore.deleteItemAsync('token')
+    // navigation.navigate('HomeScreen')
+    dispatch(logoutUser())
   }
 
   return (
@@ -203,8 +209,8 @@ const User = ({ navigation }) => {
             />
           ) : (
             <View>
-              <TouchableOpacity style={{ marginLeft: 180}} onPress={handleImageSelection}>
-                <FontAwesome name="pencil-square-o" size={24} color="#fff" paddingTop= {20}/>
+              <TouchableOpacity style={{ marginLeft: 180 }} onPress={handleImageSelection}>
+                <FontAwesome name="pencil-square-o" size={24} color="#fff" paddingTop={20} />
               </TouchableOpacity>
               <Image
                 source={{ uri: avatar }}
@@ -253,7 +259,7 @@ const User = ({ navigation }) => {
               style={styles.input}
               placeholder="Nhập mật khẩu cũ"
               placeholderTextColor="#fff"
-              onChangeText={(text)=>setOldPassword(text)}
+              onChangeText={(text) => setOldPassword(text)}
               secureTextEntry
             />
             <TextInput
@@ -261,7 +267,7 @@ const User = ({ navigation }) => {
               placeholder="Nhập mật khẩu mới"
               placeholderTextColor="#fff"
               // value={newPassword}
-              onChangeText={(text)=>setNewPassword(text)}
+              onChangeText={(text) => setNewPassword(text)}
               secureTextEntry
             />
             <TextInput
@@ -269,7 +275,7 @@ const User = ({ navigation }) => {
               placeholder="Xác nhận mật khẩu mới"
               placeholderTextColor="#fff"
               // value={confirmPassword}
-              onChangeText={(text)=>setConfirmPassword(text)}
+              onChangeText={(text) => setConfirmPassword(text)}
               secureTextEntry
             />
             <TouchableOpacity onPress={() => setIsChangePassword(false)}>
