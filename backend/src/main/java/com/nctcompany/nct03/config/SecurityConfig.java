@@ -15,6 +15,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -75,6 +76,7 @@ public class SecurityConfig {
                 .logout(logout -> logout
                         .logoutUrl("/v1/auth/logout")
                         .addLogoutHandler(logoutHandler)
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/v1/auth/logout", "POST"))
                         .logoutSuccessHandler(
                                 (request, response, authentication) -> SecurityContextHolder.clearContext()
                         )
