@@ -14,6 +14,7 @@ const SearchResultScreen = ({ route, navigation }) => {
 
   const handleSearch = async () => {
     try {
+      setLoading(true);
       // Call the API to search for songs and artists
       const songsResponse = await searchSongs(searchTerm);
       const artistsResponse = await searchArtists(searchTerm);
@@ -25,10 +26,14 @@ const SearchResultScreen = ({ route, navigation }) => {
       console.error("Error fetching search results:", error);
       Alert.alert('Lỗi', error.message);
     }
+    finally {
+      setLoading(false);
+    }
   };
 
   const handleGetSongsOfArtist = async (id) => {
     try {
+        setLoading(true);
         const songResults = await getSongsOfArtist(id)
         const favoriteSongs = songResults.items
         navigation.navigate('SongScreen', { favoriteSongs });
@@ -36,6 +41,9 @@ const SearchResultScreen = ({ route, navigation }) => {
     catch (error) {
         console.error(error.message)
         Alert.alert('Lỗi', error.message);
+    }
+    finally {
+      setLoading(false);
     }
 } 
 

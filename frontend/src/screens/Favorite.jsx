@@ -14,6 +14,7 @@ export default function Playlist({ navigation }) {
 
     const fetchInitialData = async () => {
         try {
+            setLoading(true);
             const albums = await getAllPlaylistAlbum();
             setAlbums(albums)
         }
@@ -21,10 +22,14 @@ export default function Playlist({ navigation }) {
             console.error('Error fetching initial data:', err.message)
             Alert.alert('Lỗi', error.message);
         }
+        finally {
+            setLoading(false);
+        }
     }
 
     const handleRemoveAlbum = async (id) => {
         try {
+            setLoading(true);
             // Gọi hàm API để xóa album
             await deletePlaylistAlbum(id)
             fetchInitialData()
@@ -32,10 +37,14 @@ export default function Playlist({ navigation }) {
             console.error(error.message)
             Alert.alert('Lỗi', error.message);
         }
+        finally {
+            setLoading(false);
+        }
     };
 
     const handleCreatePlayListAlbum = async () => {
         try {
+            setLoading(true);
             if (albumName.length == 0) {
                 alert("Bạn hãy nhập tên album");
                 return
@@ -47,10 +56,14 @@ export default function Playlist({ navigation }) {
             console.error(err.message)
             Alert.alert('Lỗi', error.message);
         }
+        finally {
+            setLoading(false);
+        }
     }
 
     const handleGetFavoriteSongs = async () => {
         try {
+            setLoading(true);
             const songResults = await getFavoriteSongs();
             const favoriteSongs = songResults.items
             navigation.navigate('SongScreen', { favoriteSongs });
@@ -58,10 +71,14 @@ export default function Playlist({ navigation }) {
             console.error('Error searching:', error.message);
             Alert.alert('Lỗi', error.message);
         }
+        finally {
+            setLoading(false);
+        }
     }
 
     const handleGetSongsInList = async (id) => {
         try {
+            setLoading(true);
             const songResults = await getSongsInPlaylist(id)
             const favoriteSongs = songResults.items
             navigation.navigate('SongScreen', { favoriteSongs });
@@ -69,6 +86,9 @@ export default function Playlist({ navigation }) {
         catch (error) {
             console.error(error.message)
             Alert.alert('Lỗi', error.message);
+        }
+        finally {
+            setLoading(false);
         }
     }
 

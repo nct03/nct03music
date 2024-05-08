@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, Image, FlatList, TextInput, TouchableOpacity, S
 import { EvilIcons } from '@expo/vector-icons';
 import { fetchMusicList, fetchSingers, searchSongs, searchArtists, fetchGenres } from "../apis/About";
 import { getSongsOfArtist, getSongsOfGenre } from "../apis/MusicApi";
-
+import { LoadingScreen } from './LoadingScreen';
 
 export default function AboutScreen({ navigation }) {
   const [musicList, setMusicList] = useState([]);
@@ -18,6 +18,7 @@ export default function AboutScreen({ navigation }) {
 
   const fetchInitialData = async () => {
     try {
+      setLoading(true);
       const singersData = await fetchSingers();
       const musicListData = await fetchMusicList();
       const genresData = await fetchGenres();
@@ -29,10 +30,14 @@ export default function AboutScreen({ navigation }) {
       console.error('Error fetching initial data:', error.message);
       Alert.alert('Lỗi', error.message);
     }
+    finally {
+      setLoading(false);
+    }
   };
 
   const handleSearch = async () => {
     try {
+      setLoading(true);
       const songResults = await searchSongs(searchTerm);
       const artistResults = await searchArtists(searchTerm);
       navigation.navigate('SearchResultScreen', { songResults, artistResults });
@@ -40,10 +45,14 @@ export default function AboutScreen({ navigation }) {
       console.error('Error searching:', error.message);
       Alert.alert('Lỗi', error.message);
     }
+    finally {
+      setLoading(false);
+    }
   };
 
   const handleGetSongsOfArtist = async (id) => {
     try {
+      setLoading(true);
       const songResults = await getSongsOfArtist(id)
       const favoriteSongs = songResults.items
       navigation.navigate('SongScreen', { favoriteSongs });
@@ -51,11 +60,15 @@ export default function AboutScreen({ navigation }) {
     catch (error) {
       console.error(error.message)
       Alert.alert('Lỗi', error.message);
+    }
+    finally {
+      setLoading(false);
     }
   }
 
   const handleGetSongsOfGenre = async (id) => {
     try {
+      setLoading(true);
       const songResults = await getSongsOfArtist(id)
       const favoriteSongs = songResults.items
       navigation.navigate('SongScreen', { favoriteSongs });
@@ -63,12 +76,19 @@ export default function AboutScreen({ navigation }) {
     catch (error) {
       console.error(error.message)
       Alert.alert('Lỗi', error.message);
+    }
+    finally {
+      setLoading(false);
     }
   }
 
   const handleSongPress = (songData) => {
     navigation.navigate('Player', { songData });
   };
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <ScrollView style={styles.background} >
