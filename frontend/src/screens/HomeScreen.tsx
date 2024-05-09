@@ -19,6 +19,7 @@ import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../redux/store'
 import { setKeyword } from '../redux/searchSlice'
 import SearchBar from '../components/SearchBar'
+import { fetchSongs } from '../redux/songsSlice'
 
 export default function HomeScreen({ navigation }) {
   const [musicList, setMusicList] = useState([])
@@ -51,24 +52,14 @@ export default function HomeScreen({ navigation }) {
 
 
 
-  const handleGetSongsOfArtist = async (id) => {
-    try {
-      const songResults = await getSongsOfArtist(id)
-      const favoriteSongs = songResults.items
-      navigation.navigate('SongScreen', { favoriteSongs })
-    } catch (error) {
-      console.error(error.message)
-    }
+  const handleGetSongsOfArtist = async (id: number, artistName: string) => {
+    dispatch(fetchSongs({ url: `/artists/${id}/songs`, heading: artistName }))
+    navigation.navigate('SongScreen')
   }
 
-  const handleGetSongsOfGenre = async (id) => {
-    try {
-      const songResults = await getSongsOfArtist(id)
-      const favoriteSongs = songResults.items
-      navigation.navigate('SongScreen', { favoriteSongs })
-    } catch (error) {
-      console.error(error.message)
-    }
+  const handleGetSongsOfGenre = async (id: number, genreName: string) => {
+    dispatch(fetchSongs({ url: `/genres/${id}/songs`, heading: genreName }))
+    navigation.navigate('SongScreen')
   }
 
   const handleSongPress = (songData) => {
@@ -95,7 +86,7 @@ export default function HomeScreen({ navigation }) {
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={{ alignItems: 'center' }}
-                onPress={() => handleGetSongsOfArtist(item.id)}
+                onPress={() => handleGetSongsOfArtist(item.id, item.name)}
               >
                 <Image
                   source={{ uri: item.photo }}
@@ -134,7 +125,7 @@ export default function HomeScreen({ navigation }) {
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={{ alignItems: 'center' }}
-                onPress={() => handleGetSongsOfGenre(item.id)}
+                onPress={() => handleGetSongsOfGenre(item.id, item.name)}
               >
                 <Image
                   source={require('../assets/TheLoai.png')}

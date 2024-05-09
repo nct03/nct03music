@@ -2,15 +2,7 @@ import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from "react
 
 const SongsSearchList = ({ songsSearchResult }) => {
 
-  // const handleGetSongsOfArtist = async (id) => {
-  //   try {
-  //     const songResults = await getSongsOfArtist(id)
-  //     const favoriteSongs = songResults.items
-  //     navigation.navigate('SongScreen', { favoriteSongs })
-  //   } catch (error) {
-  //     console.error(error.message)
-  //   }
-  // }
+
 
   if (!songsSearchResult || songsSearchResult.length === 0) {
     return (

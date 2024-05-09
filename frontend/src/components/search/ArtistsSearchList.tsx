@@ -1,6 +1,13 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import { useDispatch } from "react-redux"
+import { fetchSongs } from "../../redux/songsSlice"
+import { AppDispatch } from "../../redux/store"
+import { useNavigation } from "@react-navigation/native"
 
 const ArtistsSearchList = ({ artistsSearchResult }) => {
+
+  const dispatch = useDispatch<AppDispatch>()
+  const navigation = useNavigation()
 
   if (!artistsSearchResult || artistsSearchResult.length === 0) {
     return (
@@ -10,6 +17,18 @@ const ArtistsSearchList = ({ artistsSearchResult }) => {
     )
   };
 
+  const handleGetSongsOfArtist = async (id: number, aritstName: string) => {
+    // try {
+    //   const songResults = await getSongsOfArtist(id)
+    //   const favoriteSongs = songResults.items
+    //   navigation.navigate('SongScreen', { favoriteSongs })
+    // } catch (error) {
+    //   console.error(error.message)
+    // }
+
+    dispatch(fetchSongs({ url: `/artists/${id}/songs`, heading: aritstName }))
+    navigation.navigate('SongScreen')
+  }
 
   return (
     <>
@@ -17,7 +36,7 @@ const ArtistsSearchList = ({ artistsSearchResult }) => {
         <TouchableOpacity
           style={styles.item}
           key={artist.id}
-        // onPress={() => handleGetSongsOfArtist(artist.id)}
+          onPress={() => handleGetSongsOfArtist(artist.id, artist.name)}
         >
           <Image source={{ uri: artist.photo }} style={styles.image} />
           <Text style={styles.text}>{artist.name}</Text>

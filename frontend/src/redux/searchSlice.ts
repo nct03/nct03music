@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { Artist, Song } from '../models'
 
 interface SearchState {
   keyword: string

@@ -1,11 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit'
 import authReducer from './auth/authSlice'
 import searchReducer from './searchSlice'
+import songReducer from './songsSlice'
 
 const store = configureStore({
   reducer: {
     auth: authReducer,
     search: searchReducer,
+    songs: songReducer,
   },
 })
 
