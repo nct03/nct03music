@@ -4,7 +4,7 @@ import { HomeScreen, LoginScreen, SignupScreen, Player, Favorite, User, AboutScr
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from '@react-navigation/native';
-
+import MusicPlayerFromPlaylist from '../components/MusicPlayerFromPlaylist';
  
 export const BottomNavigator = () => {
     const Tab = createBottomTabNavigator()
@@ -52,6 +52,7 @@ const AboutNavigator = () => {
                 <Stack.Screen name="SearchResultScreen" component={SearchResultScreen}/>
                 <Stack.Screen name="AboutScreen" component={BottomNavigator} options={{ title: 'Trang chủ' }} /> 
                 <Stack.Screen name="SongScreen" component={SongScreen}/>
+                <Stack.Screen name='MusicPlayerFromPlaylist' component={MusicPlayerFromPlaylist}/>
             </Stack.Navigator>
         </NavigationContainer>
     );

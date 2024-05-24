@@ -102,6 +102,11 @@ export default function AboutScreen({ navigation }) {
               </TouchableOpacity>
             )}
             keyExtractor={(item) => item.id.toString()}
+            ListEmptyComponent={() => (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>Không tìm thấy ứng viên</Text>
+              </View>
+            )}
           />
         </View>
 
@@ -122,11 +127,16 @@ export default function AboutScreen({ navigation }) {
               </TouchableOpacity>
             )}
             keyExtractor={(item) => item.id.toString()}
+            ListEmptyComponent={() => (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>Không tìm thấy ứng viên</Text>
+              </View>
+            )}
           />
         </View>
 
-        <View style={styles.title}>
-          <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold" }}> Top bảng xếp hạng được ưa thích </Text>
+        <View style={{...styles.title, paddingBottom:40}}>
+          <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold"}}> Top bảng xếp hạng được ưa thích </Text>
           {musicList.map((item, index) => (
             <TouchableOpacity key={index} style={styles.wrapper} onPress={() => handleSongPress(item)} >
               <Image
@@ -152,7 +162,7 @@ const styles = StyleSheet.create({
 
   background: {
     backgroundColor: "#0A071E",
-    marginTop: "6%"
+    marginTop: "6%",
   },
 
   container: {
@@ -171,7 +181,7 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    marginTop: 20,
+    marginTop: 10,
   }
   , wrapper: {
     flex: 1,
@@ -187,7 +197,17 @@ const styles = StyleSheet.create({
   }
   , text: {
     color: "#fff"
-  }
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  emptyText: {
+    fontSize: 18,
+    color: 'gray',
+  },
 })
 
 
