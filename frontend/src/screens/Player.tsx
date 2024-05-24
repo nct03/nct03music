@@ -1,22 +1,25 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
 
-export default function Player () {
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import MusicPlayer from '../components/MusicPlayer';
+
+
+
+export default function Player() {
     return (
         <View style={styles.container}>
-            <Text style={{fontSize : 200, color: "#fff"}}>
-                Player
-            </Text>
+            <MusicPlayer />
         </View>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: "#0A071E",
         flex: 1,
-        padding: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: "#0A071E",
         marginTop: "6%",
-
+        paddingHorizontal: 20,
     }
 })

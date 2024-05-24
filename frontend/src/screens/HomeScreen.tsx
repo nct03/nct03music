@@ -20,6 +20,7 @@ import { AppDispatch } from '../redux/store'
 import { setKeyword } from '../redux/searchSlice'
 import SearchBar from '../components/SearchBar'
 import { fetchSongs } from '../redux/songsSlice'
+import { setSongsPlay } from '../redux/playerSlice'
 
 export default function HomeScreen({ navigation }) {
   const [musicList, setMusicList] = useState([])
@@ -62,8 +63,9 @@ export default function HomeScreen({ navigation }) {
     navigation.navigate('SongScreen')
   }
 
-  const handleSongPress = (songData) => {
-    navigation.navigate('Player', { songData })
+  const handleSongPress = (songData, currentIndex) => {
+    dispatch(setSongsPlay({ songs: songData, currentIndex }))
+    navigation.navigate('Player')
   }
 
   if (loading) {
@@ -160,9 +162,9 @@ export default function HomeScreen({ navigation }) {
           </Text>
           {musicList.map((item, index) => (
             <TouchableOpacity
-              key={index}
+              key={item.id}
               style={styles.wrapper}
-              onPress={() => handleSongPress(item)}
+              onPress={() => handleSongPress(musicList, index)}
             >
               <Image
                 source={{ uri: item.imagePath }}
