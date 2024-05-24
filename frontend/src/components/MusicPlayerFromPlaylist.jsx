@@ -28,7 +28,6 @@ export default function MusicPlayerFromPlaylist({ route }) {
     const loadSongsFromAPI = async () => {
         try {
             setSongs(playlist);
-            console.log(songs)
             await loadSong(playlist[currentSongIndex].url);
         } catch (error) {
             console.error('Error fetching songs:', error);
@@ -92,10 +91,16 @@ export default function MusicPlayerFromPlaylist({ route }) {
 
     const toggleLooping = () => {
         setIsLooping(!isLooping);
+        if(isShuffle) {
+            setIsShuffle(false)
+        }
     };
 
     const toggleShuffle = () => {
         setIsShuffle(!isShuffle);
+        if(isLooping = true) {
+            setIsLooping(false)
+        }
     };
 
     const formatTime = (time) => {

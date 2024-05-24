@@ -102,6 +102,11 @@ export default function AboutScreen({ navigation }) {
               </TouchableOpacity>
             )}
             keyExtractor={(item) => item.id.toString()}
+            ListEmptyComponent={() => (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>Không tìm thấy ứng viên</Text>
+              </View>
+            )}
           />
         </View>
 
@@ -122,6 +127,11 @@ export default function AboutScreen({ navigation }) {
               </TouchableOpacity>
             )}
             keyExtractor={(item) => item.id.toString()}
+            ListEmptyComponent={() => (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>Không tìm thấy ứng viên</Text>
+              </View>
+            )}
           />
         </View>
 
@@ -187,7 +197,17 @@ const styles = StyleSheet.create({
   }
   , text: {
     color: "#fff"
-  }
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  emptyText: {
+    fontSize: 18,
+    color: 'gray',
+  },
 })
 
 

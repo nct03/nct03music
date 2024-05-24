@@ -92,10 +92,16 @@ export default function MusicPlayer() {
 
   const toggleLooping = () => {
     setIsLooping(!isLooping);
+    if (isShuffle) {
+      setIsShuffle(false)
+    }
   };
 
   const toggleShuffle = () => {
     setIsShuffle(!isShuffle);
+    if (isLooping) {
+      setIsLooping(false)
+    }
   };
 
   const formatTime = (time) => {
@@ -111,8 +117,8 @@ export default function MusicPlayer() {
         style={{ width: 200, height: 200, borderRadius: 10 }}
         resizeMode="cover"
       />
-      <Text style= {{color:"#fff",fontSize:28, marginTop: 30}}>{songs[currentSongIndex]?.name}</Text>
-      <Text style= {{opacity: 0.6, color:"#fff",fontSize:16, marginTop: 10}}>{songs[currentSongIndex]?.artists[0].name}</Text>
+      <Text style={{ color: "#fff", fontSize: 28, marginTop: 30 }}>{songs[currentSongIndex]?.name}</Text>
+      <Text style={{ opacity: 0.6, color: "#fff", fontSize: 16, marginTop: 10 }}>{songs[currentSongIndex]?.artists[0].name}</Text>
       <Slider
         style={{ width: 380, marginTop: 20 }}
         minimumTrackTintColor={'#6156E2'}
@@ -129,11 +135,11 @@ export default function MusicPlayer() {
         }}
       />
       <View style={{ width: 380, flexDirection: "row", justifyContent: "space-between" }}>
-        <Text style={{color:"#fff"}}>{formatTime(progress * duration)}</Text>
-        <Text style={{color:"#fff"}}> {formatTime(duration)}</Text>
+        <Text style={{ color: "#fff" }}>{formatTime(progress * duration)}</Text>
+        <Text style={{ color: "#fff" }}> {formatTime(duration)}</Text>
       </View>
       <View style={{ flexDirection: "row", width: 380, alignContent: "space-around", justifyContent: "space-around", marginTop: 30 }}>
-        <FontAwesome6 name="shuffle" size={28} color={isShuffle ? "#fff" : "rgba(255,255,255,0.5)" } onPress={toggleShuffle} />
+        <FontAwesome6 name="shuffle" size={28} color={isShuffle ? "#fff" : "rgba(255,255,255,0.5)"} onPress={toggleShuffle} />
         <AntDesign name="stepbackward" size={28} color="#fff" onPress={previousSong} />
         <AntDesign name={isPlaying ? 'pausecircle' : 'caretright'} size={28} color="#fff" onPress={playPause} />
         <AntDesign name="stepforward" size={28} color="#fff" title="Next" onPress={nextSong} />
