@@ -30,7 +30,7 @@ public class ArtistServiceImpl implements ArtistService {
         Page<Artist> artistsPage = artistRepository.findAll(PageRequest.of(pageNum, pageSize));
         List<ArtistResponse> artists = artistsPage.getContent().stream()
                 .map(ArtistMapper::mapToResponse)
-                .collect(Collectors.toList());;
+                .collect(Collectors.toList());
         return PageableResult.<ArtistResponse>builder()
                 .items(artists)
                 .pageNum(artistsPage.getNumber() + 1)

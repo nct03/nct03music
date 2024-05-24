@@ -1,6 +1,7 @@
 package com.nctcompany.nct03.service.impl;
 
 import com.nctcompany.nct03.constant.ApplicationConstants;
+import com.nctcompany.nct03.dto.common.PageableResult;
 import com.nctcompany.nct03.dto.song.SongRequest;
 import com.nctcompany.nct03.dto.song.SongResponse;
 import com.nctcompany.nct03.exception.BadRequestException;
@@ -15,6 +16,8 @@ import com.nctcompany.nct03.repository.SongRepository;
 import com.nctcompany.nct03.service.SongService;
 import com.nctcompany.nct03.util.FileUploadUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,12 +35,33 @@ public class SongSerivceImpl implements SongService {
     private final ArtistRepository artistRepository;
 
     @Override
-    public List<SongResponse> getRecentlyReleasedSong() {
-        List<Song> songs = songRepository.findTop10ByOrderByReleasedOnDesc();
-
-        return songs
-                .stream().map(SongMapper::mapToSongResponse)
+    public PageableResult<SongResponse> getRecentlyReleasedSong(Integer pageNum, Integer pageSize) {
+        Page<Song> songsPage = songRepository.findLatestReleasedSongs(PageRequest.of(pageNum-1, pageSize));
+        List<SongResponse> songs = songsPage.getContent().stream()
+                .map(SongMapper::mapToSongResponse)
                 .collect(Collectors.toList());
+        return PageableResult.<SongResponse>builder()
+                .items(songs)
+                .pageNum(songsPage.getNumber()+1)
+                .pageSize(songsPage.getSize())
+                .totalItems(songsPage.getTotalElements())
+                .totalPages(songsPage.getTotalPages())
+                .build();
+    }
+
+    @Override
+    public PageableResult<SongResponse> getMostLikedSongs(Integer pageNum, Integer pageSize) {
+        Page<Song> songsPage = songRepository.findMostLikedSongs(PageRequest.of(pageNum-1, pageSize));
+        List<SongResponse> songs = songsPage.getContent().stream()
+                .map(SongMapper::mapToSongResponse)
+                .collect(Collectors.toList());
+        return PageableResult.<SongResponse>builder()
+                .items(songs)
+                .pageNum(songsPage.getNumber()+1)
+                .pageSize(songsPage.getSize())
+                .totalItems(songsPage.getTotalElements())
+                .totalPages(songsPage.getTotalPages())
+                .build();
     }
 
     @Override
