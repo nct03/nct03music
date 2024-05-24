@@ -7,7 +7,6 @@ import com.nctcompany.nct03.service.GenreService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
@@ -51,14 +50,14 @@ public class GenreController {
     @GetMapping("/{genreId}/songs")
     public ResponseEntity<PageableResult<SongResponse>> getSongsByGenre(
             @PathVariable Integer genreId,
-            @Parameter(description = "Page number (default: 1)", example = "1", in = ParameterIn.QUERY, required = false)
+            @Parameter(description = "Page number (default: 1)", example = "1", in = ParameterIn.QUERY)
                 @RequestParam(value="pageNum", required = false, defaultValue = "1") @Min(value = 1) Integer pageNum,
-            @Parameter(description = "Page size (default: 7, min: 5, max: 20)", example = "7", in = ParameterIn.QUERY, required = false)
+            @Parameter(description = "Page size (default: 7, min: 5, max: 20)", example = "7", in = ParameterIn.QUERY)
                 @RequestParam(value="pageSize", required = false, defaultValue = "7") @Min(value = 5) @Max(value = 20)  Integer pageSize
 
     ){
         PageableResult<SongResponse> songsByGenre = genreService.getSongsByGenre(genreId, pageNum, pageSize);
-        return ResponseEntity.ok(addLinksToSongsPage(songsByGenre, genreId));
+        return ResponseEntity.ok(songsByGenre);
     }
 
     private PageableResult<SongResponse> addLinksToSongsPage(PageableResult<SongResponse> songsPage, int genreId){

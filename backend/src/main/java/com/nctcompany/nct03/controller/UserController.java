@@ -171,7 +171,7 @@ public class UserController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User loggedUser = (User) authentication.getPrincipal();
         PageableResult<SongResponse> songsPage = userService.getFavoriteSongs(loggedUser, pageNum, pageSize);
-        return ResponseEntity.ok(addLinksToSongsPage(songsPage));
+        return ResponseEntity.ok(songsPage);
     }
 
     private PageableResult<SongResponse> addLinksToSongsPage(PageableResult<SongResponse> songsPage){

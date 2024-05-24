@@ -53,7 +53,7 @@ public class ArtistController {
                 @RequestParam(value="pageSize", required = false, defaultValue = "10") @Min(value = 5) @Max(value = 20)  Integer pageSize
     ){
         PageableResult<ArtistResponse> artists = artistService.getAllArtists(pageNum - 1, pageSize);
-        return ResponseEntity.ok(addLinksToArtistPage(artists));
+        return ResponseEntity.ok(artists);
     }
 
     private PageableResult<ArtistResponse> addLinksToArtistPage(PageableResult<ArtistResponse> artistsPage){
@@ -103,14 +103,14 @@ public class ArtistController {
     @GetMapping("/{artistId}/songs")
     public ResponseEntity<PageableResult<SongResponse>> getSongsByArtist(
             @PathVariable Long artistId,
-            @Parameter(description = "Page number (default: 1)", example = "1", in = ParameterIn.QUERY, required = false)
+            @Parameter(description = "Page number (default: 1)", example = "1", in = ParameterIn.QUERY)
                 @RequestParam(value="pageNum", required = false, defaultValue = "1") @Min(value = 1) Integer pageNum,
-            @Parameter(description = "Page size (default: 7, min: 5, max: 20)", example = "7", in = ParameterIn.QUERY, required = false)
+            @Parameter(description = "Page size (default: 7, min: 5, max: 20)", example = "7", in = ParameterIn.QUERY)
                 @RequestParam(value="pageSize", required = false, defaultValue = "7") @Min(value = 5) @Max(value = 20)  Integer pageSize
 
     ){
         PageableResult<SongResponse> songsByArtist = artistService.getSongsByArtist(artistId, pageNum, pageSize);
-        return ResponseEntity.ok(addLinksToSongsPage(songsByArtist, artistId));
+        return ResponseEntity.ok(songsByArtist);
     }
 
     private PageableResult<SongResponse> addLinksToSongsPage(PageableResult<SongResponse> songsPage, long artistId){

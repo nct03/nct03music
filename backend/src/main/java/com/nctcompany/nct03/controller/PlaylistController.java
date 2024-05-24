@@ -104,15 +104,15 @@ public class PlaylistController {
     @GetMapping("/{playlistId}/songs")
     public ResponseEntity<PageableResult<SongResponse>> getSongsInPlaylist(
             @PathVariable Long playlistId,
-            @Parameter(description = "Page number (default: 1)", example = "1", in = ParameterIn.QUERY, required = false)
+            @Parameter(description = "Page number (default: 1)", example = "1", in = ParameterIn.QUERY)
             @RequestParam(value="pageNum", required = false, defaultValue = "1") @Min(value = 1) Integer pageNum,
-            @Parameter(description = "Page size (default: 5, min: 5, max: 20)", example = "5", in = ParameterIn.QUERY, required = false)
+            @Parameter(description = "Page size (default: 5, min: 5, max: 20)", example = "5", in = ParameterIn.QUERY)
             @RequestParam(value="pageSize", required = false, defaultValue = "5") @Min(value = 5) @Max(value = 20)  Integer pageSize
     ){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User loggedUser = (User) authentication.getPrincipal();
         PageableResult<SongResponse> songsPage = playlistService.getSongInPlaylist(playlistId, loggedUser, pageNum, pageSize);
-        return ResponseEntity.ok(addLinksToSongsPage(songsPage, playlistId));
+        return ResponseEntity.ok(songsPage);
     }
 
     private PageableResult<SongResponse> addLinksToSongsPage(PageableResult<SongResponse> songsPage, long playlistId){
