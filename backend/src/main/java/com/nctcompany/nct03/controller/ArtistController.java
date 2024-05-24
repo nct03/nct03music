@@ -46,8 +46,8 @@ public class ArtistController {
     public ResponseEntity<PageableResult<ArtistResponse>> getAllArtists(
             @Parameter(description = "Page number (default: 1)", example = "1", in = ParameterIn.QUERY)
                 @RequestParam(value="pageNum", required = false, defaultValue = "1") @Min(value = 1) Integer pageNum,
-            @Parameter(description = "Page size (default: 10, min: 5, max: 20)", example = "10", in = ParameterIn.QUERY)
-                @RequestParam(value="pageSize", required = false, defaultValue = "10") @Min(value = 5) @Max(value = 20)  Integer pageSize
+            @Parameter(description = "Page size (default: 5, min: 5, max: 20)", example = "5", in = ParameterIn.QUERY)
+                @RequestParam(value="pageSize", required = false, defaultValue = "5") @Min(value = 5) @Max(value = 20)  Integer pageSize
     ){
         PageableResult<ArtistResponse> artists = artistService.getAllArtists(pageNum - 1, pageSize);
         return ResponseEntity.ok(artists);
@@ -57,7 +57,7 @@ public class ArtistController {
             summary = "Get artist details"
     )
     @GetMapping("/{artistId}")
-    public ResponseEntity<ArtistDetails> getArtistDetails(
+    public ResponseEntity<ArtistResponse> getArtistDetails(
             @PathVariable Long artistId
     ){
         return ResponseEntity.ok(artistService.getArtistDetails(artistId));
@@ -71,8 +71,8 @@ public class ArtistController {
             @PathVariable Long artistId,
             @Parameter(description = "Page number (default: 1)", example = "1", in = ParameterIn.QUERY)
                 @RequestParam(value="pageNum", required = false, defaultValue = "1") @Min(value = 1) Integer pageNum,
-            @Parameter(description = "Page size (default: 7, min: 5, max: 20)", example = "7", in = ParameterIn.QUERY)
-                @RequestParam(value="pageSize", required = false, defaultValue = "7") @Min(value = 5) @Max(value = 20)  Integer pageSize
+            @Parameter(description = "Page size (default: 5, min: 5, max: 20)", example = "5", in = ParameterIn.QUERY)
+                @RequestParam(value="pageSize", required = false, defaultValue = "5") @Min(value = 5) @Max(value = 20)  Integer pageSize
 
     ){
         PageableResult<SongResponse> songsByArtist = artistService.getSongsByArtist(artistId, pageNum, pageSize);

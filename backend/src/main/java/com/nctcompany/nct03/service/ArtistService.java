@@ -10,7 +10,7 @@ import java.util.List;
 public interface ArtistService {
 
     PageableResult<ArtistResponse> getAllArtists(Integer pageNum, Integer pageSize);
-    ArtistDetails getArtistDetails(Long artistId);
+    ArtistResponse getArtistDetails(Long artistId);
     PageableResult<SongResponse> getSongsByArtist(Long artistId, Integer pageNum, Integer pageSize);
     List<ArtistResponse> searchArtists(String keyword);
 }

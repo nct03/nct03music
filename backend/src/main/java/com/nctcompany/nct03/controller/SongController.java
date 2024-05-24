@@ -56,8 +56,8 @@ public class SongController {
     public ResponseEntity<PageableResult<SongResponse>> getRecentlyReleasedSongs(
             @Parameter(description = "Page number (default: 1)", example = "1", in = ParameterIn.QUERY)
             @RequestParam(value="pageNum", required = false, defaultValue = "1") @Min(value = 1) Integer pageNum,
-            @Parameter(description = "Page size (default: 10, min: 5, max: 20)", example = "10", in = ParameterIn.QUERY)
-            @RequestParam(value="pageSize", required = false, defaultValue = "10") @Min(value = 5) @Max(value = 20)  Integer pageSize
+            @Parameter(description = "Page size (default: 5, min: 5, max: 20)", example = "5", in = ParameterIn.QUERY)
+            @RequestParam(value="pageSize", required = false, defaultValue = "5") @Min(value = 5) @Max(value = 20)  Integer pageSize
     ){
         PageableResult<SongResponse> recentlyReleasedSong = songService.getRecentlyReleasedSong(pageNum, pageSize);
         return ResponseEntity.ok(recentlyReleasedSong);

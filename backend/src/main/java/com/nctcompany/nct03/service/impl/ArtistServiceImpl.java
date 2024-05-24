@@ -41,10 +41,10 @@ public class ArtistServiceImpl implements ArtistService {
     }
 
     @Override
-    public ArtistDetails getArtistDetails(Long artistId) {
+    public ArtistResponse getArtistDetails(Long artistId) {
         Artist artist = artistRepository.findById(artistId)
                 .orElseThrow(() -> new ResourceNotFoundException("Artist with id=[%s] not found".formatted(artistId)));
-        return ArtistMapper.mapToDetails(artist);
+        return ArtistMapper.mapToResponse(artist);
     }
 
     @Override
