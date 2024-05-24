@@ -27,9 +27,6 @@ import org.springframework.web.bind.annotation.*;
 import java.net.MalformedURLException;
 import java.util.List;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-
 @RequestMapping("/v1/artists")
 @RestController
 @RequiredArgsConstructor
@@ -56,37 +53,6 @@ public class ArtistController {
         return ResponseEntity.ok(artists);
     }
 
-    private PageableResult<ArtistResponse> addLinksToArtistPage(PageableResult<ArtistResponse> artistsPage){
-        int pageSize = artistsPage.getPageSize();
-        int pageNum = artistsPage.getPageNum();
-        int totalPages = artistsPage.getTotalPages();
-
-        if (pageNum > 1) {
-            // add link to first page if the current page is not the first one
-            artistsPage.add(
-                    linkTo(methodOn(ArtistController.class).getAllArtists(1, pageSize))
-                            .withRel(IanaLinkRelations.FIRST));
-
-            // add link to the previous page if the current page is not the first one
-            artistsPage.add(
-                    linkTo(methodOn(ArtistController.class).getAllArtists(pageNum - 1, pageSize))
-                            .withRel(IanaLinkRelations.PREV));
-        }
-
-        if (pageNum < totalPages) {
-            // add link to next page if the current page is not the last one
-            artistsPage.add(
-                    linkTo(methodOn(ArtistController.class).getAllArtists(pageNum + 1, pageSize))
-                            .withRel(IanaLinkRelations.NEXT));
-
-            // add link to last page if the current page is not the last one
-            artistsPage.add(
-                    linkTo(methodOn(ArtistController.class).getAllArtists(totalPages, pageSize))
-                            .withRel(IanaLinkRelations.LAST));
-        }
-        return artistsPage;
-    }
-
     @Operation(
             summary = "Get artist details"
     )
@@ -111,33 +77,6 @@ public class ArtistController {
     ){
         PageableResult<SongResponse> songsByArtist = artistService.getSongsByArtist(artistId, pageNum, pageSize);
         return ResponseEntity.ok(songsByArtist);
-    }
-
-    private PageableResult<SongResponse> addLinksToSongsPage(PageableResult<SongResponse> songsPage, long artistId){
-        int pageSize = songsPage.getPageSize();
-        int pageNum = songsPage.getPageNum();
-        int totalPages = songsPage.getTotalPages();
-
-        if (pageNum > 1) {
-            songsPage.add(
-                    linkTo(methodOn(ArtistController.class).getSongsByArtist(artistId, 1, pageSize))
-                            .withRel(IanaLinkRelations.FIRST));
-
-            songsPage.add(
-                    linkTo(methodOn(ArtistController.class).getSongsByArtist(artistId, pageNum - 1, pageSize))
-                            .withRel(IanaLinkRelations.PREV));
-        }
-
-        if (pageNum < totalPages) {
-            songsPage.add(
-                    linkTo(methodOn(ArtistController.class).getSongsByArtist(artistId, pageNum + 1, pageSize))
-                            .withRel(IanaLinkRelations.NEXT));
-
-            songsPage.add(
-                    linkTo(methodOn(ArtistController.class).getSongsByArtist(artistId, totalPages, pageSize))
-                            .withRel(IanaLinkRelations.LAST));
-        }
-        return songsPage;
     }
 
     @Operation(

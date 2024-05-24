@@ -12,15 +12,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
-import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RequestMapping("/v1/genres")
 @RestController
@@ -58,33 +54,6 @@ public class GenreController {
     ){
         PageableResult<SongResponse> songsByGenre = genreService.getSongsByGenre(genreId, pageNum, pageSize);
         return ResponseEntity.ok(songsByGenre);
-    }
-
-    private PageableResult<SongResponse> addLinksToSongsPage(PageableResult<SongResponse> songsPage, int genreId){
-        int pageSize = songsPage.getPageSize();
-        int pageNum = songsPage.getPageNum();
-        int totalPages = songsPage.getTotalPages();
-
-        if (pageNum > 1) {
-            songsPage.add(
-                    linkTo(methodOn(GenreController.class).getSongsByGenre(genreId, 1, pageSize))
-                            .withRel(IanaLinkRelations.FIRST));
-
-            songsPage.add(
-                    linkTo(methodOn(GenreController.class).getSongsByGenre(genreId, pageNum - 1, pageSize))
-                            .withRel(IanaLinkRelations.PREV));
-        }
-
-        if (pageNum < totalPages) {
-            songsPage.add(
-                    linkTo(methodOn(GenreController.class).getSongsByGenre(genreId, pageNum + 1, pageSize))
-                            .withRel(IanaLinkRelations.NEXT));
-
-            songsPage.add(
-                    linkTo(methodOn(GenreController.class).getSongsByGenre(genreId, totalPages, pageSize))
-                            .withRel(IanaLinkRelations.LAST));
-        }
-        return songsPage;
     }
 
 }

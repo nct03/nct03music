@@ -22,7 +22,6 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.UrlResource;
-import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -34,9 +33,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.security.Principal;
 import java.util.List;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RequestMapping("/v1/users")
 @RestController
@@ -172,33 +168,6 @@ public class UserController {
         User loggedUser = (User) authentication.getPrincipal();
         PageableResult<SongResponse> songsPage = userService.getFavoriteSongs(loggedUser, pageNum, pageSize);
         return ResponseEntity.ok(songsPage);
-    }
-
-    private PageableResult<SongResponse> addLinksToSongsPage(PageableResult<SongResponse> songsPage){
-        int pageSize = songsPage.getPageSize();
-        int pageNum = songsPage.getPageNum();
-        int totalPages = songsPage.getTotalPages();
-
-        if (pageNum > 1) {
-            songsPage.add(
-                    linkTo(methodOn(UserController.class).getFavoriteSongs( 1, pageSize))
-                            .withRel(IanaLinkRelations.FIRST));
-
-            songsPage.add(
-                    linkTo(methodOn(UserController.class).getFavoriteSongs( pageNum - 1, pageSize))
-                            .withRel(IanaLinkRelations.PREV));
-        }
-
-        if (pageNum < totalPages) {
-            songsPage.add(
-                    linkTo(methodOn(UserController.class).getFavoriteSongs( pageNum + 1, pageSize))
-                            .withRel(IanaLinkRelations.NEXT));
-
-            songsPage.add(
-                    linkTo(methodOn(UserController.class).getFavoriteSongs( totalPages, pageSize))
-                            .withRel(IanaLinkRelations.LAST));
-        }
-        return songsPage;
     }
 
 }
