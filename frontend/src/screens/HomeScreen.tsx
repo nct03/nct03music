@@ -7,28 +7,27 @@ import {
   FlatList,
   TouchableOpacity,
   ScrollView,
-  Alert,
 } from 'react-native'
-
-import { getSongsOfArtist, getSongsOfGenre } from '../apis/MusicApi'
-import { fetchSingers, searchArtists } from '../apis/artists'
-import { fetchRecentlySongs, searchSongs } from '../apis/songs'
-import { fetchGenres } from '../apis/genres'
 import Loading from '../components/Loading'
-import { useDispatch } from 'react-redux'
-import { AppDispatch } from '../redux/store'
-import { setKeyword } from '../redux/searchSlice'
+import { useAppDispatch, useAppSelector } from '../features/store'
 import SearchBar from '../components/SearchBar'
-import { fetchSongs } from '../redux/songsSlice'
-import { setSongsPlay } from '../redux/playerSlice'
+import {
+  fetchRecentSongs,
+  fetchSongs,
+  selectSong,
+} from '../features/slices/songSlice'
+import { setSongsPlay } from '../features/slices/playerSlice'
+import { fetchArtists, selectArtist } from '../features/slices/artistSlice'
+import { fetchGenres, selectGenre } from '../features/slices/genreSlice'
 
 export default function HomeScreen({ navigation }) {
-  const [musicList, setMusicList] = useState([])
-  const [singers, setSingers] = useState([])
-  const [genres, setGenres] = useState([])
+  const { recentSongs } = useAppSelector(selectSong)
+  const { artists } = useAppSelector(selectArtist)
+  const { genres } = useAppSelector(selectGenre)
+
   const [loading, setLoading] = useState(true)
 
-  const dispatch = useDispatch<AppDispatch>()
+  const dispatch = useAppDispatch()
 
   useEffect(() => {
     fetchInitialData()
@@ -37,45 +36,45 @@ export default function HomeScreen({ navigation }) {
   const fetchInitialData = async () => {
     setLoading(true)
     try {
-      const [singersData, musicListData, genresData] = await Promise.all([
-        fetchSingers(),
-        fetchRecentlySongs(),
-        fetchGenres(),
+      await Promise.all([
+        dispatch(fetchRecentSongs()).unwrap(),
+        dispatch(fetchArtists()).unwrap(),
+        dispatch(fetchGenres()).unwrap(),
       ])
-      setSingers(singersData)
-      setMusicList(musicListData)
-      setGenres(genresData)
     } catch (error) {
-      Alert.alert('Error fetching initial data:', error.message)
+      console.error('Error fetching initial data:', error)
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
+  // const handleGetSongsOfArtist = async (id: number, artistName: string) => {
+  //   dispatch(fetchSongs({ url: `/artists/${id}/songs`, heading: artistName }))
+  //   navigation.navigate('SongScreen')
+  // }
 
+  // const handleGetSongsOfGenre = async (id: number, genreName: string) => {
+  //   dispatch(fetchSongs({ url: `/genres/${id}/songs`, heading: genreName }))
+  //   navigation.navigate('SongScreen')
+  // }
 
-  const handleGetSongsOfArtist = async (id: number, artistName: string) => {
-    dispatch(fetchSongs({ url: `/artists/${id}/songs`, heading: artistName }))
-    navigation.navigate('SongScreen')
-  }
-
-  const handleGetSongsOfGenre = async (id: number, genreName: string) => {
-    dispatch(fetchSongs({ url: `/genres/${id}/songs`, heading: genreName }))
-    navigation.navigate('SongScreen')
-  }
-
-  const handleSongPress = (songData, currentIndex) => {
-    dispatch(setSongsPlay({ songs: songData, currentIndex }))
-    navigation.navigate('Player')
-  }
+  // const handleSongPress = (songData, currentIndex) => {
+  //   dispatch(setSongsPlay({ songs: songData, currentIndex }))
+  //   navigation.navigate('Player')
+  // }
 
   if (loading) {
-    return <Loading style={{ backgroundColor: 'black' }} />
+    return <Loading type="black" loadingSize="large" />
+  }
+
+  if (!recentSongs || !artists || !genres) {
+    return
   }
 
   return (
     <ScrollView style={styles.background}>
       <View style={styles.container}>
-        <SearchBar initKeyword='' />
+        <SearchBar initKeyword="" />
 
         <View style={styles.title}>
           <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>
@@ -84,11 +83,11 @@ export default function HomeScreen({ navigation }) {
           </Text>
           <FlatList
             horizontal
-            data={singers.items}
+            data={artists.items}
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={{ alignItems: 'center' }}
-                onPress={() => handleGetSongsOfArtist(item.id, item.name)}
+                // onPress={() => handleGetSongsOfArtist(item.id, item.name)}
               >
                 <Image
                   source={{ uri: item.photo }}
@@ -120,14 +119,13 @@ export default function HomeScreen({ navigation }) {
             {' '}
             Thể loại{' '}
           </Text>
-
           <FlatList
             horizontal
             data={genres}
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={{ alignItems: 'center' }}
-                onPress={() => handleGetSongsOfGenre(item.id, item.name)}
+                // onPress={() => handleGetSongsOfGenre(item.id, item.name)}
               >
                 <Image
                   source={require('../assets/TheLoai.png')}
@@ -160,11 +158,11 @@ export default function HomeScreen({ navigation }) {
             {' '}
             Top bảng xếp hạng được ưa thích{' '}
           </Text>
-          {musicList.map((item, index) => (
+          {recentSongs.items.map((item, index) => (
             <TouchableOpacity
               key={item.id}
               style={styles.wrapper}
-              onPress={() => handleSongPress(musicList, index)}
+              // onPress={() => handleSongPress(musicList, index)}
             >
               <Image
                 source={{ uri: item.imagePath }}

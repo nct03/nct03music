@@ -9,16 +9,16 @@ import {
   ScrollView,
 } from 'react-native'
 import { useState } from 'react'
-import { AppDispatch, RootState } from '../redux/store'
-import { useDispatch, useSelector } from 'react-redux'
-import { loginUser } from '../redux/auth/authSlice'
+import { useAppDispatch, useAppSelector } from '../features/store'
+import { loginUser, selectAuth } from '../features/slices/authSlice'
+import Loading from '../components/Loading'
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('nam@gmail.com')
   const [password, setPassword] = useState('nam12345')
+  const { isLoading } = useAppSelector(selectAuth)
 
-  const { isLoading } = useSelector((state: RootState) => state.auth)
-  const dispatch = useDispatch<AppDispatch>()
+  const dispatch = useAppDispatch()
 
   const handleLogin = async () => {
     // Kiểm tra đã nhâp password và email hay chưa
@@ -71,10 +71,7 @@ export default function LoginScreen({ navigation }) {
               secureTextEntry={true}
             ></TextInput>
           </View>
-          <View style={[
-            styles.btn,
-            { opacity: isLoading ? .7 : 1 }
-          ]}>
+          <View style={[styles.btn, { opacity: isLoading ? 0.7 : 1 }]}>
             <TouchableOpacity onPress={handleLogin} disabled={isLoading}>
               <Text
                 style={{
@@ -85,7 +82,7 @@ export default function LoginScreen({ navigation }) {
                   paddingHorizontal: 118,
                 }}
               >
-                {!isLoading ? 'LOGIN' : 'SENDING...'}
+                {!isLoading ? 'LOGIN' : <Loading />}
               </Text>
             </TouchableOpacity>
           </View>

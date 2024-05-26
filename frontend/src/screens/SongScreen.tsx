@@ -1,12 +1,24 @@
-import React, { useState } from "react";
-import { StyleSheet, View, Text, Image, TextInput, TouchableOpacity, ScrollView } from "react-native";
-import { Ionicons } from '@expo/vector-icons';
-import { useSelector } from "react-redux";
-import { RootState } from "../redux/store";
-import Loading from "../components/Loading";
+import React, { useState } from 'react'
+import {
+  StyleSheet,
+  View,
+  Text,
+  Image,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+} from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
+import { useSelector } from 'react-redux'
+import { RootState } from '../features/store'
+import Loading from '../components/Loading'
 
 export default function SongScreen({ navigation }) {
-  const { items: songs, heading, isLoading } = useSelector((state: RootState) => state.songs)
+  const {
+    items: songs,
+    heading,
+    isLoading,
+  } = useSelector((state: RootState) => state.songs)
 
   if (isLoading) {
     return <Loading style={{ backgroundColor: 'black' }} />
@@ -14,7 +26,10 @@ export default function SongScreen({ navigation }) {
 
   return (
     <ScrollView style={styles.container}>
-      <TouchableOpacity style={{ marginBottom: 10 }} onPress={() => navigation.goBack()}>
+      <TouchableOpacity
+        style={{ marginBottom: 10 }}
+        onPress={() => navigation.goBack()}
+      >
         <Ionicons name="arrow-back" size={24} color="#fff" />
       </TouchableOpacity>
       <View style={styles.section}>
@@ -29,34 +44,33 @@ export default function SongScreen({ navigation }) {
           </TouchableOpacity>
         ))}
       </View>
-
-    </ScrollView >
-  );
-};
+    </ScrollView>
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#0A071E",
+    backgroundColor: '#0A071E',
     flex: 1,
     padding: 20,
-    marginTop: "6%",
+    marginTop: '6%',
   },
   section: {
     marginVertical: 20,
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 10,
-    color: "#fff"
+    color: '#fff',
   },
   item: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 10,
     borderRadius: 5,
     marginBottom: 10,
-    gap: 12
+    gap: 12,
   },
   image: {
     width: 100,
@@ -65,12 +79,11 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 18,
-    color: "#fff",
+    color: '#fff',
   },
   textReleasedOn: {
     marginTop: 4,
     color: '#ccc',
-    fontSize: 14
-  }
-});
-
+    fontSize: 14,
+  },
+})

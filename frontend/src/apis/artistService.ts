@@ -1,14 +1,15 @@
 import { Artist } from '../models'
 import customFetch from '../utils/customFetch'
 
-export const fetchSingers = async (pageNum = 1, pageSize = 10) => {
+export const getArtists = async () => {
   try {
-    const response = await customFetch.get(
-      `/artists?pageNum=${pageNum}&pageSize=${pageSize}`
-    )
+    const response = await customFetch.get(`/artists`)
     return response.data
   } catch (error) {
-    throw new Error('Error fetching top singers: ' + error.message)
+    if (error.response?.status === 401) {
+      return
+    }
+    throw error
   }
 }
 

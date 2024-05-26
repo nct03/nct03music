@@ -10,15 +10,15 @@ import {
   Button,
   Platform,
 } from 'react-native'
-import { FontAwesome } from '@expo/vector-icons';
-import * as SecureStore from 'expo-secure-store';
-import * as ImagePicker from 'expo-image-picker';
-import { BasicIP } from '../constant/Constants';
-import { checkToken } from '../apis/About';
-import { fetchUserData, changePassword, updateProfile } from '../apis/UserApi';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '../redux/store';
-import { logoutUser } from '../redux/auth/authSlice';
+import { FontAwesome } from '@expo/vector-icons'
+import * as SecureStore from 'expo-secure-store'
+import * as ImagePicker from 'expo-image-picker'
+import { BasicIP } from '../constant/Constants'
+import { checkToken } from '../apis/About'
+import { fetchUserData, changePassword, updateProfile } from '../apis/UserApi'
+import { useDispatch } from 'react-redux'
+import { AppDispatch } from '../features/store'
+import { logoutUser } from '../features/slices/authSlice'
 
 const User = ({ navigation }) => {
   const [token, setToken] = useState('')
@@ -71,7 +71,7 @@ const User = ({ navigation }) => {
       }
 
       // Gọi API để xác nhận mật khẩu cũ và cập nhật mật khẩu mới
-      const token = await checkToken();
+      const token = await checkToken()
       const response = await fetch(`${BasicIP}/users/change-password`, {
         method: 'PATCH',
         headers: {
@@ -103,7 +103,7 @@ const User = ({ navigation }) => {
   }
 
   const updateUserProfile = async () => {
-    const token = await checkToken();
+    const token = await checkToken()
     try {
       const formData = new FormData()
 
@@ -138,7 +138,6 @@ const User = ({ navigation }) => {
   const handleIsChangePassword = async () => {
     setIsChangePassword(true)
   }
-
 
   const handleImageSelection = async () => {
     try {
@@ -189,7 +188,7 @@ const User = ({ navigation }) => {
         >
           <TextInput
             placeholder="Nhập tên nếu bạn muốn thay đổi..."
-            placeholderTextColor={"#fff"}
+            placeholderTextColor={'#fff'}
             // value={newName}
             onChangeText={(text) => setNewName(text)}
             style={{
@@ -209,8 +208,16 @@ const User = ({ navigation }) => {
             />
           ) : (
             <View>
-              <TouchableOpacity style={{ marginLeft: 180 }} onPress={handleImageSelection}>
-                <FontAwesome name="pencil-square-o" size={24} color="#fff" paddingTop={20} />
+              <TouchableOpacity
+                style={{ marginLeft: 180 }}
+                onPress={handleImageSelection}
+              >
+                <FontAwesome
+                  name="pencil-square-o"
+                  size={24}
+                  color="#fff"
+                  paddingTop={20}
+                />
               </TouchableOpacity>
               <Image
                 source={{ uri: avatar }}
@@ -309,7 +316,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#0A071E',
     padding: 20,
-    marginTop: "6%",
+    marginTop: '6%',
   },
   wrapper: {
     flexDirection: 'row',

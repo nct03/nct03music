@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { JWToken } from '../models'
 
 export const saveTokenToStorage = async (token: JWToken) => {
+  removeTokenFromStorage()
   try {
     await AsyncStorage.setItem('token', JSON.stringify(token))
   } catch (error) {
@@ -9,15 +10,12 @@ export const saveTokenToStorage = async (token: JWToken) => {
   }
 }
 
-export const getTokenFromStorage = async (): Promise<JWToken> => {
+export const getTokenFromStorage = async (): Promise<JWToken | null> => {
   try {
     const data = await AsyncStorage.getItem('token')
     if (data) {
       const token = JSON.parse(data)
-      return {
-        accessToken: token.accessToken,
-        refreshToken: token.refreshToken,
-      }
+      return token
     }
     return null
   } catch (error) {

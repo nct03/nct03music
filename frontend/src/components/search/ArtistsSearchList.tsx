@@ -1,21 +1,27 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native"
-import { useDispatch } from "react-redux"
-import { fetchSongs } from "../../redux/songsSlice"
-import { AppDispatch } from "../../redux/store"
-import { useNavigation } from "@react-navigation/native"
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { useDispatch } from 'react-redux'
+import { fetchSongs } from '../../features/slices/songSlice'
+import { AppDispatch } from '../../features/store'
+import { useNavigation } from '@react-navigation/native'
 
 const ArtistsSearchList = ({ artistsSearchResult }) => {
-
   const dispatch = useDispatch<AppDispatch>()
   const navigation = useNavigation()
 
   if (!artistsSearchResult || artistsSearchResult.length === 0) {
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', marginTop: 20 }}>
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginTop: 20,
+        }}
+      >
         <Text style={{ color: 'white', fontSize: 20 }}>No Artists Found</Text>
       </View>
     )
-  };
+  }
 
   const handleGetSongsOfArtist = async (id: number, aritstName: string) => {
     // try {
@@ -44,7 +50,6 @@ const ArtistsSearchList = ({ artistsSearchResult }) => {
       ))}
     </>
   )
-
 }
 export default ArtistsSearchList
 

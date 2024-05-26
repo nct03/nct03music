@@ -12,10 +12,10 @@ import { EvilIcons, Ionicons } from '@expo/vector-icons'
 import { getSongsOfArtist } from '../apis/MusicApi'
 import TabButton from '../components/TabButton'
 import { useDispatch, useSelector } from 'react-redux'
-import { RootState } from '../redux/store'
-import { setSearchArtist, setSearchSong } from '../redux/searchSlice'
-import { searchSongs } from '../apis/songs'
-import { searchArtists } from '../apis/artists'
+import { RootState } from '../features/store'
+import { setSearchArtist, setSearchSong } from '../features/slices/searchSlice'
+import { searchSongs } from '../apis/songService'
+import { searchArtists } from '../apis/artistService'
 import SearchBar from '../components/SearchBar'
 import Loading from '../components/Loading'
 import ArtistsSearchList from '../components/search/ArtistsSearchList'
@@ -28,7 +28,9 @@ const SearchResultScreen = ({ route, navigation }) => {
 
   const dispatch = useDispatch()
 
-  const { keyword, isSearchSong } = useSelector((state: RootState) => state.search)
+  const { keyword, isSearchSong } = useSelector(
+    (state: RootState) => state.search
+  )
 
   const handleSearch = async () => {
     setLoading(true)
@@ -59,24 +61,30 @@ const SearchResultScreen = ({ route, navigation }) => {
         <Ionicons name="arrow-back" size={24} color="#fff" />
       </TouchableOpacity>
       <View style={{ flex: 1 }}>
-
         <View style={{ marginBottom: 10, marginTop: 24 }}>
           <SearchBar initKeyword={keyword} />
           <View style={styles.buttonContainer}>
-            <TabButton title="Songs" isActive={isSearchSong} onPress={() => dispatch(setSearchSong())} />
-            <TabButton title="Artists" isActive={!isSearchSong} onPress={() => dispatch(setSearchArtist())} />
+            <TabButton
+              title="Songs"
+              isActive={isSearchSong}
+              onPress={() => dispatch(setSearchSong())}
+            />
+            <TabButton
+              title="Artists"
+              isActive={!isSearchSong}
+              onPress={() => dispatch(setSearchArtist())}
+            />
           </View>
         </View>
 
-        {loading && (<Loading />)}
+        {loading && <Loading />}
         {!loading && (
           <View style={styles.section}>
-            {isSearchSong ?
+            {isSearchSong ? (
               <SongsSearchList songsSearchResult={newSongResults} />
-              :
-              <ArtistsSearchList artistsSearchResult={newArtistResults}
-              />}
-
+            ) : (
+              <ArtistsSearchList artistsSearchResult={newArtistResults} />
+            )}
           </View>
         )}
       </View>

@@ -1,16 +1,18 @@
-import { StatusBar } from 'expo-status-bar';
-import RootNavigator from './src/navigators/RootNavigator';
-import { Provider } from 'react-redux';
-import store from './src/redux/store';
+import { StatusBar } from 'expo-status-bar'
+import RootNavigator from './src/navigators/RootNavigator'
+import { Provider } from 'react-redux'
+import store from './src/features/store'
+import { injectStore } from './src/utils/customFetch'
+import { logoutUser } from './src/features/slices/authSlice'
 
+injectStore(store, logoutUser)
 export default function App() {
-    return (
-        <>
-            <StatusBar />
-            <Provider store={store}>
-                <RootNavigator />
-            </Provider>
-        </>
-    );
+  return (
+    <>
+      <StatusBar />
+      <Provider store={store}>
+        <RootNavigator />
+      </Provider>
+    </>
+  )
 }
-

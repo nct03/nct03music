@@ -1,18 +1,17 @@
-import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native"
+import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native'
 import { EvilIcons } from '@expo/vector-icons'
-import { useState } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { useNavigation, useRoute } from "@react-navigation/native"
-import { setKeyword } from "../redux/searchSlice"
-import { RootState } from "../redux/store"
+import { useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { useNavigation, useRoute } from '@react-navigation/native'
+import { setKeyword } from '../features/slices/searchSlice'
+import { RootState } from '../features/store'
 
 const SearchBar = ({ initKeyword }) => {
-
   const [searchTerm, setSearchTerm] = useState(initKeyword)
 
   const dispatch = useDispatch()
   const navigation = useNavigation()
-  const route = useRoute();
+  const route = useRoute()
 
   const handleSearch = async () => {
     if (!searchTerm) return
@@ -25,9 +24,7 @@ const SearchBar = ({ initKeyword }) => {
   }
 
   return (
-    <View
-      style={styles.searchContainer}
-    >
+    <View style={styles.searchContainer}>
       <TouchableOpacity onPress={handleSearch}>
         <EvilIcons name="search" size={28} color="#fff" padding={10} />
       </TouchableOpacity>
@@ -58,6 +55,6 @@ const styles = StyleSheet.create({
     padding: 10,
     paddingLeft: -5,
     color: '#fff',
-    width: '100%'
-  }
+    width: '100%',
+  },
 })

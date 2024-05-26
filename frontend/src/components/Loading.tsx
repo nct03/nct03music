@@ -1,21 +1,46 @@
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, ActivityIndicator, StyleSheet } from 'react-native'
 
-function Loading({ style = null }) {
-  return (
-    <View style={[styles.container, style]}>
-      <ActivityIndicator size="large" color="white" />
-    </View>
-  );
+interface LoadingProps {
+  type?: 'black' | 'white'
+  loadingSize?: number | 'small' | 'large'
+  bgColor?: string
+  color?: string
 }
 
-export default Loading;
+function Loading({
+  type,
+  loadingSize = 'small',
+  bgColor,
+  color,
+}: LoadingProps) {
+  let defaultBgColor = null
+  let defaultColor = 'white'
+  if (type === 'white') {
+    defaultBgColor = { backgroundColor: 'white' }
+    defaultColor = 'black'
+  } else if (type === 'black') {
+    defaultBgColor = { backgroundColor: 'black' }
+    defaultColor = 'white'
+  }
+
+  return (
+    <View
+      style={[
+        styles.container,
+        bgColor ? { backgroundColor: bgColor } : defaultBgColor,
+      ]}
+    >
+      <ActivityIndicator size={loadingSize} color={color || defaultColor} />
+    </View>
+  )
+}
+
+export default Loading
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
-    // backgroundColor: 'black',
   },
-});
+})

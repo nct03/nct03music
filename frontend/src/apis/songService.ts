@@ -1,12 +1,15 @@
 import { Song } from '../models'
 import customFetch from '../utils/customFetch'
 
-export const fetchRecentlySongs = async () => {
+export const getRecentSongs = async () => {
   try {
     const response = await customFetch.get(`/songs/recently`)
     return response.data
   } catch (error) {
-    throw new Error('Error fetching recently released songs: ' + error.message)
+    if (error.response?.status === 401) {
+      return
+    }
+    throw error
   }
 }
 

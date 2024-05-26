@@ -8,19 +8,20 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native'
-import { useDispatch, useSelector } from 'react-redux'
-import { registerUser } from '../redux/auth/authSlice'
-import { AppDispatch, RootState } from '../redux/store'
+import { useAppDispatch, useAppSelector } from '../features/store'
+import { registerUser, selectAuth } from '../features/slices/authSlice'
+import Loading from '../components/Loading'
 
 export default function SignupScreen({ navigation }) {
   const [name, setName] = useState('Nam')
   const [email, setEmail] = useState('nam@gmail.com')
   const [password, setPassword] = useState('nam12345')
   const [confimPass, setConfirmPass] = useState('nam12345')
+  const { isLoading } = useAppSelector(selectAuth)
 
-  const { isLoading } = useSelector((state: RootState) => state.auth)
-  const dispatch = useDispatch<AppDispatch>()
+  const dispatch = useAppDispatch()
 
   const doSignup = async () => {
     if (name.length == 0) {
@@ -39,7 +40,7 @@ export default function SignupScreen({ navigation }) {
       alert('Nhập lại mật khẩu không đúng')
       return
     }
-    dispatch(registerUser({ email, password, name }))
+    dispatch(registerUser({ name, email, password }))
   }
 
   return (
@@ -95,10 +96,7 @@ export default function SignupScreen({ navigation }) {
               secureTextEntry={true}
             ></TextInput>
           </View>
-          <View style={[
-            styles.btn,
-            { opacity: isLoading ? .7 : 1 }
-          ]}>
+          <View style={[styles.btn, { opacity: isLoading ? 0.7 : 1 }]}>
             <TouchableOpacity onPress={doSignup} disabled={isLoading}>
               <Text
                 style={{
@@ -106,10 +104,10 @@ export default function SignupScreen({ navigation }) {
                   fontWeight: 'bold',
                   textAlign: 'center',
                   paddingVertical: 15,
-                  paddingHorizontal: 118
+                  paddingHorizontal: 118,
                 }}
               >
-                {!isLoading ? 'GET STARTED' : 'SENDING...'}
+                {!isLoading ? 'GET STARTED' : <Loading />}
               </Text>
             </TouchableOpacity>
           </View>

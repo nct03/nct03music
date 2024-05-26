@@ -1,5 +1,5 @@
 import { createSlice, current } from '@reduxjs/toolkit'
-import { Song } from '../models'
+import { Song } from '../../models'
 import { Alert } from 'react-native'
 
 interface PlayerState {
