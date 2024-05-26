@@ -1,5 +1,6 @@
 package com.nctcompany.nct03.repository;
 
+import com.nctcompany.nct03.model.Artist;
 import com.nctcompany.nct03.model.Song;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,4 +18,6 @@ public interface SongRepository extends JpaRepository<Song, Long> {
     Page<Song> findMostLikedSongs(Pageable pageable);
 
     List<Song> findByNameContainingIgnoreCase(String name);
+
+    Page<Song> findByArtistsContaining(Artist artist, Pageable pageable);
 }
