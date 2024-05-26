@@ -7,8 +7,7 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
-  ActivityIndicator,
+  ScrollView
 } from 'react-native'
 import { useAppDispatch, useAppSelector } from '../features/store'
 import { registerUser, selectAuth } from '../features/slices/authSlice'
