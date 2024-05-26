@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, TouchableOpacity, Alert, Modal, Button, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { Audio } from 'expo-av';
 import { AntDesign, FontAwesome6, Ionicons } from '@expo/vector-icons';
-import { addFavoriteSong } from '../apis/MusicApi';
+import { addFavoriteSong, checkFavoriteStatus, removeFavoriteSong } from '../apis/MusicApi';
 
 export default function MusicPlayerFromSong({ route, navigation }) {
   const { playlist = [] } = route.params;
@@ -15,18 +15,30 @@ export default function MusicPlayerFromSong({ route, navigation }) {
   const [duration, setDuration] = useState(0);
   const [isLooping, setIsLooping] = useState(false);
   const [isShuffle, setIsShuffle] = useState(false);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
     setSongs(playlist);
     loadSong(playlist[currentSongIndex].url);
   }, [playlist]);
 
+  const reloadScreen = () => {
+    navigation.replace('MusicPlayerFromSong', { playlist });
+  };
+
   useEffect(() => {
     if (sound) {
       sound.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate);
     }
   }, [sound]);
+
+  useEffect(() => {
+    if (songs[currentSongIndex]) {
+      checkFavoriteStatus(songs[currentSongIndex].id)
+        .then((favorite) => setIsFavorite(favorite))
+        .catch((error) => console.error(error));
+    }
+  }, [currentSongIndex, songs]);
 
   const loadSong = async (uri) => {
     if (sound) {
@@ -100,27 +112,27 @@ export default function MusicPlayerFromSong({ route, navigation }) {
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
 
-  const handleAddFavoriteSong = () => {
-    setIsModalVisible(true);
-  };
-
-  const confirmAddFavoriteSong = async () => {
+  const handleAddFavoriteSong = async () => {
     const songId = songs[currentSongIndex]?.id;
-    console.log(songId)
     if (!songId) {
       console.error('Song ID is undefined');
       return;
     }
-
+  
     try {
-      await addFavoriteSong(songId);
-      Alert.alert('Success', 'Song added to your favorites');
-    } catch (error) {
-      Alert.alert('Error', error.message);
-    } finally {
-      setIsModalVisible(false);
-    }
-  };
+      // Nếu bài hát đã được thêm vào yêu thích, hãy xóa nó khỏi danh sách yêu thích
+      if (isFavorite) {
+          await removeFavoriteSong(songId);
+          setIsFavorite(false);
+      } else {
+          // Nếu bài hát chưa được thêm vào yêu thích, hãy thêm nó vào danh sách yêu thích
+          await addFavoriteSong(songId);
+          setIsFavorite(true);
+      }
+  } catch (error) {
+      alert(error)
+  }
+};
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: "#0A071E" }}>
@@ -128,7 +140,7 @@ export default function MusicPlayerFromSong({ route, navigation }) {
         <Ionicons name="arrow-back" size={24} color="#fff" />
       </TouchableOpacity>
       <TouchableOpacity style={{ position: 'absolute', top: 40, right: 20 }} onPress={handleAddFavoriteSong} >
-        <AntDesign name="heart" size={24} color="#fff" />
+        <AntDesign name="heart" size={24} color={isFavorite ? "red" : "#fff"} />
       </TouchableOpacity>
       <Image
         source={{ uri: songs[currentSongIndex]?.imagePath }}
@@ -173,37 +185,7 @@ export default function MusicPlayerFromSong({ route, navigation }) {
           <AntDesign name="retweet" size={28} color={isLooping ? "#fff" : "rgba(255,255,255,0.5)"} />
         </TouchableOpacity>
       </View>
-      <Modal
-        visible={isModalVisible}
-        onRequestClose={() => setIsModalVisible(false)}
-        animationType="fade"
-      >
-        <View style={styles.modalContent}>
-          <Text style={styles.modalText}>Do you want to add this song to your favorites?</Text>
-          <View style={styles.modalButtons}>
-            <Button title="Cancel" onPress={() => setIsModalVisible(false)} />
-            <Button title="Yes" onPress={confirmAddFavoriteSong} />
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  modalContent: {
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  modalText: {
-    fontSize: 18,
-    marginBottom: 20,
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-  },
-});

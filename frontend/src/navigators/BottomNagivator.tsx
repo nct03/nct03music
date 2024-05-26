@@ -6,6 +6,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from '@react-navigation/native';
 import MusicPlayerFromPlaylist from '../components/MusicPlayerFromPlaylist';
 import MusicPlayerFromSong from '../components/MusicPlayerFromSong';
+import MusicPlayer from '../components/MusicPlayer';
 
 export const BottomNavigator = () => {
     const Tab = createBottomTabNavigator()
@@ -50,11 +51,13 @@ const AboutNavigator = () => {
                 <Stack.Screen name="HomeScreen" component={HomeScreen} options={{ title: 'Home' }} />
                 <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ title: 'Login' }} />
                 <Stack.Screen name="SignupScreen" component={SignupScreen} options={{ title: 'Sign Up' }} />
+                <Stack.Screen name="Player" component={Player}/>
                 <Stack.Screen name="SearchResultScreen" component={SearchResultScreen}/>
                 <Stack.Screen name="AboutScreen" component={BottomNavigator} options={{ title: 'Trang chủ' }} /> 
                 <Stack.Screen name="SongScreen" component={SongScreen}/>
                 <Stack.Screen name='MusicPlayerFromPlaylist' component={MusicPlayerFromPlaylist}/>
                 <Stack.Screen name='MusicPlayerFromSong' component={MusicPlayerFromSong}/>
+                <Stack.Screen name="MusicPlayer" component={MusicPlayer} />
             </Stack.Navigator>
         </NavigationContainer>
     );

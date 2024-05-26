@@ -1,11 +1,12 @@
 import { fetchMusicList } from '../apis/About';
+import { addFavoriteSong, checkFavoriteStatus, removeFavoriteSong } from '../apis/MusicApi';
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, TouchableOpacity } from 'react-native';
+import { View, Text, Image, TouchableOpacity, Alert } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { Audio } from 'expo-av';
-import { AntDesign, FontAwesome6, Ionicons} from '@expo/vector-icons';
+import { AntDesign, FontAwesome6, Ionicons } from '@expo/vector-icons';
 
-export default function MusicPlayer({navigation}) {
+export default function MusicPlayer({ navigation }) {
   const [sound, setSound] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
@@ -14,10 +15,11 @@ export default function MusicPlayer({navigation}) {
   const [duration, setDuration] = useState(0);
   const [isLooping, setIsLooping] = useState(false);
   const [isShuffle, setIsShuffle] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
     loadSongsFromAPI();
-  }, []);
+  }, [songs]);
 
   useEffect(() => {
     if (sound) {
@@ -30,6 +32,7 @@ export default function MusicPlayer({navigation}) {
       const data = await fetchMusicList();
       setSongs(data);
       await loadSong(data[currentSongIndex].url);
+      await checkFavoriteStatusAndUpdate();
     } catch (error) {
       console.error('Error fetching songs:', error);
     }
@@ -110,10 +113,45 @@ export default function MusicPlayer({navigation}) {
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
 
+  const checkFavoriteStatusAndUpdate = async () => {
+    try {
+      if (songs[currentSongIndex]) { // Add this check
+        const favorite = await checkFavoriteStatus(songs[currentSongIndex].id);
+        setIsFavorite(favorite);
+      }
+    } catch (error) {
+      console.error('Error checking favorite status:', error);
+    }
+  };
+
+  const handleAddFavoriteSong = async () => {
+    const songId = songs[currentSongIndex]?.id;
+    if (!songId) {
+      console.error('Song ID is undefined');
+      return;
+    }
+
+    try {
+      if (isFavorite) {
+        await removeFavoriteSong(songId);
+        setIsFavorite(false);
+      }
+      else {
+        await addFavoriteSong(songId);
+        setIsFavorite(true);
+      }
+    } catch (error) {
+      Alert.alert(error);
+    }
+  };
+
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <TouchableOpacity style={{ marginBottom: 10 }} onPress={() => navigation.goBack()}>
+      <TouchableOpacity style={{ position: 'absolute', top: 40, left: 20 }} onPress={() => navigation.navigate('About')}>
         <Ionicons name="arrow-back" size={24} color="#fff" />
+      </TouchableOpacity>
+      <TouchableOpacity style={{ position: 'absolute', top: 40, right: 20 }} onPress={handleAddFavoriteSong}>
+        <AntDesign name="heart" size={24} color={isFavorite ? "red" : "#fff"} />
       </TouchableOpacity>
       <Image
         source={{ uri: songs[currentSongIndex]?.imagePath }}

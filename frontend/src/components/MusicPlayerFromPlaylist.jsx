@@ -3,6 +3,7 @@ import { View, Text, Image, TouchableOpacity } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { Audio } from 'expo-av';
 import { AntDesign, FontAwesome6, Ionicons } from '@expo/vector-icons';
+import { addFavoriteSong, checkFavoriteStatus, removeFavoriteSong } from '../apis/MusicApi';
 
 export default function MusicPlayerFromPlaylist({ route, navigation }) {
     const { playlist = [] } = route.params;
@@ -14,11 +15,14 @@ export default function MusicPlayerFromPlaylist({ route, navigation }) {
     const [duration, setDuration] = useState(0);
     const [isLooping, setIsLooping] = useState(false);
     const [isShuffle, setIsShuffle] = useState(false);
+    const [isFavorite, setIsFavorite] = useState(false); // Biến state để theo dõi trạng thái yêu thích của bài hát hiện tại
 
     useEffect(() => {
         setSongs(playlist);
         loadSong(playlist[currentSongIndex].url);
-    }, [playlist]);
+        // Kiểm tra trạng thái yêu thích khi danh sách bài hát thay đổi hoặc khi bài hát hiện tại thay đổi
+        checkFavoriteStatusForCurrentSong();
+    }, [playlist, currentSongIndex, songs]);
 
     useEffect(() => {
         if (sound) {
@@ -98,10 +102,38 @@ export default function MusicPlayerFromPlaylist({ route, navigation }) {
         return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
     };
 
+    const checkFavoriteStatusForCurrentSong = async () => {
+        try {
+            const favorite = await checkFavoriteStatus(songs[currentSongIndex]?.id);
+            setIsFavorite(favorite);
+        } catch (error) {
+            console.error('Error checking favorite status:', error);
+        }
+    };
+
+    const handleAddFavoriteSong = async () => {
+        try {
+            // Nếu bài hát đã được thêm vào yêu thích, hãy xóa nó khỏi danh sách yêu thích
+            if (isFavorite) {
+                await removeFavoriteSong(songs[currentSongIndex]?.id);
+                setIsFavorite(false);
+            } else {
+                // Nếu bài hát chưa được thêm vào yêu thích, hãy thêm nó vào danh sách yêu thích
+                await addFavoriteSong(songs[currentSongIndex]?.id);
+                setIsFavorite(true);
+            }
+        } catch (error) {
+            alert(error)
+        }
+    };
+
     return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: "#0A071E" }}>
             <TouchableOpacity style={{ position: 'absolute', top: 40, left: 20 }} onPress={() => navigation.goBack()}>
                 <Ionicons name="arrow-back" size={24} color="#fff" />
+            </TouchableOpacity>
+            <TouchableOpacity style={{ position: 'absolute', top: 40, right: 20 }} onPress={handleAddFavoriteSong} >
+                <AntDesign name="heart" size={24} color={isFavorite ? "red" : "#fff"} />
             </TouchableOpacity>
             <Image
                 source={{ uri: songs[currentSongIndex]?.imagePath }}

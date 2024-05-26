@@ -168,20 +168,39 @@ export const addFavoriteSong = async (id) => {
     }
 };
 
-
-export const isFavoriteSong = async (songId) => {
+export const removeFavoriteSong = async (id) => {
     try {
         const token = await checkToken();
-        const response = await fetch(`${BasicIP}/users/favorite-songs/${songId}`, {
-            method: 'POST',
+        const response = await fetch(`${BasicIP}/users/unlike/${id}`, {
+            method: 'DELETE',
             headers: {
-                Authorization: `Bearer ${token}`
-            }
+                Authorization: `Bearer ${token}`,
+            },
         });
-        return response.json(); // Assuming the API returns an object with an `isFavorite` boolean
+
+        if (!response.ok) {
+            const errorResponse = await response.json();
+            throw new Error(errorResponse.errors[0]);
+        }
+
     } catch (error) {
-        console.error('Error checking if song is favorite:', error);
-        throw error;
+        throw new Error(error.message || 'Failed to remove song from favorites');
     }
 };
 
+
+export const checkFavoriteStatus = async (id) => {
+    try {
+        const token = await checkToken();
+        const response = await fetch(`${BasicIP}/users/favorite-songs/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        });
+        const result = await response.json();
+        return result === true;
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+};
