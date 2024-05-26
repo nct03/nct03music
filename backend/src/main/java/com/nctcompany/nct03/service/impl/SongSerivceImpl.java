@@ -72,12 +72,18 @@ public class SongSerivceImpl implements SongService {
     }
 
     @Override
-    public List<SongResponse> searchSongs(String keyword) {
-        List<Song> songs = songRepository.findByNameContainingIgnoreCase(keyword);
-        songs.sort(Comparator.comparing(Song::getReleasedOn).reversed());
-        return songs.stream()
+    public PageableResult<SongResponse> searchSongs(String keyword, Integer pageNum, Integer pageSize) {
+        Page<Song> songsPage = songRepository.findByNameContainingIgnoreCase(keyword, PageRequest.of(pageNum-1, pageSize));
+        List<SongResponse> songs = songsPage.getContent().stream()
                 .map(SongMapper::mapToSongResponse)
                 .collect(Collectors.toList());
+        return PageableResult.<SongResponse>builder()
+                .items(songs)
+                .pageNum(songsPage.getNumber()+1)
+                .pageSize(songsPage.getSize())
+                .totalItems(songsPage.getTotalElements())
+                .totalPages(songsPage.getTotalPages())
+                .build();
     }
 
     @Override

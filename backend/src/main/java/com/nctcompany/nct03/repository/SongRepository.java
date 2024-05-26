@@ -7,8 +7,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import java.util.List;
-
 public interface SongRepository extends JpaRepository<Song, Long> {
 
     @Query("SELECT s FROM Song s ORDER BY s.releasedOn DESC")
@@ -17,7 +15,7 @@ public interface SongRepository extends JpaRepository<Song, Long> {
     @Query("SELECT s FROM Song s ORDER BY SIZE(s.likedByUsers) DESC")
     Page<Song> findMostLikedSongs(Pageable pageable);
 
-    List<Song> findByNameContainingIgnoreCase(String name);
+    Page<Song> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
     Page<Song> findByArtistsContaining(Artist artist, Pageable pageable);
 }

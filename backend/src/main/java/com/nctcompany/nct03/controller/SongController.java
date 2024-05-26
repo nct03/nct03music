@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/v1/songs")
@@ -81,8 +80,14 @@ public class SongController {
             summary = "Search songs by name"
     )
     @GetMapping("/search")
-    public ResponseEntity<List<SongResponse>> searchSongs(@RequestParam String keyword) {
-        return ResponseEntity.ok(songService.searchSongs(keyword));
+    public ResponseEntity<PageableResult<SongResponse>> searchSongs(
+            @RequestParam String keyword,
+            @Parameter(description = "Page number (default: 1)", example = "1", in = ParameterIn.QUERY)
+            @RequestParam(value="pageNum", required = false, defaultValue = "1") @Min(value = 1) Integer pageNum,
+            @Parameter(description = "Page size (default: 10, min: 5, max: 20)", example = "10", in = ParameterIn.QUERY)
+            @RequestParam(value="pageSize", required = false, defaultValue = "10") @Min(value = 5) @Max(value = 20)  Integer pageSize
+    ) {
+        return ResponseEntity.ok(songService.searchSongs(keyword, pageNum, pageSize));
     }
 
     @Hidden
