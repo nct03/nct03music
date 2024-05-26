@@ -11,14 +11,18 @@ import {
 import Loading from '../components/Loading'
 import { useAppDispatch, useAppSelector } from '../features/store'
 import SearchBar from '../components/SearchBar'
+import { fetchRecentSongs, selectSong } from '../features/slices/songSlice'
 import {
-  fetchRecentSongs,
-  fetchSongs,
-  selectSong,
-} from '../features/slices/songSlice'
-import { setSongsPlay } from '../features/slices/playerSlice'
-import { fetchArtists, selectArtist } from '../features/slices/artistSlice'
-import { fetchGenres, selectGenre } from '../features/slices/genreSlice'
+  fetchArtists,
+  selectArtist,
+  setArtistDetailsId,
+} from '../features/slices/artistSlice'
+import {
+  fetchGenres,
+  selectGenre,
+  setGenreDetails,
+} from '../features/slices/genreSlice'
+import { Colors } from '../constant/Colors'
 
 export default function HomeScreen({ navigation }) {
   const { recentSongs } = useAppSelector(selectSong)
@@ -48,15 +52,15 @@ export default function HomeScreen({ navigation }) {
     }
   }
 
-  // const handleGetSongsOfArtist = async (id: number, artistName: string) => {
-  //   dispatch(fetchSongs({ url: `/artists/${id}/songs`, heading: artistName }))
-  //   navigation.navigate('SongScreen')
-  // }
+  const handleGetArtistDetails = (id: number) => {
+    dispatch(setArtistDetailsId(id))
+    navigation.navigate('ArtistDetailsScreen')
+  }
 
-  // const handleGetSongsOfGenre = async (id: number, genreName: string) => {
-  //   dispatch(fetchSongs({ url: `/genres/${id}/songs`, heading: genreName }))
-  //   navigation.navigate('SongScreen')
-  // }
+  const handleGetSongsOfGenre = (id: number, genreName: string) => {
+    dispatch(setGenreDetails({ genreId: id, genreName: genreName }))
+    navigation.navigate('GenreDetailsScreen')
+  }
 
   // const handleSongPress = (songData, currentIndex) => {
   //   dispatch(setSongsPlay({ songs: songData, currentIndex }))
@@ -75,7 +79,7 @@ export default function HomeScreen({ navigation }) {
     <ScrollView style={styles.background}>
       <View style={styles.container}>
         <SearchBar initKeyword="" />
-
+        {/* Artists */}
         <View style={styles.title}>
           <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>
             {' '}
@@ -87,7 +91,7 @@ export default function HomeScreen({ navigation }) {
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={{ alignItems: 'center' }}
-                // onPress={() => handleGetSongsOfArtist(item.id, item.name)}
+                onPress={() => handleGetArtistDetails(item.id)}
               >
                 <Image
                   source={{ uri: item.photo }}
@@ -107,6 +111,7 @@ export default function HomeScreen({ navigation }) {
           />
         </View>
 
+        {/* Genres */}
         <View style={styles.title}>
           <Text
             style={{
@@ -126,6 +131,7 @@ export default function HomeScreen({ navigation }) {
               <TouchableOpacity
                 style={{ alignItems: 'center' }}
                 // onPress={() => handleGetSongsOfGenre(item.id, item.name)}
+                onPress={() => handleGetSongsOfGenre(item.id, item.name)}
               >
                 <Image
                   source={require('../assets/TheLoai.png')}
@@ -153,6 +159,7 @@ export default function HomeScreen({ navigation }) {
           />
         </View>
 
+        {/* Songs */}
         <View style={styles.title}>
           <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>
             {' '}
@@ -189,7 +196,7 @@ export default function HomeScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   background: {
-    backgroundColor: '#0A071E',
+    backgroundColor: Colors.primary800,
     marginTop: '6%',
   },
 

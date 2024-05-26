@@ -1,4 +1,5 @@
 import { View, ActivityIndicator, StyleSheet } from 'react-native'
+import { Colors } from '../constant/Colors'
 
 interface LoadingProps {
   type?: 'black' | 'white'
@@ -19,7 +20,7 @@ function Loading({
     defaultBgColor = { backgroundColor: 'white' }
     defaultColor = 'black'
   } else if (type === 'black') {
-    defaultBgColor = { backgroundColor: 'black' }
+    defaultBgColor = { backgroundColor: Colors.primary800 }
     defaultColor = 'white'
   }
 

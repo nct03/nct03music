@@ -1,16 +1,30 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { Artist, PageableResponse } from '../../models'
+import { Artist, PageableResponse, Song } from '../../models'
 import { Alert } from 'react-native'
 import { RootState } from '../store'
-import { getArtists } from '../../apis/artistService'
+import { getArtistSongs, getArtists } from '../../apis/artistService'
 
 interface ArtistState {
   artists: PageableResponse<Artist> | null
+  artistDetails: {
+    artistId: number | null
+    songPage: PageableResponse<Song> | null
+    isLoading: boolean
+    pageNum: number
+    pageSize: number
+  }
   isLoading: boolean
 }
 
 const initialState: ArtistState = {
   artists: null,
+  artistDetails: {
+    artistId: null,
+    songPage: null,
+    isLoading: false,
+    pageNum: 1,
+    pageSize: 5,
+  },
   isLoading: false,
 }
 
@@ -22,10 +36,33 @@ export const fetchArtists = createAsyncThunk(
   }
 )
 
+export const fetchArtistSongs = createAsyncThunk(
+  'artist/fetchArtistSongs',
+  async ({
+    artistId,
+    pageNum,
+    pageSize,
+  }: {
+    artistId: number
+    pageNum: number
+    pageSize: number
+  }) => {
+    const data = getArtistSongs(artistId, pageNum, pageSize)
+    return data
+  }
+)
+
 const artistSlice = createSlice({
   name: 'artist',
   initialState,
-  reducers: {},
+  reducers: {
+    setArtistDetailsId: (state, action) => {
+      state.artistDetails.artistId = action.payload
+    },
+    changePageNum: (state, action) => {
+      state.artistDetails.pageNum = action.payload
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchArtists.pending, (state) => {
@@ -35,13 +72,26 @@ const artistSlice = createSlice({
         state.artists = payload
         state.isLoading = false
       })
-      .addCase(fetchArtists.rejected, (state, { error }) => {
+      .addCase(fetchArtists.rejected, (state) => {
         state.isLoading = false
-        Alert.alert('Error', error.message || 'There was an error')
+      })
+
+      .addCase(fetchArtistSongs.pending, (state) => {
+        state.artistDetails.isLoading = true
+      })
+      .addCase(fetchArtistSongs.fulfilled, (state, { payload }) => {
+        state.artistDetails.songPage = payload
+        state.artistDetails.isLoading = false
+      })
+      .addCase(fetchArtistSongs.rejected, (state) => {
+        state.artistDetails.isLoading = false
       })
   },
 })
 
+export const { setArtistDetailsId, changePageNum } = artistSlice.actions
 export const selectArtist = (state: RootState) => state.artist
+export const selectArtistDetails = (state: RootState) =>
+  state.artist.artistDetails
 const artistReducer = artistSlice.reducer
 export default artistReducer

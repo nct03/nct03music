@@ -8,3 +8,10 @@ export const getErrorMsg = (error: any): string => {
   }
   return 'There was an error! Please try again.'
 }
+
+export const returnError = (error: any) => {
+  if (error.response?.status === 401) {
+    return
+  }
+  throw error
+}
