@@ -17,7 +17,7 @@ public interface UserService {
     UserResponse getUserProfile(Principal loggedUser);
     void changePassword(ChangePasswordRequest request, Principal loggedUser);
     UserResponse updateUser(UpdateUserRequest request, Principal loggedUser) throws IOException;
-    List<PlaylistResponse> getCurrentUserPlaylists();
+    PageableResult<PlaylistResponse> getCurrentUserPlaylists(Integer pageNum, Integer pageSize);
 
     void likesSong(User loggedUser, Long songId);
     void unlikeSong(User loggedUser, Long songId);

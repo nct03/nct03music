@@ -18,7 +18,7 @@ public class PlaylistMapper {
 
     private final ModelMapper mapper;
 
-    public PlaylistResponse mapToResponse(Playlist playlist){
+    public static PlaylistResponse mapToResponse(Playlist playlist){
         PlaylistResponse response = new PlaylistResponse();
         response.setId(playlist.getId());
         response.setName(playlist.getName());

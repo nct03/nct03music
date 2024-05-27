@@ -105,8 +105,13 @@ public class UserController {
             summary = "Get current user playlists"
     )
     @GetMapping("/me/playlists")
-    public ResponseEntity<List<PlaylistResponse>> getCurrentUserPlaylists(){
-        List<PlaylistResponse> playlists = userService.getCurrentUserPlaylists();
+    public ResponseEntity<PageableResult<PlaylistResponse>> getCurrentUserPlaylists(
+            @Parameter(description = "Page number (default: 1)", example = "1", in = ParameterIn.QUERY)
+            @RequestParam(value="pageNum", required = false, defaultValue = "1") @Min(value = 1) Integer pageNum,
+            @Parameter(description = "Page size (default: 5, min: 5, max: 20)", example = "5", in = ParameterIn.QUERY)
+            @RequestParam(value="pageSize", required = false, defaultValue = "5") @Min(value = 5) @Max(value = 20)  Integer pageSize
+    ){
+        PageableResult<PlaylistResponse> playlists = userService.getCurrentUserPlaylists(pageNum, pageSize);
         return ResponseEntity.ok(playlists);
     }
 

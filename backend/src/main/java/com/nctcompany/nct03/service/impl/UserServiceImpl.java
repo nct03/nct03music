@@ -21,6 +21,8 @@ import com.nctcompany.nct03.repository.UserRepository;
 import com.nctcompany.nct03.service.UserService;
 import com.nctcompany.nct03.util.FileUploadUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -88,13 +90,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<PlaylistResponse> getCurrentUserPlaylists() {
+    public PageableResult<PlaylistResponse> getCurrentUserPlaylists(Integer pageNum, Integer pageSize) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
-        List<Playlist> playlists = playlistRepository.findByUserId(user.getId());
-        return playlists.stream()
-                .map(playlistMapper::mapToResponse)
+        Page<Playlist> playlistPage = playlistRepository.findByUserIdOrderByIdDesc(user.getId(), PageRequest.of(pageNum - 1, pageSize));
+        List<PlaylistResponse> playlists = playlistPage.getContent().stream()
+                .map(PlaylistMapper::mapToResponse)
                 .collect(Collectors.toList());
+        return PageableResult.<PlaylistResponse>builder()
+                .items(playlists)
+                .pageNum(playlistPage.getNumber()+1)
+                .pageSize(playlistPage.getSize())
+                .totalItems(playlistPage.getTotalElements())
+                .totalPages(playlistPage.getTotalPages())
+                .build();
     }
 
     @Override
