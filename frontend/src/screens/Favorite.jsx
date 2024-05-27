@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Image, Modal, Pressable, TextInput } from "react-native";
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Image, Modal, Pressable, TextInput, Alert } from "react-native";
 import { getAllPlaylistAlbum, deletePlaylistAlbum, createPlayListAlbum, getSongsInPlaylist, getFavoriteSongs } from "../apis/MusicApi";
 import { FontAwesome } from '@expo/vector-icons';
 
@@ -9,63 +9,80 @@ export default function Playlist({ navigation }) {
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     useEffect(() => {
-        fetchInitialData()
+        fetchInitialData();
     }, []);
 
     const fetchInitialData = async () => {
         try {
             const albums = await getAllPlaylistAlbum();
-            setAlbums(albums)
+            setAlbums(albums);
+        } catch (err) {
+            console.error('Error fetching initial data:', err.message);
         }
-        catch (err) {
-            console.error('Error fetching initial data:', err.message)
-        }
-    }
+    };
 
     const handleRemoveAlbum = async (id) => {
         try {
-            // Gọi hàm API để xóa album
-            await deletePlaylistAlbum(id)
-            fetchInitialData()
+            await deletePlaylistAlbum(id);
+            fetchInitialData();
         } catch (error) {
-            console.error(error.message)
+            console.error(error.message);
         }
+    };
+
+    const confirmRemoveAlbum = (id) => {
+        Alert.alert(
+            "Xác nhận",
+            "Bạn có chắc chắn muốn xóa album này?",
+            [
+                {
+                    text: "Hủy",
+                    onPress: () => {},
+                    style: "cancel"
+                },
+                {
+                    text: "Xóa",
+                    onPress: () => handleRemoveAlbum(id),
+                    style: "destructive"
+                }
+            ],
+            { cancelable: true }
+        );
     };
 
     const handleCreatePlayListAlbum = async () => {
         try {
-            if (albumName.length == 0) {
+            if (albumName.length === 0) {
                 alert("Bạn hãy nhập tên album");
-                return
+                return;
             }
-            await createPlayListAlbum(albumName)
-            fetchInitialData()
-            setIsModalVisible(false)
+            await createPlayListAlbum(albumName);
+            fetchInitialData();
+            setIsModalVisible(false);
         } catch (err) {
-            console.error(err.message)
+            console.error(err.message);
         }
-    }
+    };
 
     const handleGetFavoriteSongs = async () => {
         try {
             const songResults = await getFavoriteSongs();
-            const favoriteSongs = songResults.items
+            const favoriteSongs = songResults.items;
             navigation.navigate('SongScreen', { favoriteSongs });
         } catch (error) {
             console.error('Error searching:', error.message);
         }
-    }
+    };
 
     const handleGetSongsInList = async (id) => {
         try {
-            const songResults = await getSongsInPlaylist(id)
-            const favoriteSongs = songResults.items
+            const songResults = await getSongsInPlaylist(id);
+            const favoriteSongs = songResults.items;
             navigation.navigate('SongScreen', { favoriteSongs });
+        } catch (error) {
+            console.error(error.message);
         }
-        catch (error) {
-            console.error(error.message)
-        }
-    }
+    };
 
     return (
         <ScrollView style={styles.container}>
@@ -146,14 +163,14 @@ export default function Playlist({ navigation }) {
                             />
                             <Text style={{ ...styles.text, fontSize: 20, alignSelf: "center" }}>{item.name}</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={{ marginLeft: "30%", marginTop: "10%" }} onPress={() => { handleRemoveAlbum(item.id) }} >
+                        <TouchableOpacity style={{ marginLeft: "30%", marginTop: "10%" }} onPress={() => confirmRemoveAlbum(item.id)} >
                             <FontAwesome name="remove" size={24} color="#fff" />
                         </TouchableOpacity>
                     </View>
                 ))}
             </View>
         </ScrollView>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
@@ -194,6 +211,5 @@ const styles = StyleSheet.create({
     },
     text: {
         color: "#fff"
-
     }
-})
+});

@@ -1,12 +1,12 @@
 import { fetchMusicList } from '../apis/About';
-import { addFavoriteSong, checkFavoriteStatus, removeFavoriteSong } from '../apis/MusicApi';
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { Audio } from 'expo-av';
-import { AntDesign, FontAwesome6, Ionicons } from '@expo/vector-icons';
+import { AntDesign, FontAwesome6, Ionicons, Feather } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
-export default function MusicPlayer({ navigation }) {
+export default function MusicPlayer() {
   const [sound, setSound] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
@@ -15,30 +15,37 @@ export default function MusicPlayer({ navigation }) {
   const [duration, setDuration] = useState(0);
   const [isLooping, setIsLooping] = useState(false);
   const [isShuffle, setIsShuffle] = useState(false);
-  const [isFavorite, setIsFavorite] = useState(false);
+  const navigation = useNavigation();
 
   useEffect(() => {
     loadSongsFromAPI();
-  }, [songs]);
+    return () => {
+      if (sound) {
+        sound.unloadAsync();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (sound) {
       sound.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate);
     }
-  }, [sound]);
+  }, [sound, isLooping, isShuffle]);
 
   const loadSongsFromAPI = async () => {
     try {
       const data = await fetchMusicList();
       setSongs(data);
-      await loadSong(data[currentSongIndex].url);
-      await checkFavoriteStatusAndUpdate();
+      await loadSong(data[0].url);
     } catch (error) {
       console.error('Error fetching songs:', error);
     }
   };
 
   const loadSong = async (uri) => {
+    if (sound) {
+      await sound.unloadAsync();
+    }
     const { sound: newSound, status } = await Audio.Sound.createAsync({ uri }, { shouldPlay: isPlaying });
     setSound(newSound);
     setIsPlaying(status.isPlaying);
@@ -74,36 +81,28 @@ export default function MusicPlayer({ navigation }) {
   };
 
   const nextSong = async () => {
-    if (isShuffle) {
-      const nextIndex = Math.floor(Math.random() * songs.length);
-      setCurrentSongIndex(nextIndex);
-      loadSong(songs[nextIndex].url);
-    } else {
-      const nextIndex = (currentSongIndex + 1) % songs.length;
-      setCurrentSongIndex(nextIndex);
-      await sound.unloadAsync();
-      await loadSong(songs[nextIndex].url);
-    }
+    const nextIndex = isShuffle ? Math.floor(Math.random() * songs.length) : (currentSongIndex + 1) % songs.length;
+    setCurrentSongIndex(nextIndex);
+    await loadSong(songs[nextIndex].url);
   };
 
   const previousSong = async () => {
     const prevIndex = (currentSongIndex - 1 + songs.length) % songs.length;
     setCurrentSongIndex(prevIndex);
-    await sound.unloadAsync();
     await loadSong(songs[prevIndex].url);
   };
 
   const toggleLooping = () => {
     setIsLooping(!isLooping);
     if (isShuffle) {
-      setIsShuffle(false)
+      setIsShuffle(false);
     }
   };
 
   const toggleShuffle = () => {
     setIsShuffle(!isShuffle);
     if (isLooping) {
-      setIsLooping(false)
+      setIsLooping(false);
     }
   };
 
@@ -113,55 +112,20 @@ export default function MusicPlayer({ navigation }) {
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
 
-  const checkFavoriteStatusAndUpdate = async () => {
-    try {
-      if (songs[currentSongIndex]) { // Add this check
-        const favorite = await checkFavoriteStatus(songs[currentSongIndex].id);
-        setIsFavorite(favorite);
-      }
-    } catch (error) {
-      console.error('Error checking favorite status:', error);
-    }
-  };
-
-  const handleAddFavoriteSong = async () => {
-    const songId = songs[currentSongIndex]?.id;
-    if (!songId) {
-      console.error('Song ID is undefined');
-      return;
-    }
-
-    try {
-      if (isFavorite) {
-        await removeFavoriteSong(songId);
-        setIsFavorite(false);
-      }
-      else {
-        await addFavoriteSong(songId);
-        setIsFavorite(true);
-      }
-    } catch (error) {
-      Alert.alert(error);
-    }
-  };
-
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <TouchableOpacity style={{ position: 'absolute', top: 40, left: 20 }} onPress={() => navigation.navigate('About')}>
+    <View style={styles.container}>
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('About')}>
         <Ionicons name="arrow-back" size={24} color="#fff" />
-      </TouchableOpacity>
-      <TouchableOpacity style={{ position: 'absolute', top: 40, right: 20 }} onPress={handleAddFavoriteSong}>
-        <AntDesign name="heart" size={24} color={isFavorite ? "red" : "#fff"} />
       </TouchableOpacity>
       <Image
         source={{ uri: songs[currentSongIndex]?.imagePath }}
-        style={{ width: 200, height: 200, borderRadius: 10 }}
+        style={styles.songImage}
         resizeMode="cover"
       />
-      <Text style={{ color: "#fff", fontSize: 28, marginTop: 30 }}>{songs[currentSongIndex]?.name}</Text>
-      <Text style={{ opacity: 0.6, color: "#fff", fontSize: 16, marginTop: 10 }}>{songs[currentSongIndex]?.artists[0].name}</Text>
+      <Text style={styles.songTitle}>{songs[currentSongIndex]?.name}</Text>
+      <Text style={styles.artistName}>{songs[currentSongIndex]?.artists[0].name}</Text>
       <Slider
-        style={{ width: 380, marginTop: 20 }}
+        style={styles.slider}
         minimumTrackTintColor={'#6156E2'}
         maximumTrackTintColor={'#fff'}
         thumbTintColor='#6156E2'
@@ -175,11 +139,11 @@ export default function MusicPlayer({ navigation }) {
           }
         }}
       />
-      <View style={{ width: 380, flexDirection: "row", justifyContent: "space-between" }}>
-        <Text style={{ color: "#fff" }}>{formatTime(progress * duration)}</Text>
-        <Text style={{ color: "#fff" }}> {formatTime(duration)}</Text>
+      <View style={styles.timeContainer}>
+        <Text style={styles.timeText}>{formatTime(progress * duration)}</Text>
+        <Text style={styles.timeText}>{formatTime(duration)}</Text>
       </View>
-      <View style={{ flexDirection: "row", width: 380, alignContent: "space-around", justifyContent: "space-around", marginTop: 30 }}>
+      <View style={styles.controlsContainer}>
         <TouchableOpacity onPress={toggleShuffle} >
           <FontAwesome6 name="shuffle" size={28} color={isShuffle ? "#fff" : "rgba(255,255,255,0.5)"} />
         </TouchableOpacity>
@@ -190,12 +154,75 @@ export default function MusicPlayer({ navigation }) {
           <AntDesign name={isPlaying ? 'pausecircle' : 'caretright'} size={28} color="#fff" />
         </TouchableOpacity>
         <TouchableOpacity onPress={nextSong}>
-          <AntDesign name="stepforward" size={28} color="#fff" title="Next" />
+          <AntDesign name="stepforward" size={28} color="#fff" />
         </TouchableOpacity>
         <TouchableOpacity onPress={toggleLooping}>
           <AntDesign name="retweet" size={28} color={isLooping ? "#fff" : "rgba(255,255,255,0.5)"} />
         </TouchableOpacity>
       </View>
+      <TouchableOpacity style={styles.iconHeart}>
+        <AntDesign name="heart" size={24} color="rgba(255,255,255,0.5)" />
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.iconPlus}>
+        <Feather name="plus" size={28} color="rgba(255,255,255,0.5)" />
+      </TouchableOpacity>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backButton: {
+    position: 'absolute',
+    top: 40,
+    left: 20,
+  },
+  songImage: {
+    width: 200,
+    height: 200,
+    borderRadius: 10,
+  },
+  songTitle: {
+    color: "#fff",
+    fontSize: 28,
+    marginTop: 30,
+  },
+  artistName: {
+    opacity: 0.6,
+    color: "#fff",
+    fontSize: 16,
+    marginTop: 10,
+  },
+  slider: {
+    width: 380,
+    marginTop: 20,
+  },
+  timeContainer: {
+    width: 380,
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  timeText: {
+    color: "#fff",
+  },
+  controlsContainer: {
+    flexDirection: "row",
+    width: 380,
+    justifyContent: "space-around",
+    marginTop: 30,
+  },
+  iconHeart: {
+    position: 'absolute',
+    bottom: 140,
+    left: 26,
+  },
+  iconPlus: {
+    position: 'absolute',
+    bottom: 140,
+    right: 26,
+  }
+});

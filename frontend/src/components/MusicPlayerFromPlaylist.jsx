@@ -22,7 +22,7 @@ export default function MusicPlayerFromPlaylist({ route, navigation }) {
         loadSong(playlist[currentSongIndex].url);
         // Kiểm tra trạng thái yêu thích khi danh sách bài hát thay đổi hoặc khi bài hát hiện tại thay đổi
         checkFavoriteStatusForCurrentSong();
-    }, [playlist, currentSongIndex, songs]);
+    }, [playlist, currentSongIndex]);
 
     useEffect(() => {
         if (sound) {

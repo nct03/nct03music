@@ -57,8 +57,7 @@ const AboutNavigator = () => {
                 <Stack.Screen name="SongScreen" component={SongScreen}/>
                 <Stack.Screen name='MusicPlayerFromPlaylist' component={MusicPlayerFromPlaylist}/>
                 <Stack.Screen name='MusicPlayerFromSong' component={MusicPlayerFromSong}/>
-                <Stack.Screen name="MusicPlayer" component={MusicPlayer} />
-            </Stack.Navigator>
+                <Stack.Screen name="MusicPlayer" component={MusicPlayer} /></Stack.Navigator>
         </NavigationContainer>
     );
 }
