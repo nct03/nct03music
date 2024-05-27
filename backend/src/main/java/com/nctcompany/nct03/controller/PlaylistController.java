@@ -6,6 +6,7 @@ import com.nctcompany.nct03.dto.playlist.PlaylistDetailsResponse;
 import com.nctcompany.nct03.dto.playlist.PlaylistRequest;
 import com.nctcompany.nct03.dto.playlist.PlaylistResponse;
 import com.nctcompany.nct03.dto.song.SongResponse;
+import com.nctcompany.nct03.exception.BadRequestException;
 import com.nctcompany.nct03.model.User;
 import com.nctcompany.nct03.service.PlaylistService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,6 +24,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @RequestMapping("/v1/playlists")
@@ -124,5 +129,19 @@ public class PlaylistController {
         User loggedUser = (User) authentication.getPrincipal();
         PlaylistDetailsResponse response = playlistService.removeSongInPlaylist(playlistId, songId, loggedUser);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/checkSongInPlaylists")
+    public List<Boolean> checkSongInPlaylists(@RequestParam String playlistIds, @RequestParam Long songId) {
+        List<Long> playlistIdList = Arrays.stream(playlistIds.split(","))
+                .map(id -> {
+                    try {
+                        return Long.parseLong(id);
+                    } catch (NumberFormatException e) {
+                        throw new BadRequestException("Invalid song id: " + id);
+                    }
+                })
+                .collect(Collectors.toList());
+        return playlistService.checkSongInPlaylists(playlistIdList, songId);
     }
 }

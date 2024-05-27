@@ -24,4 +24,6 @@ public interface UserService {
     boolean isUserLikeSong(User loggedUser, Long songId);
 
     PageableResult<SongResponse> getFavoriteSongs(User loggedUser, Integer pageNum, Integer pageSize);
+
+    List<Boolean> checkUserLikedSongs(User loggedUser, List<Long> songIds);
 }

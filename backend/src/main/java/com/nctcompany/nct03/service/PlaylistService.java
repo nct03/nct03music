@@ -8,6 +8,8 @@ import com.nctcompany.nct03.dto.playlist.PlaylistResponse;
 import com.nctcompany.nct03.dto.song.SongResponse;
 import com.nctcompany.nct03.model.User;
 
+import java.util.List;
+
 public interface PlaylistService {
     PlaylistResponse createPlaylist(PlaylistRequest request, User user);
     PlaylistDetailsResponse addSongToPlaylist(Long playlistId, AddSongPlaylistRequest request, User user);
@@ -16,5 +18,6 @@ public interface PlaylistService {
     PageableResult<SongResponse> getSongInPlaylist(Long playlistId, User user, Integer pageNum, Integer pageSize);
 
     boolean isSongInPlaylist(Long playlistId, Long songId);
+    List<Boolean> checkSongInPlaylists(List<Long> playlistIds, Long songId);
 }
 

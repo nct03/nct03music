@@ -6,6 +6,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
 
 public interface SongRepository extends JpaRepository<Song, Long> {
 
@@ -18,4 +21,7 @@ public interface SongRepository extends JpaRepository<Song, Long> {
     Page<Song> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
     Page<Song> findByArtistsContaining(Artist artist, Pageable pageable);
+
+    @Query("SELECT CASE WHEN COUNT(s) > 0 THEN TRUE ELSE FALSE END FROM Song s JOIN s.likedByUsers u WHERE u.id = :userId AND s.id = :songId")
+    Boolean isSongLikedByUser(@Param("userId") Long userId, @Param("songId") Long songId);
 }

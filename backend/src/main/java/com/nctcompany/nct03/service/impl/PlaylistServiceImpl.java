@@ -21,6 +21,7 @@ import com.nctcompany.nct03.service.PlaylistService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -118,5 +119,13 @@ public class PlaylistServiceImpl implements PlaylistService {
                 .filter(song -> song.getId().equals(songId))
                 .findFirst()
                 .isPresent();
+    }
+
+    public List<Boolean> checkSongInPlaylists(List<Long> playlistIds, Long songId) {
+        List<Boolean> results = new ArrayList<>();
+        for (Long playlistId : playlistIds) {
+            results.add(playlistRepository.isSongInPlaylist(playlistId, songId));
+        }
+        return results;
     }
 }

@@ -7,6 +7,7 @@ import com.nctcompany.nct03.dto.song.SongResponse;
 import com.nctcompany.nct03.dto.user.ChangePasswordRequest;
 import com.nctcompany.nct03.dto.user.UpdateUserRequest;
 import com.nctcompany.nct03.dto.user.UserResponse;
+import com.nctcompany.nct03.exception.BadRequestException;
 import com.nctcompany.nct03.exception.ResourceNotFoundException;
 import com.nctcompany.nct03.model.User;
 import com.nctcompany.nct03.service.UserService;
@@ -32,7 +33,9 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequestMapping("/v1/users")
 @RestController
@@ -175,4 +178,19 @@ public class UserController {
         return ResponseEntity.ok(songsPage);
     }
 
+    @GetMapping("/checkUserLikedSongs")
+    public List<Boolean> checkUserLikedSongs(@RequestParam String songIds) {
+        List<Long> songIdList = Arrays.stream(songIds.split(","))
+                .map(id -> {
+                    try {
+                        return Long.parseLong(id);
+                    } catch (NumberFormatException e) {
+                        throw new BadRequestException("Invalid song id: " + id);
+                    }
+                })
+                .collect(Collectors.toList());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User loggedUser = (User) authentication.getPrincipal();
+        return userService.checkUserLikedSongs(loggedUser, songIdList);
+    }
 }

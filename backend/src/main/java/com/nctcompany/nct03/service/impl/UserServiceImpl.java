@@ -159,4 +159,10 @@ public class UserServiceImpl implements UserService {
                 .totalPages(totalPages)
                 .build();
     }
+
+    public List<Boolean> checkUserLikedSongs(User loggedUser, List<Long> songIds) {
+        return songIds.stream()
+                .map(songId -> songRepository.isSongLikedByUser(loggedUser.getId(), songId))
+                .collect(Collectors.toList());
+    }
 }
