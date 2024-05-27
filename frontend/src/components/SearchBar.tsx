@@ -1,25 +1,16 @@
 import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native'
 import { EvilIcons } from '@expo/vector-icons'
 import { useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { useNavigation, useRoute } from '@react-navigation/native'
-import { setKeyword } from '../features/slices/searchSlice'
-import { RootState } from '../features/store'
 
-const SearchBar = ({ initKeyword }) => {
+const SearchBar = ({ initKeyword, onSearch, reset = false }) => {
   const [searchTerm, setSearchTerm] = useState(initKeyword)
-
-  const dispatch = useDispatch()
-  const navigation = useNavigation()
-  const route = useRoute()
 
   const handleSearch = async () => {
     if (!searchTerm) return
 
-    dispatch(setKeyword(searchTerm))
-    if (route.name !== 'SearchResultScreen') {
+    onSearch(searchTerm)
+    if (reset) {
       setSearchTerm('')
-      navigation.navigate('SearchResultScreen' as never)
     }
   }
 

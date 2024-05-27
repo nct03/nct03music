@@ -29,13 +29,19 @@ export const getArtistSongs = async (
   }
 }
 
-export const searchArtists = async (keyword: string): Promise<Artist> => {
+export const findArtists = async (
+  keyword: string,
+  pageNum: number,
+  pageSize: number
+): Promise<PageableResponse<Artist>> => {
   try {
-    const response = await customFetch.get<Artist>(
-      `/artists/search?keyword=${keyword}`
+    const response = await customFetch.get<PageableResponse<Artist>>(
+      `/artists/search`,
+      { params: { keyword, pageNum, pageSize } }
     )
     return response.data
-  } catch (error) {
-    throw new Error('Error searching artists: ' + error.message)
+  } catch (error: any) {
+    Alert.alert('Error', getErrorMsg(error))
+    throw error
   }
 }

@@ -73,6 +73,16 @@ export const BottomNavigator = () => {
 
 const MainNavigator = () => {
   const Stack = createNativeStackNavigator()
+
+  const screenWithBackButtonStyles = {
+    headerShown: true,
+    title: '',
+    headerTintColor: '#fff',
+    headerStyle: {
+      backgroundColor: Colors.primary800,
+    },
+  }
+
   return (
     <Stack.Navigator
       initialRouteName="HomeScreen"
@@ -80,32 +90,22 @@ const MainNavigator = () => {
         headerShown: false,
       }}
     >
-      <Stack.Screen name="SearchResultScreen" component={SearchResultScreen} />
+      <Stack.Screen
+        name="SearchResultScreen"
+        component={SearchResultScreen}
+        options={screenWithBackButtonStyles}
+      />
       <Stack.Screen name="HomeScreen" component={BottomNavigator} />
       <Stack.Screen name="SongScreen" component={SongScreen} />
       <Stack.Screen
         name="ArtistDetailsScreen"
         component={ArtistDetailsScreen}
-        options={{
-          headerShown: true,
-          title: '',
-          headerTintColor: '#fff',
-          headerStyle: {
-            backgroundColor: Colors.primary800,
-          },
-        }}
+        options={screenWithBackButtonStyles}
       />
       <Stack.Screen
         name="GenreDetailsScreen"
         component={GenreDetailsScreen}
-        options={{
-          headerShown: true,
-          title: '',
-          headerTintColor: '#fff',
-          headerStyle: {
-            backgroundColor: Colors.primary800,
-          },
-        }}
+        options={screenWithBackButtonStyles}
       />
     </Stack.Navigator>
   )

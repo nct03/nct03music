@@ -1,42 +1,61 @@
-import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import {
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native'
+import { Song } from '../../models'
+import LoadingMore from '../LoadingMore'
 
-const SongsSearchList = ({ songsSearchResult }) => {
-
-
-
-  if (!songsSearchResult || songsSearchResult.length === 0) {
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', marginTop: 20 }}>
-        <Text style={{ color: 'white', fontSize: 20 }}>No Songs Found</Text>
-      </View>
-    )
-  };
-
+interface SongsSearchListProps {
+  songs: Song[]
+  onEndReached: () => void
+  isLoadingMore: boolean
+}
+const SongsSearchList = ({
+  songs,
+  onEndReached,
+  isLoadingMore,
+}: SongsSearchListProps) => {
   return (
-    <>
-      {songsSearchResult.map((song) => {
-        const { artists } = song
-        const artistsNames = artists.map((artist) => artist.name).join(", ")
-
-        return (
-          <TouchableOpacity style={styles.item} key={song.id}>
-            <Image
-              source={{ uri: song.imagePath }}
-              style={styles.image}
-            />
-            <View>
-              <Text style={styles.text}>{song.name}</Text>
-              <Text style={{ color: '#ccc' }}>{artistsNames}</Text>
-            </View>
-          </TouchableOpacity>
-        )
-      })}
-    </>
+    <FlatList
+      data={songs}
+      keyExtractor={(item) => item.id.toString()}
+      ListEmptyComponent={
+        <View style={styles.container}>
+          <Text style={{ color: 'white', fontSize: 20, textAlign: 'center' }}>
+            No Songs Found
+          </Text>
+        </View>
+      }
+      ListFooterComponent={isLoadingMore ? <LoadingMore /> : null}
+      renderItem={({ item }) => (
+        <TouchableOpacity style={styles.item}>
+          <Image source={{ uri: item.imagePath }} style={styles.image} />
+          <View>
+            <Text style={styles.text}>{item.name}</Text>
+            <Text style={{ color: '#ccc' }}>
+              {item.artists.map((artist) => artist.name).join(', ')}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      )}
+      style={styles.container}
+      onEndReached={onEndReached}
+      onEndReachedThreshold={0.5}
+      initialNumToRender={4}
+    />
   )
 }
 export default SongsSearchList
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingBottom: 32,
+  },
   item: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -48,7 +67,6 @@ const styles = StyleSheet.create({
   image: {
     width: 50,
     height: 50,
-    // borderRadius: 25,
     marginRight: 10,
   },
   text: {

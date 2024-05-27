@@ -1,59 +1,71 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import {
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native'
 import { useDispatch } from 'react-redux'
-import { fetchSongs } from '../../features/slices/songSlice'
 import { AppDispatch } from '../../features/store'
 import { useNavigation } from '@react-navigation/native'
+import { Artist } from '../../models'
+import LoadingMore from '../LoadingMore'
+import { setArtistDetailsId } from '../../features/slices/artistSlice'
 
-const ArtistsSearchList = ({ artistsSearchResult }) => {
+interface ArtistsSearchListProps {
+  artists: Artist[]
+  onEndReached: () => void
+  isLoadingMore: boolean
+}
+
+const ArtistsSearchList = ({
+  artists,
+  onEndReached,
+  isLoadingMore,
+}: ArtistsSearchListProps) => {
   const dispatch = useDispatch<AppDispatch>()
   const navigation = useNavigation()
 
-  if (!artistsSearchResult || artistsSearchResult.length === 0) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginTop: 20,
-        }}
-      >
-        <Text style={{ color: 'white', fontSize: 20 }}>No Artists Found</Text>
-      </View>
-    )
-  }
-
-  const handleGetSongsOfArtist = async (id: number, aritstName: string) => {
-    // try {
-    //   const songResults = await getSongsOfArtist(id)
-    //   const favoriteSongs = songResults.items
-    //   navigation.navigate('SongScreen', { favoriteSongs })
-    // } catch (error) {
-    //   console.error(error.message)
-    // }
-
-    dispatch(fetchSongs({ url: `/artists/${id}/songs`, heading: aritstName }))
-    navigation.navigate('SongScreen')
+  const handleGetArtistDetails = (id: number) => {
+    dispatch(setArtistDetailsId(id))
+    navigation.navigate('ArtistDetailsScreen' as never)
   }
 
   return (
-    <>
-      {artistsSearchResult.map((artist) => (
+    <FlatList
+      data={artists}
+      keyExtractor={(item) => item.id.toString()}
+      ListEmptyComponent={
+        <View style={styles.container}>
+          <Text style={{ color: 'white', fontSize: 20, textAlign: 'center' }}>
+            No Artists Found
+          </Text>
+        </View>
+      }
+      ListFooterComponent={isLoadingMore ? <LoadingMore /> : null}
+      renderItem={({ item }) => (
         <TouchableOpacity
           style={styles.item}
-          key={artist.id}
-          onPress={() => handleGetSongsOfArtist(artist.id, artist.name)}
+          onPress={() => handleGetArtistDetails(item.id)}
         >
-          <Image source={{ uri: artist.photo }} style={styles.image} />
-          <Text style={styles.text}>{artist.name}</Text>
+          <Image source={{ uri: item.photo }} style={styles.image} />
+          <Text style={styles.text}>{item.name}</Text>
         </TouchableOpacity>
-      ))}
-    </>
+      )}
+      style={styles.container}
+      onEndReached={onEndReached}
+      onEndReachedThreshold={0.5}
+      initialNumToRender={4}
+    />
   )
 }
 export default ArtistsSearchList
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   item: {
     flexDirection: 'row',
     alignItems: 'center',

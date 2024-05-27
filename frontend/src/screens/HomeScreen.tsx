@@ -23,6 +23,7 @@ import {
   setGenreDetails,
 } from '../features/slices/genreSlice'
 import { Colors } from '../constant/Colors'
+import { setKeyword } from '../features/slices/searchSlice'
 
 export default function HomeScreen({ navigation }) {
   const { recentSongs } = useAppSelector(selectSong)
@@ -62,6 +63,11 @@ export default function HomeScreen({ navigation }) {
     navigation.navigate('GenreDetailsScreen')
   }
 
+  const handleSearch = (keyword: string) => {
+    dispatch(setKeyword(keyword))
+    navigation.navigate('SearchResultScreen' as never)
+  }
+
   // const handleSongPress = (songData, currentIndex) => {
   //   dispatch(setSongsPlay({ songs: songData, currentIndex }))
   //   navigation.navigate('Player')
@@ -78,7 +84,7 @@ export default function HomeScreen({ navigation }) {
   return (
     <ScrollView style={styles.background}>
       <View style={styles.container}>
-        <SearchBar initKeyword="" />
+        <SearchBar initKeyword="" onSearch={handleSearch} reset />
         {/* Artists */}
         <View style={styles.title}>
           <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>
