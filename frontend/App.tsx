@@ -9,7 +9,7 @@ injectStore(store, logoutUser)
 export default function App() {
   return (
     <>
-      <StatusBar />
+      <StatusBar style="light" />
       <Provider store={store}>
         <RootNavigator />
       </Provider>

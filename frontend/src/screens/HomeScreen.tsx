@@ -24,6 +24,7 @@ import {
 } from '../features/slices/genreSlice'
 import { Colors } from '../constant/Colors'
 import { setKeyword } from '../features/slices/searchSlice'
+import { fetchUserProfile } from '../features/slices/userSlice'
 
 export default function HomeScreen({ navigation }) {
   const { recentSongs } = useAppSelector(selectSong)
@@ -40,17 +41,13 @@ export default function HomeScreen({ navigation }) {
 
   const fetchInitialData = async () => {
     setLoading(true)
-    try {
-      await Promise.all([
-        dispatch(fetchRecentSongs()).unwrap(),
-        dispatch(fetchArtists()).unwrap(),
-        dispatch(fetchGenres()).unwrap(),
-      ])
-    } catch (error) {
-      console.error('Error fetching initial data:', error)
-    } finally {
-      setLoading(false)
-    }
+    await Promise.all([
+      dispatch(fetchUserProfile()).unwrap(),
+      dispatch(fetchRecentSongs()).unwrap(),
+      dispatch(fetchArtists()).unwrap(),
+      dispatch(fetchGenres()).unwrap(),
+    ])
+    setLoading(false)
   }
 
   const handleGetArtistDetails = (id: number) => {

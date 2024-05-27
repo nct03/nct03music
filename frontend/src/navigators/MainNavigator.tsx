@@ -2,12 +2,14 @@ import { Ionicons, Feather, MaterialIcons, AntDesign } from '@expo/vector-icons'
 import {
   Player,
   Favorite,
-  User,
+  UserScreen,
   HomeScreen,
   SearchResultScreen,
   SongScreen,
   ArtistDetailsScreen,
   GenreDetailsScreen,
+  UpdateProfileScreen,
+  ChangePasswordScreen,
 } from '../screens'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
@@ -60,7 +62,7 @@ export const BottomNavigator = () => {
       />
       <Tab.Screen
         name="User"
-        component={User}
+        component={UserScreen}
         options={{
           tabBarIcon: ({ color }) => (
             <AntDesign name="user" size={24} color={color} />
@@ -105,6 +107,16 @@ const MainNavigator = () => {
       <Stack.Screen
         name="GenreDetailsScreen"
         component={GenreDetailsScreen}
+        options={screenWithBackButtonStyles}
+      />
+      <Stack.Screen
+        name="UpdateProfileScreen"
+        component={UpdateProfileScreen}
+        options={screenWithBackButtonStyles}
+      />
+      <Stack.Screen
+        name="ChangePasswordScreen"
+        component={ChangePasswordScreen}
         options={screenWithBackButtonStyles}
       />
     </Stack.Navigator>

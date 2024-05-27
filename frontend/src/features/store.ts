@@ -6,6 +6,7 @@ import playerReducer from './slices/playerSlice'
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 import artistReducer from './slices/artistSlice'
 import genreReducer from './slices/genreSlice'
+import userReducer from './slices/userSlice'
 
 const store = configureStore({
   reducer: {
@@ -15,6 +16,7 @@ const store = configureStore({
     player: playerReducer,
     artist: artistReducer,
     genre: genreReducer,
+    user: userReducer,
   },
 })
 
