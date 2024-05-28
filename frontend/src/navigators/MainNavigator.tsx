@@ -10,6 +10,7 @@ import {
   GenreDetailsScreen,
   UpdateProfileScreen,
   ChangePasswordScreen,
+  PlaylistDetailsScreen,
 } from '../screens'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
@@ -117,6 +118,11 @@ const MainNavigator = () => {
       <Stack.Screen
         name="ChangePasswordScreen"
         component={ChangePasswordScreen}
+        options={screenWithBackButtonStyles}
+      />
+      <Stack.Screen
+        name="PlaylistDetailsScreen"
+        component={PlaylistDetailsScreen}
         options={screenWithBackButtonStyles}
       />
     </Stack.Navigator>

@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { Artist, PageableResponse, Song } from '../../models'
-import { Alert } from 'react-native'
 import { RootState } from '../store'
 import { getArtistSongs, getArtists } from '../../apis/artistService'
 

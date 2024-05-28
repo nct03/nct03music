@@ -1,8 +1,7 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
-import { PageableResponse, Song } from '../models'
+import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { Song } from '../models'
 import { Image } from 'react-native-elements'
 import { Colors } from '../constant/Colors'
-import Pagination from './Pagination'
 
 export default function SongList({
   songs,

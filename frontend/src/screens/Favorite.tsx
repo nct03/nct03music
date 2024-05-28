@@ -1,197 +1,191 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Image, Modal, Pressable, TextInput } from "react-native";
-import { getAllPlaylistAlbum, deletePlaylistAlbum, createPlayListAlbum, getSongsInPlaylist, getFavoriteSongs } from "../apis/MusicApi";
-import { FontAwesome } from '@expo/vector-icons';
+import React, { useEffect, useState } from 'react'
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Alert,
+} from 'react-native'
+import { FontAwesome } from '@expo/vector-icons'
+import { useAppDispatch, useAppSelector } from '../features/store'
+import {
+  deletePlaylist,
+  fetchUserPlaylists,
+  selectPlaylist,
+} from '../features/slices/playlistSlice'
+import LoadingOverlay from '../components/LoadingOverlay'
+import { Colors } from '../constant/Colors'
+import { AntDesign } from '@expo/vector-icons'
+import AddPlaylistModal from '../components/AddPlaylistModal'
+import Pagination from '../components/Pagination'
 
-export default function Playlist({ navigation }) {
-    const [albumName, setAlbumName] = useState("");
-    const [albums, setAlbums] = useState([]);
-    const [isModalVisible, setIsModalVisible] = useState(false);
+export default function Favorite({ navigation }) {
+  const [isModalVisible, setIsModalVisible] = useState(false)
 
-    useEffect(() => {
-        fetchInitialData()
-    }, []);
+  const { userPlaylists, isLoading } = useAppSelector(selectPlaylist)
+  const dispatch = useAppDispatch()
 
-    const fetchInitialData = async () => {
-        try {
-            const albums = await getAllPlaylistAlbum();
-            setAlbums(albums)
-        }
-        catch (err) {
-            console.error('Error fetching initial data:', err.message)
-        }
-    }
+  useEffect(() => {
+    dispatch(fetchUserPlaylists({ pageNum: 1 }))
+  }, [])
 
-    const handleRemoveAlbum = async (id) => {
-        try {
-            // Gọi hàm API để xóa album
-            await deletePlaylistAlbum(id)
-        } catch (error) {
-            console.error(error.message) 
-        } finally {
-            fetchInitialData()
-        }
-    };
+  const handleRemovePlaylist = (id: number, name: string) => {
+    Alert.alert('Delete', `Bạn có chắc chắn muốn xoá playlist ${name} không?`, [
+      { text: 'Hủy', style: 'cancel' },
+      {
+        text: 'Đồng ý',
+        onPress: () => {
+          dispatch(deletePlaylist(id))
+            .unwrap()
+            .then(() => {
+              dispatch(fetchUserPlaylists({ pageNum: userPlaylists.pageNum }))
+            })
+            .catch((e) => {})
+        },
+      },
+    ])
+  }
 
-    const handleCreatePlayListAlbum = async () => {
-        try {
-            if (albumName.length == 0) {
-                alert("Bạn hãy nhập tên album");
-                return
-            }
-            await createPlayListAlbum(albumName)
-            fetchInitialData()
-            setIsModalVisible(false)
-        } catch (err) {
-            console.error(err.message)
-        }
-    }
+  const handleGetSongsInPlaylist = async (id: number) => {
+    navigation.navigate('PlaylistDetailsScreen', { playlistId: id })
+  }
 
-    const handleGetFavoriteSongs = async () => {
-        try {
-            const songResults = await getFavoriteSongs();
-            const favoriteSongs = songResults.items
-            navigation.navigate('SongScreen', { favoriteSongs });
-        } catch (error) {
-            console.error('Error searching:', error.message);
-        }
-    }
+  const onPageChange = (page: number) => {
+    dispatch(fetchUserPlaylists({ pageNum: page }))
+  }
 
-    const handleGetSongsInList = async (id) => {
-        try {
-            const songResults = await getSongsInPlaylist(id)
-            const favoriteSongs = songResults.items
-            navigation.navigate('SongScreen', { favoriteSongs });
-        }
-        catch (error) {
-            console.error(error.message)
-        }
-    } 
+  const closeModal = () => {
+    setIsModalVisible(false)
+  }
 
-        return (
-            <ScrollView style={styles.container}>
-                <Text style={styles.title}>
-                    Danh sách album đã lưu
+  if (isLoading || !userPlaylists) {
+    return <LoadingOverlay visible={true} />
+  }
+
+  return (
+    <View style={styles.container}>
+      <ScrollView style={{ flex: 1 }}>
+        <AddPlaylistModal
+          isModalVisible={isModalVisible}
+          closeModal={closeModal}
+        />
+        <View style={styles.header}>
+          <Text style={styles.title}>Thư viện</Text>
+
+          <TouchableOpacity
+            style={{ flexDirection: 'row' }}
+            onPress={() => setIsModalVisible(true)}
+          >
+            <AntDesign name="pluscircleo" size={28} color="#fff" />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.likeContainer}>
+          <TouchableOpacity
+            style={styles.itemBtn}
+            onPress={() => handleGetSongsInPlaylist(0)}
+          >
+            <Image
+              source={require('../assets/FavoriteAlbum.png')}
+              style={styles.image}
+            />
+            <Text style={styles.text}>Yêu thích</Text>
+          </TouchableOpacity>
+        </View>
+        {userPlaylists.items.map((item) => (
+          <View key={item.id} style={styles.item}>
+            <TouchableOpacity
+              style={styles.itemBtn}
+              onPress={() => handleGetSongsInPlaylist(item.id)}
+            >
+              <Image
+                source={require('../assets/musicAlbum.jpg')}
+                style={styles.image}
+              />
+              <View>
+                <Text style={styles.text}>{item.name}</Text>
+                <Text style={styles.numberSongs}>
+                  {item.totalSongs} bài hát
                 </Text>
-                <TouchableOpacity style={{ flexDirection: "row" }} onPress={() => setIsModalVisible(true)}>
-                    <Image
-                        source={require('../assets/musicAlbum.jpg')}
-                        style={{ width: 100, height: 100, borderRadius: 10, margin: 10, opacity: 0.4 }}
-                    />
-                    <Text style={{ ...styles.text, fontSize: 20, alignSelf: "center" }}>Tạo danh sách mới</Text>
-                </TouchableOpacity>
-                <View style={styles.centeredView}>
-                    <Modal
-                        visible={isModalVisible}
-                        onRequestClose={() => setIsModalVisible(false)}
-                        animationType="fade"
-                    >
-                        <View style={styles.modalView}>
-                            <TextInput
-                                placeholder="Tên album mới..."
-                                onChangeText={(text) => setAlbumName(text)}
-                                style={{
-                                    marginBottom: 20,
-                                    padding: 10,
-                                    borderWidth: 1,
-                                    borderColor: '#fff',
-                                    borderRadius: 5,
-                                    width: 300,
-                                }} />
-                            <Pressable
-                                onPress={handleCreatePlayListAlbum}>
-                                <Text style={{
-                                    ...styles.button,
-                                    color: "#fff",
-                                    paddingHorizontal: 20,
-                                    paddingVertical: 10,
-                                    fontWeight: "bold"
-                                }}>Xác nhận</Text>
-                            </Pressable>
-                            <Pressable
-                                onPress={() => setIsModalVisible(false)}>
-                                <Text style={{
-                                    ...styles.button,
-                                    color: "#fff",
-                                    paddingHorizontal: 36,
-                                    paddingVertical: 10,
-                                    fontWeight: "bold"
-                                }}>Hủy</Text>
-                            </Pressable>
-                        </View>
-                    </Modal>
-                </View>
-                <View style={{ flexDirection: "row" }}>
-                    <TouchableOpacity
-                        style={{ flexDirection: "row", width: "60%" }}
-                        onPress={handleGetFavoriteSongs}
-                    >
-                        <Image
-                            source={require('../assets/FavoriteAlbum.png')}
-                            style={{ width: 100, height: 100, borderRadius: 10, margin: 10 }}
-                        />
-                        <Text style={{ ...styles.text, fontSize: 20, alignSelf: "center" }}>Danh sách bài hát yêu thích</Text>
-                    </TouchableOpacity>
-                </View>
-                {albums.map((item) => (
-                    <View key={item.id} style={{ flexDirection: "row" }}>
-                        <TouchableOpacity
-                            style={{ flexDirection: "row", width: "60%" }}
-                            onPress={() =>handleGetSongsInList (item.id)}
-                        >
-                            <Image
-                                source={require('../assets/musicAlbum.jpg')}
-                                style={{ width: 100, height: 100, borderRadius: 10, margin: 10 }}
-                            />
-                            <Text style={{ ...styles.text, fontSize: 20, alignSelf: "center" }}>{item.name}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={{ marginLeft: "30%", marginTop: "10%" }} onPress={() => handleRemoveAlbum(item.id)} >
-                            <FontAwesome name="remove" size={24} color="#fff" />
-                        </TouchableOpacity>
-                    </View>
-                ))}
-            </ScrollView>
-        )
-    }
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.deleteBtn}
+              onPress={() => handleRemovePlaylist(item.id, item.name)}
+            >
+              <FontAwesome name="remove" size={24} color="#fff" />
+            </TouchableOpacity>
+          </View>
+        ))}
+        {userPlaylists.totalPages >= 2 && (
+          <Pagination
+            pageNum={userPlaylists.pageNum}
+            pageSize={userPlaylists.pageSize}
+            totalPages={userPlaylists.totalPages}
+            totalItems={userPlaylists.totalItems}
+            onPageChange={onPageChange}
+          />
+        )}
+      </ScrollView>
+    </View>
+  )
+}
 
-    const styles = StyleSheet.create({
-        container: {
-            backgroundColor: "#0A071E",
-            flex: 1,
-            padding: 20,
-            marginTop: "6%",
-        },
-        modalView: {
-            marginTop: "80%",
-            alignSelf: "center",
-            justifyContent: "center",
-            backgroundColor: 'white',
-            borderRadius: 20,
-            padding: 35,
-            alignItems: 'center',
-            shadowColor: '#000',
-            shadowOffset: {
-                width: 0,
-                height: 2,
-            },
-            shadowOpacity: 0.25,
-            shadowRadius: 4,
-            elevation: 5,
-        },
-        button: {
-            alignSelf: "center",
-            borderRadius: 4,
-            marginBottom: 10,
-            backgroundColor: '#2196F3',
-        },
-        title: {
-            fontSize: 20,
-            fontWeight: "bold",
-            marginBottom: 10,
-            color: "#fff"
-        },
-        text: {
-            color: "#fff"
-
-        }
-    })
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: Colors.primary800,
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingTop: 32,
+    paddingBottom: 80,
+  },
+  header: {
+    flexDirection: 'row',
+    marginTop: 32,
+    marginBottom: 20,
+    paddingHorizontal: 12,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  title: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  likeContainer: {
+    marginTop: 24,
+    marginBottom: 20,
+  },
+  itemBtn: {
+    flexDirection: 'row',
+    width: '60%',
+    gap: 12,
+    alignItems: 'center',
+  },
+  item: {
+    marginBottom: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  image: {
+    width: 70,
+    height: 70,
+    borderRadius: 10,
+  },
+  deleteBtn: {
+    marginLeft: 20,
+  },
+  text: {
+    color: '#fff',
+    fontSize: 18,
+    alignSelf: 'center',
+    marginBottom: 4,
+  },
+  numberSongs: {
+    color: Colors.gray500,
+    fontSize: 14,
+  },
+})
