@@ -14,17 +14,17 @@ export default function SignupScreen({ navigation }) {
                 alert("Bạn hãy nhập tên của bạn");
                 return
             }
-    
+
             if (email.length == 0) {
                 alert("Bạn hãy nhập email ");
                 return
             }
-    
+
             if (8 > password.length && password > 32) {
                 alert("Mật khẩu phải nằm trong khoảng từ 8 - 32 kí tự");
                 return
             }
-    
+
             if (confimPass !== password) {
                 alert("Nhập lại mật khẩu không đúng")
                 return
