@@ -22,7 +22,7 @@ const initialState: SongState = {
 export const fetchRecentSongs = createAsyncThunk(
   'song/fetchRecentSongs',
   async () => {
-    const data = getRecentSongs()
+    const data = await getRecentSongs()
     return data
   }
 )

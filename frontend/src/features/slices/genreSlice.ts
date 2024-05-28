@@ -31,7 +31,7 @@ const initialState: GenreState = {
 }
 
 export const fetchGenres = createAsyncThunk('genre/fetchGenres', async () => {
-  const data = getGenres()
+  const data = await getGenres()
   return data
 })
 

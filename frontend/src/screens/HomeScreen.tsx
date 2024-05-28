@@ -25,6 +25,8 @@ import {
 import { Colors } from '../constant/Colors'
 import { setKeyword } from '../features/slices/searchSlice'
 import { fetchUserProfile } from '../features/slices/userSlice'
+import { setSongsPlay } from '../features/slices/playerSlice'
+import { fetchUserPlaylists } from '../features/slices/playlistSlice'
 
 export default function HomeScreen({ navigation }) {
   const { recentSongs } = useAppSelector(selectSong)
@@ -43,6 +45,7 @@ export default function HomeScreen({ navigation }) {
     setLoading(true)
     await Promise.all([
       dispatch(fetchUserProfile()).unwrap(),
+      dispatch(fetchUserPlaylists({ pageNum: 1 })).unwrap(),
       dispatch(fetchRecentSongs()).unwrap(),
       dispatch(fetchArtists()).unwrap(),
       dispatch(fetchGenres()).unwrap(),
@@ -65,10 +68,12 @@ export default function HomeScreen({ navigation }) {
     navigation.navigate('SearchResultScreen' as never)
   }
 
-  // const handleSongPress = (songData, currentIndex) => {
-  //   dispatch(setSongsPlay({ songs: songData, currentIndex }))
-  //   navigation.navigate('Player')
-  // }
+  const handleSongPress = (currentIndex: number) => {
+    dispatch(
+      setSongsPlay({ songPage: recentSongs, currentSongIndex: currentIndex })
+    )
+    navigation.navigate('Player')
+  }
 
   if (loading) {
     return <Loading type="black" loadingSize="large" />
@@ -172,7 +177,7 @@ export default function HomeScreen({ navigation }) {
             <TouchableOpacity
               key={item.id}
               style={styles.wrapper}
-              // onPress={() => handleSongPress(musicList, index)}
+              onPress={() => handleSongPress(index)}
             >
               <Image
                 source={{ uri: item.imagePath }}
@@ -200,7 +205,7 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   background: {
     backgroundColor: Colors.primary800,
-    marginTop: '6%',
+    paddingTop: 20,
   },
 
   container: {

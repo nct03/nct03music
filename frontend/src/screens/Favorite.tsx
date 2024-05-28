@@ -27,10 +27,6 @@ export default function Favorite({ navigation }) {
   const { userPlaylists, isLoading } = useAppSelector(selectPlaylist)
   const dispatch = useAppDispatch()
 
-  useEffect(() => {
-    dispatch(fetchUserPlaylists({ pageNum: 1 }))
-  }, [])
-
   const handleRemovePlaylist = (id: number, name: string) => {
     Alert.alert('Delete', `Bạn có chắc chắn muốn xoá playlist ${name} không?`, [
       { text: 'Hủy', style: 'cancel' },

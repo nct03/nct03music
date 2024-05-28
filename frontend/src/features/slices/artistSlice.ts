@@ -30,7 +30,7 @@ const initialState: ArtistState = {
 export const fetchArtists = createAsyncThunk(
   'artist/fetchArtists',
   async () => {
-    const data = getArtists()
+    const data = await getArtists()
     return data
   }
 )
@@ -46,7 +46,7 @@ export const fetchArtistSongs = createAsyncThunk(
     pageNum: number
     pageSize: number
   }) => {
-    const data = getArtistSongs(artistId, pageNum, pageSize)
+    const data = await getArtistSongs(artistId, pageNum, pageSize)
     return data
   }
 )

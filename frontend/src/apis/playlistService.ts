@@ -71,3 +71,52 @@ export const getSongsInFavorite = async (
     throw error
   }
 }
+
+export const checkSongInPlaylistAPI = async (
+  songId: number,
+  playlistIds: string
+): Promise<Boolean[]> => {
+  try {
+    const response = await customFetch.get<Boolean[]>(
+      '/playlists/checkSongInPlaylists',
+      {
+        params: { songId, playlistIds },
+      }
+    )
+    return response.data
+  } catch (error) {
+    Alert.alert('Error', getErrorMsg(error))
+    throw error
+  }
+}
+
+export const addSongToPlaylistAPI = async (
+  songId: number,
+  playlistId: number
+) => {
+  try {
+    const response = await customFetch.post(`/playlists/${playlistId}/songs`, {
+      songId: songId,
+    })
+    console.log(response.data)
+    return response.data
+  } catch (error) {
+    Alert.alert('Error', getErrorMsg(error))
+    throw error
+  }
+}
+
+export const removeSongFromPlaylistAPI = async (
+  songId: number,
+  playlistId: number
+) => {
+  try {
+    const response = await customFetch.delete(
+      `/playlists/${playlistId}/songs/${songId}`
+    )
+    return response.data
+  } catch (error) {
+    Alert.alert('Error', getErrorMsg(error))
+    throw error
+  }
+}

@@ -43,7 +43,7 @@ export const searchArtists = createAsyncThunk(
     pageNum?: number
     pageSize?: number
   }) => {
-    const data = findArtists(keyword, pageNum, pageSize)
+    const data = await findArtists(keyword, pageNum, pageSize)
     return data
   }
 )
@@ -59,7 +59,7 @@ export const searchSongs = createAsyncThunk(
     pageNum?: number
     pageSize?: number
   }) => {
-    const data = findSongs(keyword, pageNum, pageSize)
+    const data = await findSongs(keyword, pageNum, pageSize)
     return data
   }
 )

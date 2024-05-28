@@ -20,7 +20,7 @@ const initialState: UserState = {
 export const fetchUserProfile = createAsyncThunk(
   'user/fetchUserProfile',
   async () => {
-    const data = getUserProfile()
+    const data = await getUserProfile()
     return data
   }
 )
@@ -28,7 +28,7 @@ export const fetchUserProfile = createAsyncThunk(
 export const updateUserProfile = createAsyncThunk(
   'user/updateUserProfile',
   async (formData: FormData) => {
-    const data = updateProfile(formData)
+    const data = await updateProfile(formData)
     return data
   }
 )
@@ -37,7 +37,7 @@ export const changeUserPassword = createAsyncThunk(
   'user/changeUserPassword',
   async (request: ChangePwdRequest, thunkAPI) => {
     try {
-      const data = changePassword(request)
+      const data = await changePassword(request)
       return data
     } catch (error) {
       return thunkAPI.rejectWithValue(error)

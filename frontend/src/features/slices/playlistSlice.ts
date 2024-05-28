@@ -2,11 +2,13 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { PageableResponse, Playlist, Song } from '../../models'
 import { RootState } from '../store'
 import {
+  addSongToPlaylistAPI,
   createPlaylistAPI,
   deletePlaylistAPI,
   getSongsInFavorite,
   getSongsInPlaylistAPI,
   getUserPlaylists,
+  removeSongFromPlaylistAPI,
 } from '../../apis/playlistService'
 
 interface PlaylistState {
@@ -32,7 +34,7 @@ export const fetchUserPlaylists = createAsyncThunk(
     pageNum?: number
     pageSize?: number
   }) => {
-    const data = getUserPlaylists(pageNum, pageSize)
+    const data = await getUserPlaylists(pageNum, pageSize)
     return data
   }
 )
@@ -40,7 +42,7 @@ export const fetchUserPlaylists = createAsyncThunk(
 export const createNewPlaylist = createAsyncThunk(
   'playlist/createNewPlaylist',
   async (name: string) => {
-    const data = createPlaylistAPI(name)
+    const data = await createPlaylistAPI(name)
     return data
   }
 )
@@ -48,7 +50,7 @@ export const createNewPlaylist = createAsyncThunk(
 export const deletePlaylist = createAsyncThunk(
   'playlist/deletePlaylist',
   async (id: number) => {
-    const data = deletePlaylistAPI(id)
+    const data = await deletePlaylistAPI(id)
     return data
   }
 )
@@ -65,12 +67,28 @@ export const fetchSongsInPlaylist = createAsyncThunk(
     pageSize?: number
   }) => {
     if (playlistId === 0) {
-      const data = getSongsInFavorite(pageNum, pageSize)
+      const data = await getSongsInFavorite(pageNum, pageSize)
       return data
     } else {
-      const data = getSongsInPlaylistAPI(playlistId, pageNum, pageSize)
+      const data = await getSongsInPlaylistAPI(playlistId, pageNum, pageSize)
       return data
     }
+  }
+)
+
+export const addSongToPlaylist = createAsyncThunk(
+  'playlist/addSongToPlaylist',
+  async ({ playlistId, songId }: { playlistId: number; songId: number }) => {
+    const data = await addSongToPlaylistAPI(songId, playlistId)
+    return data
+  }
+)
+
+export const removeSongFromPlaylist = createAsyncThunk(
+  'playlist/removeSongFromPlaylist',
+  async ({ playlistId, songId }: { playlistId: number; songId: number }) => {
+    const data = await removeSongFromPlaylistAPI(songId, playlistId)
+    return data
   }
 )
 
@@ -100,6 +118,19 @@ const playlistSlice = createSlice({
       })
       .addCase(fetchSongsInPlaylist.rejected, (state) => {
         state.isDetailsLoading = false
+      })
+
+      .addCase(addSongToPlaylist.fulfilled, (state, { payload }) => {
+        const index = state.userPlaylists.items.findIndex(
+          (p) => p.id === payload.id
+        )
+        state.userPlaylists.items[index].totalSongs += 1
+      })
+      .addCase(removeSongFromPlaylist.fulfilled, (state, { payload }) => {
+        const index = state.userPlaylists.items.findIndex(
+          (p) => p.id === payload.id
+        )
+        state.userPlaylists.items[index].totalSongs -= 1
       })
   },
 })
