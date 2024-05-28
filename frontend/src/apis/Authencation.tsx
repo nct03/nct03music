@@ -15,15 +15,15 @@ export const signup = async (name, email, password) => {
             body: JSON.stringify(formData)
         });
 
-        if(!response.ok) {
+        if (!response.ok) {
             throw new Error("Đăng kí thất bại")
         }
 
         return response.json
-    }  catch (err) {
+    } catch (err) {
         throw new Error(err.message)
     }
-};   
+};
 
 export const login = async (email, password) => {
     try {
