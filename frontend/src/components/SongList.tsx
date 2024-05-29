@@ -6,9 +6,11 @@ import { Colors } from '../constant/Colors'
 export default function SongList({
   songs,
   totalItems,
+  onPress,
 }: {
   songs: Song[]
   totalItems: number
+  onPress: (currentIndex: number) => void
 }) {
   return (
     <View style={styles.container}>
@@ -17,8 +19,12 @@ export default function SongList({
         <Text style={styles.numberSongs}>{totalItems} bài hát</Text>
       </View>
       <View>
-        {songs.map((song) => (
-          <Pressable style={styles.item} key={song.id}>
+        {songs.map((song, index) => (
+          <Pressable
+            style={styles.item}
+            key={song.id}
+            onPress={() => onPress(index)}
+          >
             <Image source={{ uri: song.imagePath }} style={styles.image} />
             <View style={{ flex: 1 }}>
               <Text numberOfLines={2} ellipsizeMode="clip" style={styles.text}>

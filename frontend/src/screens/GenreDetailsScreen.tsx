@@ -10,8 +10,9 @@ import { Colors } from '../constant/Colors'
 import LoadingOverlay from '../components/LoadingOverlay'
 import SongList from '../components/SongList'
 import Pagination from '../components/Pagination'
+import { setSongsPlay } from '../features/slices/playerSlice'
 
-export default function GenreDetailsScreen() {
+export default function GenreDetailsScreen({ navigation }) {
   const { genreId, genreName, pageNum, pageSize, songPage, isLoading } =
     useAppSelector(selectGenreDetails)
   const dispatch = useAppDispatch()
@@ -22,6 +23,13 @@ export default function GenreDetailsScreen() {
 
   const onPageChange = (page: number) => {
     dispatch(changePageNum(page))
+  }
+
+  const handlePressSong = (currentIndex: number) => {
+    dispatch(
+      setSongsPlay({ songPage: songPage, currentSongIndex: currentIndex })
+    )
+    navigation.navigate('Player')
   }
 
   if (isLoading || !songPage) {
@@ -44,7 +52,11 @@ export default function GenreDetailsScreen() {
           Thể loại
           <Text style={styles.name}> {genreName}</Text>
         </Text>
-        <SongList songs={items} totalItems={totalItems} />
+        <SongList
+          songs={items}
+          totalItems={totalItems}
+          onPress={handlePressSong}
+        />
         {totalPages >= 2 && (
           <Pagination
             pageNum={pageNumber}

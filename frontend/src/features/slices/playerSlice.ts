@@ -33,7 +33,7 @@ const initialState: PlayerState = {
   isShuffle: false,
   progress: 0,
   duration: 0,
-  isPlaying: false,
+  isPlaying: true,
   listenedSongs: [],
 }
 
@@ -77,6 +77,12 @@ const playerSlice = createSlice({
   name: 'player',
   initialState,
   reducers: {
+    resetState: (state) => {
+      state.progress = initialState.progress
+      state.isShuffle = initialState.isShuffle
+      state.loopingStatus = initialState.loopingStatus
+      state.isPlaying = initialState.isPlaying
+    },
     setSongsPlay: (state, action) => {
       state.songPage = action.payload.songPage
       state.currentSongIndex = action.payload.currentSongIndex
@@ -111,6 +117,9 @@ const playerSlice = createSlice({
     },
     setShuffleStatus: (state, action) => {
       state.isShuffle = action.payload
+      if (state.isShuffle) {
+        state.shuffledSongs = shuffleSongs(state.songPage.items)
+      }
     },
     setProgress: (state, action) => {
       state.progress = action.payload
@@ -162,6 +171,7 @@ export const {
   setCurrentIndex,
   addListenedSong,
   clearListenedSongs,
+  resetState,
 } = playerSlice.actions
 export const selectPlayer = (state: RootState) => state.player
 const playerReducer = playerSlice.reducer

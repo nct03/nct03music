@@ -25,15 +25,12 @@ export function findSongIndex(songList: Song[], songToFind: Song): number {
 }
 
 export function shuffleSongs(songList: Song[]): Song[] {
-  // Tạo một bản sao của danh sách bài hát để không ảnh hưởng đến danh sách gốc
   const shuffledList = [...songList]
 
-  // Trộn danh sách bài hát
   for (let i = shuffledList.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
     ;[shuffledList[i], shuffledList[j]] = [shuffledList[j], shuffledList[i]]
   }
 
-  // Trả về danh sách id bài hát đã bị xáo trộn
   return shuffledList
 }

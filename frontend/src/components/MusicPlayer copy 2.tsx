@@ -1,11 +1,18 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { View, Text, Image, Pressable, StyleSheet } from 'react-native'
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react'
+import { View, Text, Pressable, StyleSheet } from 'react-native'
 import Slider from '@react-native-community/slider'
 import { AVPlaybackStatus, Audio } from 'expo-av'
-import { AntDesign, FontAwesome6 } from '@expo/vector-icons'
 import {
+  AntDesign,
+  FontAwesome6,
+  Feather,
+  MaterialIcons,
+} from '@expo/vector-icons'
+import {
+  likeSong,
   nextSong,
   prevSong,
+  resetState,
   selectPlayer,
   setCurrentIndex,
   setDuration,
@@ -13,6 +20,7 @@ import {
   setPlayingState,
   setProgress,
   setShuffleStatus,
+  unlikeSong,
 } from '../features/slices/playerSlice'
 import { useAppDispatch, useAppSelector } from '../features/store'
 import { formatTime } from '../utils/formatHelper'
@@ -20,11 +28,14 @@ import {
   findNextSong,
   findPreviousSong,
   findSongIndex,
-  shuffleSongs,
 } from '../utils/songHelper'
+import SongInfo from './SongInfo'
+import AddSongPlaylistModal from './AddSongPlaylistModal'
 
 export default function MusicPlayer() {
   const [currentSound, setCurrentSound] = useState<Audio.Sound>()
+  const [loading, setLoading] = useState(false)
+  const [isModalVisible, setIsModalVisible] = useState(false)
 
   const {
     songPage,
@@ -35,10 +46,22 @@ export default function MusicPlayer() {
     duration,
     isPlaying,
     shuffledSongs,
+    isLikedSongs,
   } = useAppSelector(selectPlayer)
   const dispatch = useAppDispatch()
   const loopingStatusRef = useRef(loopingStatus)
   const isShuffleRef = useRef(isShuffle)
+
+  const restart = async () => {
+    if (currentSound) {
+      await currentSound.unloadAsync()
+    }
+    dispatch(resetState())
+  }
+
+  // useLayoutEffect(() => {
+  //   restart()
+  // }, [])
 
   useEffect(() => {
     loopingStatusRef.current = loopingStatus
@@ -49,21 +72,31 @@ export default function MusicPlayer() {
   }, [isShuffle])
 
   const loadSong = async (uri: string) => {
-    // if (currentSound) {
-    //   await currentSound.unloadAsync()
-    // }
-    const { sound } = await Audio.Sound.createAsync(
-      { uri },
-      {
-        shouldPlay: isPlaying,
+    try {
+      setLoading(true)
+      if (currentSound) {
+        await currentSound.unloadAsync()
       }
-    )
-    setCurrentSound(sound)
+      const { sound } = await Audio.Sound.createAsync(
+        { uri },
+        {
+          shouldPlay: isPlaying,
+        }
+      )
+      setCurrentSound(sound)
+      setLoading(false)
+    } catch (error) {}
   }
 
   useEffect(() => {
     loadSong(songPage.items[currentSongIndex].url)
-  }, [songPage, currentSongIndex])
+    return () => {
+      if (currentSound) {
+        currentSound.unloadAsync()
+      }
+      dispatch(resetState())
+    }
+  }, [currentSongIndex])
 
   useEffect(() => {
     if (currentSound) {
@@ -71,16 +104,22 @@ export default function MusicPlayer() {
     }
   }, [loopingStatus, currentSound])
 
-  const hanldeEndSong = () => {
+  const handleEndSong = () => {
     if (loopingStatusRef.current === 'none') {
       dispatch(setPlayingState(false))
     } else if (loopingStatusRef.current === 'song') {
-      console.log('2')
       dispatch(setPlayingState(true))
       currentSound?.replayAsync()
     } else if (loopingStatusRef.current === 'list') {
-      console.log('3')
-      handleNextSong()
+      // handleNextSong()
+      const currentSong = songPage.items[currentSongIndex]
+      if (isShuffleRef.current) {
+        const nextSong = findNextSong(shuffledSongs, currentSong)
+        const nextIndex = findSongIndex(songPage.items, nextSong)
+        dispatch(setCurrentIndex(nextIndex))
+      } else {
+        dispatch(nextSong())
+      }
     }
   }
 
@@ -93,12 +132,12 @@ export default function MusicPlayer() {
         dispatch(setDuration(status.durationMillis || 0))
 
         if (status.positionMillis === status.durationMillis) {
-          console.log('test')
-          hanldeEndSong()
+          handleEndSong()
         }
       }
     }
   }
+
   useEffect(() => {
     if (currentSound) {
       currentSound.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate)
@@ -124,24 +163,33 @@ export default function MusicPlayer() {
 
   const playPause = async () => {
     if (!currentSound) return
-    const status = await currentSound.getStatusAsync()
 
-    if (isPlaying) {
-      await currentSound.pauseAsync()
-      dispatch(setPlayingState(false))
-    } else {
-      if (
-        status.didJustFinish ||
-        status.positionMillis === status.durationMillis
-      ) {
-        await currentSound.setPositionAsync(0) // Reset the position to the beginning
+    try {
+      const status = await currentSound.getStatusAsync()
+
+      if (isPlaying) {
+        await currentSound.pauseAsync()
+        dispatch(setPlayingState(false))
+      } else {
+        if (
+          //@ts-ignore
+          status.didJustFinish ||
+          //@ts-ignore
+          status.positionMillis === status.durationMillis
+        ) {
+          await currentSound.setPositionAsync(0)
+        }
+        await currentSound.playAsync()
+        dispatch(setPlayingState(true))
       }
-      await currentSound.playAsync()
-      dispatch(setPlayingState(true))
+    } catch (error) {
+      console.log('Error while playing or pausing the sound:', error)
     }
   }
 
   const handleNextSong = async () => {
+    if (loading) return
+    setLoading(true)
     if (currentSound) {
       await currentSound.unloadAsync()
     }
@@ -153,9 +201,12 @@ export default function MusicPlayer() {
     } else {
       dispatch(nextSong())
     }
+    setLoading(false)
   }
 
   const handlePrevSong = async () => {
+    if (loading) return
+    setLoading(true)
     if (currentSound) {
       await currentSound.unloadAsync()
     }
@@ -167,6 +218,7 @@ export default function MusicPlayer() {
     } else {
       dispatch(prevSong())
     }
+    setLoading(false)
   }
 
   const toggleLooping = () => {
@@ -177,22 +229,28 @@ export default function MusicPlayer() {
     dispatch(setShuffleStatus(!isShuffle))
   }
 
+  const handleLikeSong = (songId: number) => {
+    dispatch(likeSong({ songId: songId }))
+  }
+
+  const handleUnlikeSong = (songId: number) => {
+    dispatch(unlikeSong({ songId: songId }))
+  }
+
+  if (!songPage.items[currentSongIndex]) return
+
+  const songPlay = songPage.items[currentSongIndex]
+  const isLike = isLikedSongs[currentSongIndex]
+
   return (
     <View style={styles.container}>
+      <AddSongPlaylistModal
+        isModalVisible={isModalVisible}
+        closeModal={() => setIsModalVisible(false)}
+        songId={songPlay.id}
+      />
       {/* Song Info */}
-      <View style={styles.songInfo}>
-        <Image
-          source={{ uri: songPage.items[currentSongIndex]?.imagePath }}
-          style={styles.songImage}
-          resizeMode="cover"
-        />
-        <Text style={styles.songName}>
-          {songPage.items[currentSongIndex]?.name}
-        </Text>
-        <Text style={styles.songArtist}>
-          {songPage.items[currentSongIndex]?.artists[0].name}
-        </Text>
-      </View>
+      <SongInfo song={songPlay} />
 
       {/* Slider */}
       <View>
@@ -222,44 +280,33 @@ export default function MusicPlayer() {
         </View>
       </View>
       {/* Buttons */}
-      <View style={styles.buttonsContainer}>
-        <View>
-          <Pressable onPress={toggleShuffle}>
+      <View>
+        <View style={styles.topBtnContainer}>
+          <Pressable onPress={toggleShuffle} disabled={loading}>
             <FontAwesome6
               name="shuffle"
-              size={32}
+              size={30}
               color={isShuffle ? '#fff' : 'rgba(255,255,255,0.5)'}
             />
           </Pressable>
-        </View>
-        <View>
-          <Pressable onPress={handlePrevSong}>
-            <AntDesign name="stepbackward" size={28} color="#fff" />
+
+          <Pressable onPress={handlePrevSong} disabled={loading}>
+            <AntDesign name="stepbackward" size={30} color="#fff" />
           </Pressable>
-        </View>
-        <View>
+
           <Pressable>
             <AntDesign
               name={isPlaying ? 'pausecircle' : 'caretright'}
-              size={28}
+              size={30}
               color="#fff"
               onPress={playPause}
             />
           </Pressable>
-        </View>
-        <View>
-          <Pressable>
-            <AntDesign
-              name="stepforward"
-              size={28}
-              color="#fff"
-              title="Next"
-              onPress={handleNextSong}
-            />
-          </Pressable>
-        </View>
 
-        <View>
+          <Pressable onPress={handleNextSong} disabled={loading}>
+            <AntDesign name="stepforward" size={30} color="#fff" title="Next" />
+          </Pressable>
+
           <Pressable
             onPress={toggleLooping}
             style={{
@@ -271,19 +318,49 @@ export default function MusicPlayer() {
             {loopingStatus === 'none' && (
               <AntDesign
                 name="retweet"
-                size={32}
+                size={30}
                 color="rgba(255,255,255,0.5)"
               />
             )}
             {loopingStatus === 'song' && (
-              <AntDesign name="retweet" size={32} color="#fff" />
+              <AntDesign name="retweet" size={30} color="#fff" />
             )}
             {loopingStatus === 'list' && (
               <>
-                <AntDesign name="retweet" size={32} color="#fff" />
+                <AntDesign name="retweet" size={30} color="#fff" />
                 <Text style={styles.numberIcon}>1</Text>
               </>
             )}
+          </Pressable>
+        </View>
+        <View style={styles.bottomBtnContainer}>
+          {!isLike ? (
+            <Pressable
+              style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 4 }}
+              onPress={() => {
+                handleLikeSong(songPlay.id)
+              }}
+            >
+              <AntDesign name="heart" size={30} color="rgba(255,255,255,0.5)" />
+              <Text style={{ color: '#fff' }}>{songPlay.numberLikes}</Text>
+            </Pressable>
+          ) : (
+            <Pressable
+              style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 4 }}
+              onPress={() => {
+                handleUnlikeSong(songPlay.id)
+              }}
+            >
+              <AntDesign name="heart" size={30} color="red" />
+              <Text style={{ color: 'red' }}>{songPlay.numberLikes}</Text>
+            </Pressable>
+          )}
+          <Pressable onPress={() => setIsModalVisible(true)}>
+            <MaterialIcons
+              name="playlist-add"
+              size={30}
+              color="rgba(255,255,255,0.5)"
+            />
           </Pressable>
         </View>
       </View>
@@ -297,39 +374,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  songInfo: {
-    alignItems: 'center',
-  },
-  songImage: {
-    width: 200,
-    height: 200,
-    borderRadius: 10,
-  },
-  songName: {
-    color: '#fff',
-    fontSize: 28,
-    marginTop: 30,
-  },
-  songArtist: {
-    opacity: 0.6,
-    color: '#fff',
-    marginTop: 10,
-  },
+
   slider: {
     marginTop: 20,
     width: 350,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   timeContainer: {
     width: '100%',
     flexDirection: 'row',
+    marginLeft: 16,
     justifyContent: 'space-between',
   },
-  buttonsContainer: {
+  topBtnContainer: {
     flexDirection: 'row',
     width: '100%',
-    alignContent: 'space-around',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
     marginTop: 30,
+    marginBottom: 16,
   },
   numberIcon: {
     flex: 1,
@@ -339,5 +402,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     zIndex: 10,
     fontSize: 10,
+  },
+  bottomBtnContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
 })

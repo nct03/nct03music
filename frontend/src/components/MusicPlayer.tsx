@@ -1,7 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { View, Text, Pressable, StyleSheet } from 'react-native'
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react'
+import { View, Text, Pressable, StyleSheet, LogBox } from 'react-native'
 import Slider from '@react-native-community/slider'
-import { AVPlaybackStatus, Audio } from 'expo-av'
+import {
+  AVPlaybackStatus,
+  Audio,
+  InterruptionModeAndroid,
+  InterruptionModeIOS,
+} from 'expo-av'
 import {
   AntDesign,
   FontAwesome6,
@@ -12,6 +17,7 @@ import {
   likeSong,
   nextSong,
   prevSong,
+  resetState,
   selectPlayer,
   setCurrentIndex,
   setDuration,
@@ -30,9 +36,12 @@ import {
 } from '../utils/songHelper'
 import SongInfo from './SongInfo'
 import AddSongPlaylistModal from './AddSongPlaylistModal'
+import LoadingOverlay from './LoadingOverlay'
+import * as Notifications from 'expo-notifications'
 
+LogBox.ignoreLogs(['Possible Unhandled Promise Rejection'])
 export default function MusicPlayer() {
-  const [currentSound, setCurrentSound] = useState<Audio.Sound>()
+  const [currentSound, setCurrentSound] = useState<Audio.Sound | null>(null)
   const [loading, setLoading] = useState(false)
   const [isModalVisible, setIsModalVisible] = useState(false)
 
@@ -52,6 +61,59 @@ export default function MusicPlayer() {
   const isShuffleRef = useRef(isShuffle)
 
   useEffect(() => {
+    // Yêu cầu quyền truy cập thông báo
+    Notifications.requestPermissionsAsync()
+
+    // Đăng ký xử lý thông báo khi người dùng tương tác
+    Notifications.addNotificationReceivedListener(handleNotification)
+
+    // Tạo thông báo khi người dùng ra khỏi ứng dụng
+    sendNotification()
+
+    // Xóa thông báo khi người dùng mở ứng dụng trở lại
+    Notifications.dismissAllNotificationsAsync()
+  }, [])
+
+  // Xử lý thông báo khi người dùng nhận được
+  const handleNotification = (notification) => {
+    console.log(notification)
+  }
+
+  // Tạo thông báo
+  const sendNotification = async () => {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'Now Playing',
+        body: 'Tên bài hát',
+      },
+      trigger: null, // Thông báo sẽ xuất hiện ngay lập tức
+    })
+  }
+
+  const init = async () => {
+    await Audio.setAudioModeAsync({
+      allowsRecordingIOS: false,
+      staysActiveInBackground: true,
+      interruptionModeIOS: InterruptionModeIOS.DuckOthers,
+      playsInSilentModeIOS: true,
+      shouldDuckAndroid: true,
+      interruptionModeAndroid: InterruptionModeAndroid.DuckOthers,
+      playThroughEarpieceAndroid: false,
+    })
+  }
+
+  useEffect(() => {
+    LogBox.ignoreLogs(['Possible Unhandled Promise Rejection'])
+    init()
+
+    return currentSound
+      ? () => {
+          currentSound.unloadAsync()
+        }
+      : undefined
+  }, [currentSound])
+
+  useEffect(() => {
     loopingStatusRef.current = loopingStatus
   }, [loopingStatus])
 
@@ -60,30 +122,34 @@ export default function MusicPlayer() {
   }, [isShuffle])
 
   const loadSong = async (uri: string) => {
+    setLoading(true)
     try {
-      setLoading(true)
       if (currentSound) {
         await currentSound.unloadAsync()
       }
       const { sound } = await Audio.Sound.createAsync(
         { uri },
-        {
-          shouldPlay: isPlaying,
-        }
+        { shouldPlay: isPlaying }
       )
       setCurrentSound(sound)
+    } catch (error) {
+      console.error('Error loading sound:', error)
+    } finally {
       setLoading(false)
-    } catch (error) {}
+    }
   }
 
   useEffect(() => {
-    loadSong(songPage.items[currentSongIndex].url)
+    if (songPage && songPage.items[currentSongIndex]) {
+      loadSong(songPage.items[currentSongIndex].url)
+    }
     return () => {
       if (currentSound) {
         currentSound.unloadAsync()
       }
+      dispatch(resetState())
     }
-  }, [currentSongIndex])
+  }, [currentSongIndex, songPage])
 
   useEffect(() => {
     if (currentSound) {
@@ -91,14 +157,21 @@ export default function MusicPlayer() {
     }
   }, [loopingStatus, currentSound])
 
-  const handleEndSong = () => {
+  const handleEndSong = async () => {
     if (loopingStatusRef.current === 'none') {
       dispatch(setPlayingState(false))
     } else if (loopingStatusRef.current === 'song') {
       dispatch(setPlayingState(true))
-      currentSound?.replayAsync()
+      await currentSound?.replayAsync()
     } else if (loopingStatusRef.current === 'list') {
-      handleNextSong()
+      const currentSong = songPage.items[currentSongIndex]
+      if (isShuffleRef.current) {
+        const nextSong = findNextSong(shuffledSongs, currentSong)
+        const nextIndex = findSongIndex(songPage.items, nextSong)
+        dispatch(setCurrentIndex(nextIndex))
+      } else {
+        dispatch(nextSong())
+      }
     }
   }
 
@@ -140,54 +213,37 @@ export default function MusicPlayer() {
     return () => clearInterval(interval)
   }, [currentSound, isPlaying])
 
-  // const playPause = async () => {
-  //   if (!currentSound) return
-  //   const status = await currentSound.getStatusAsync()
-
-  //   if (isPlaying) {
-  //     await currentSound.pauseAsync()
-  //     dispatch(setPlayingState(false))
-  //   } else {
-  //     if (
-  //       status.didJustFinish ||
-  //       status.positionMillis === status.durationMillis
-  //     ) {
-  //       await currentSound.setPositionAsync(0) // Reset the position to the beginning
-  //     }
-  //     await currentSound.playAsync()
-  //     dispatch(setPlayingState(true))
-  //   }
-  // }
-
   const playPause = async () => {
-    if (!currentSound) return
+    if (!currentSound || loading) return
 
     try {
       const status = await currentSound.getStatusAsync()
 
-      if (isPlaying) {
-        await currentSound.pauseAsync()
-        dispatch(setPlayingState(false))
-      } else {
-        if (
-          status.didJustFinish ||
-          status.positionMillis === status.durationMillis
-        ) {
-          await currentSound.setPositionAsync(0) // Reset the position to the beginning
+      if (status.isLoaded) {
+        if (isPlaying) {
+          await currentSound.pauseAsync()
+          dispatch(setPlayingState(false))
+        } else {
+          if (
+            status.didJustFinish ||
+            status.positionMillis === status.durationMillis
+          ) {
+            await currentSound.setPositionAsync(0)
+          }
+          await currentSound.playAsync()
+          dispatch(setPlayingState(true))
         }
-        await currentSound.playAsync()
-        dispatch(setPlayingState(true))
       }
     } catch (error) {
-      console.error('Error while playing or pausing the sound:', error)
+      console.log('Error while playing or pausing the sound:', error)
     }
   }
 
   const handleNextSong = async () => {
-    if (loading) return // Prevent action if already loading
-    setLoading(true) // Start loading
+    if (loading) return
+    setLoading(true)
     if (currentSound) {
-      await currentSound.unloadAsync() // Wait for the unload to complete
+      await currentSound.unloadAsync()
     }
     const currentSong = songPage.items[currentSongIndex]
     if (isShuffleRef.current) {
@@ -197,13 +253,14 @@ export default function MusicPlayer() {
     } else {
       dispatch(nextSong())
     }
+    setLoading(false)
   }
 
   const handlePrevSong = async () => {
-    if (loading) return // Prevent action if already loading
-    setLoading(true) // Start loading
+    if (loading) return
+    setLoading(true)
     if (currentSound) {
-      await currentSound.unloadAsync() // Wait for the unload to complete
+      await currentSound.unloadAsync()
     }
     const currentSong = songPage.items[currentSongIndex]
     if (isShuffle) {
@@ -213,6 +270,7 @@ export default function MusicPlayer() {
     } else {
       dispatch(prevSong())
     }
+    setLoading(false)
   }
 
   const toggleLooping = () => {
@@ -224,14 +282,18 @@ export default function MusicPlayer() {
   }
 
   const handleLikeSong = (songId: number) => {
-    dispatch(likeSong({ songId: songId }))
+    dispatch(likeSong({ songId }))
   }
 
   const handleUnlikeSong = (songId: number) => {
-    dispatch(unlikeSong({ songId: songId }))
+    dispatch(unlikeSong({ songId }))
   }
 
-  if (!songPage.items[currentSongIndex]) return
+  if (loading) {
+    return <LoadingOverlay visible={true} />
+  }
+
+  if (!songPage || !songPage.items[currentSongIndex]) return null
 
   const songPlay = songPage.items[currentSongIndex]
   const isLike = isLikedSongs[currentSongIndex]
@@ -308,6 +370,7 @@ export default function MusicPlayer() {
               alignItems: 'center',
               justifyContent: 'center',
             }}
+            disabled={loading}
           >
             {loopingStatus === 'none' && (
               <AntDesign

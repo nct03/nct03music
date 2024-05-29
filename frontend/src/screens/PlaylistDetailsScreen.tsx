@@ -11,8 +11,9 @@ import Pagination from '../components/Pagination'
 import { useEffect } from 'react'
 import Loading from '../components/Loading'
 import { Playlist } from '../models'
+import { setSongsPlay } from '../features/slices/playerSlice'
 
-export default function PlaylistDetailsScreen({ route }) {
+export default function PlaylistDetailsScreen({ route, navigation }) {
   const { songsInPlaylist, isDetailsLoading, userPlaylists } =
     useAppSelector(selectPlaylist)
 
@@ -31,6 +32,16 @@ export default function PlaylistDetailsScreen({ route }) {
     dispatch(fetchSongsInPlaylist({ playlistId: playlistId, pageNum: page }))
   }
 
+  const handleSongPress = (currentIndex: number) => {
+    dispatch(
+      setSongsPlay({
+        songPage: songsInPlaylist,
+        currentSongIndex: currentIndex,
+      })
+    )
+    navigation.navigate('Player')
+  }
+
   if (!songsInPlaylist || isDetailsLoading) {
     return <Loading type="black" loadingSize="large" />
   }
@@ -47,6 +58,7 @@ export default function PlaylistDetailsScreen({ route }) {
           <SongList
             songs={songsInPlaylist.items}
             totalItems={songsInPlaylist.totalItems}
+            onPress={handleSongPress}
           />
         ) : (
           <Text style={styles.noItems}>Chưa có bài hát nào</Text>

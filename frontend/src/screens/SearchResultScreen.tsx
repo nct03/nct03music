@@ -13,6 +13,7 @@ import ArtistsSearchList from '../components/search/ArtistsSearchList'
 import SongsSearchList from '../components/search/SongsSearchList'
 import { Colors } from '../constant/Colors'
 import LoadingOverlay from '../components/LoadingOverlay'
+import { setSongsPlay } from '../features/slices/playerSlice'
 
 const SearchResultScreen = ({ route, navigation }) => {
   const [isSearchSong, setIsSearchSong] = useState(true)
@@ -59,6 +60,13 @@ const SearchResultScreen = ({ route, navigation }) => {
     }
   }
 
+  const handleSongPress = (currentIndex: number) => {
+    dispatch(
+      setSongsPlay({ songPage: songsResult, currentSongIndex: currentIndex })
+    )
+    navigation.navigate('Player')
+  }
+
   if (isLoading) {
     return <LoadingOverlay visible={true} />
   }
@@ -87,6 +95,7 @@ const SearchResultScreen = ({ route, navigation }) => {
             songs={songs}
             onEndReached={handleSongsEndReached}
             isLoadingMore={isLoadingMore}
+            onPressItem={handleSongPress}
           />
         </>
       ) : (

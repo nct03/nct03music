@@ -12,8 +12,9 @@ import { useEffect } from 'react'
 import Loading from '../components/Loading'
 import { Artist } from '../models'
 import Pagination from '../components/Pagination'
+import { setSongsPlay } from '../features/slices/playerSlice'
 
-function ArtistDetailsScreen() {
+function ArtistDetailsScreen({ navigation }) {
   const { artistId, songPage, isLoading, pageNum, pageSize } =
     useAppSelector(selectArtistDetails)
   const dispatch = useAppDispatch()
@@ -24,6 +25,13 @@ function ArtistDetailsScreen() {
 
   const onPageChange = (page: number) => {
     dispatch(changePageNum(page))
+  }
+
+  const handlePressSong = (currentIndex: number) => {
+    dispatch(
+      setSongsPlay({ songPage: songPage, currentSongIndex: currentIndex })
+    )
+    navigation.navigate('Player')
   }
 
   if (isLoading) {
@@ -52,7 +60,11 @@ function ArtistDetailsScreen() {
           <BackButton />
         </View> */}
         <ArtistInfo artist={artist} />
-        <SongList songs={items} totalItems={totalItems} />
+        <SongList
+          songs={items}
+          totalItems={totalItems}
+          onPress={handlePressSong}
+        />
         {totalPages >= 2 && (
           <Pagination
             pageNum={pageNumber}

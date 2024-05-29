@@ -13,11 +13,13 @@ interface SongsSearchListProps {
   songs: Song[]
   onEndReached: () => void
   isLoadingMore: boolean
+  onPressItem: (currentIndex: number) => void
 }
 const SongsSearchList = ({
   songs,
   onEndReached,
   isLoadingMore,
+  onPressItem,
 }: SongsSearchListProps) => {
   return (
     <FlatList
@@ -31,8 +33,11 @@ const SongsSearchList = ({
         </View>
       }
       ListFooterComponent={isLoadingMore ? <LoadingMore /> : null}
-      renderItem={({ item }) => (
-        <TouchableOpacity style={styles.item}>
+      renderItem={({ item, index }) => (
+        <TouchableOpacity
+          style={styles.item}
+          onPress={() => onPressItem(index)}
+        >
           <Image source={{ uri: item.imagePath }} style={styles.image} />
           <View>
             <Text style={styles.text}>{item.name}</Text>
