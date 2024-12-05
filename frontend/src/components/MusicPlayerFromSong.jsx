@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, TouchableOpacity } from 'react-native';
+import { View, Text, Image, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { Audio } from 'expo-av';
 import { AntDesign, FontAwesome6, Ionicons } from '@expo/vector-icons';
 import { addFavoriteSong, checkFavoriteStatus, removeFavoriteSong } from '../apis/MusicApi';
 
-export default function MusicPlayerFromPlaylist({ route, navigation }) {
+export default function MusicPlayerFromSong({ route, navigation }) {
     const { playlist = [] } = route.params;
     const [sound, setSound] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -15,20 +15,30 @@ export default function MusicPlayerFromPlaylist({ route, navigation }) {
     const [duration, setDuration] = useState(0);
     const [isLooping, setIsLooping] = useState(false);
     const [isShuffle, setIsShuffle] = useState(false);
-    const [isFavorite, setIsFavorite] = useState(false); // Biến state để theo dõi trạng thái yêu thích của bài hát hiện tại
+    const [isFavorite, setIsFavorite] = useState(false);
 
     useEffect(() => {
         setSongs(playlist);
         loadSong(playlist[currentSongIndex].url);
-        // Kiểm tra trạng thái yêu thích khi danh sách bài hát thay đổi hoặc khi bài hát hiện tại thay đổi
-        checkFavoriteStatusForCurrentSong();
-    }, [playlist, currentSongIndex, songs]);
+    }, [playlist]);
+
+    const reloadScreen = () => {
+        navigation.replace('MusicPlayerFromSong', { playlist });
+    };
 
     useEffect(() => {
         if (sound) {
             sound.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate);
         }
     }, [sound]);
+
+    useEffect(() => {
+        if (songs[currentSongIndex]) {
+            checkFavoriteStatus(songs[currentSongIndex].id)
+                .then((favorite) => setIsFavorite(favorite))
+                .catch((error) => console.error(error));
+        }
+    }, [currentSongIndex, songs]);
 
     const loadSong = async (uri) => {
         if (sound) {
@@ -102,24 +112,21 @@ export default function MusicPlayerFromPlaylist({ route, navigation }) {
         return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
     };
 
-    const checkFavoriteStatusForCurrentSong = async () => {
-        try {
-            const favorite = await checkFavoriteStatus(songs[currentSongIndex]?.id);
-            setIsFavorite(favorite);
-        } catch (error) {
-            console.error('Error checking favorite status:', error);
-        }
-    };
-
     const handleAddFavoriteSong = async () => {
+        const songId = songs[currentSongIndex]?.id;
+        if (!songId) {
+            console.error('Song ID is undefined');
+            return;
+        }
+
         try {
             // Nếu bài hát đã được thêm vào yêu thích, hãy xóa nó khỏi danh sách yêu thích
             if (isFavorite) {
-                await removeFavoriteSong(songs[currentSongIndex]?.id);
+                await removeFavoriteSong(songId);
                 setIsFavorite(false);
             } else {
                 // Nếu bài hát chưa được thêm vào yêu thích, hãy thêm nó vào danh sách yêu thích
-                await addFavoriteSong(songs[currentSongIndex]?.id);
+                await addFavoriteSong(songId);
                 setIsFavorite(true);
             }
         } catch (error) {
@@ -161,18 +168,18 @@ export default function MusicPlayerFromPlaylist({ route, navigation }) {
                 <Text style={{ color: "#fff" }}>{formatTime(progress * duration)}</Text>
                 <Text style={{ color: "#fff" }}>{formatTime(duration)}</Text>
             </View>
-            <View style={{ flexDirection: "row", width: 380, alignContent: "space-around", justifyContent: "space-around", marginTop: 30 }}>
-                <TouchableOpacity onPress={toggleShuffle} >
+            <View style={{ flexDirection: "row", width: 380, justifyContent: "space-around", marginTop: 30 }}>
+                <TouchableOpacity onPress={toggleShuffle}>
                     <FontAwesome6 name="shuffle" size={28} color={isShuffle ? "#fff" : "rgba(255,255,255,0.5)"} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={previousSong}>
-                    <AntDesign name="stepbackward" size={28} color="#fff" />
+                    <AntDesign name="stepbackward" size={28} color="rgba(255,255,255,0.5)" />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={playPause}>
                     <AntDesign name={isPlaying ? 'pausecircle' : 'caretright'} size={28} color="#fff" />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={nextSong}>
-                    <AntDesign name="stepforward" size={28} color="#fff" title="Next" />
+                    <AntDesign name="stepforward" size={28} color="rgba(255,255,255,0.5)" title="Next" />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={toggleLooping}>
                     <AntDesign name="retweet" size={28} color={isLooping ? "#fff" : "rgba(255,255,255,0.5)"} />

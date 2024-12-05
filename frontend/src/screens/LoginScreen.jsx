@@ -20,14 +20,14 @@ export default function LoginScreen({ navigation }) {
                 alert("Mật khẩu phải nằm trong khoảng 8 - 32 kí tự");
                 return
             }
-                // Save token to AsyncStorage or SecureStore
-                token = await login(email, password);
-                await SecureStore.setItemAsync('token', token);
-                navigation.navigate('AboutScreen'); // Navigate to Home screen on successful login
-            } 
-            catch (error) {
-                console.error('Error:', error);
-            }
+            // Save token to AsyncStorage or SecureStore
+            token = await login(email, password);
+            await SecureStore.setItemAsync('token', token);
+            navigation.navigate('AboutScreen'); // Navigate to Home screen on successful login
+        }
+        catch (error) {
+            console.error('Error:', error);
+        }
     }
 
     return (

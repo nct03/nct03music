@@ -93,7 +93,7 @@ export default function AboutScreen({ navigation }) {
             horizontal
             data={singers.items}
             renderItem={({ item }) => (
-              <TouchableOpacity style={{alignItems: "center"}} onPress={() => handleGetSongsOfArtist(item.id)}>
+              <TouchableOpacity style={{ alignItems: "center" }} onPress={() => handleGetSongsOfArtist(item.id)}>
                 <Image
                   source={{ uri: item.photo }}
                   style={{ width: 100, height: 100, borderRadius: 10, margin: 10 }}
@@ -118,12 +118,12 @@ export default function AboutScreen({ navigation }) {
             horizontal
             data={genres}
             renderItem={({ item }) => (
-              <TouchableOpacity style={{alignItems: "center"}} onPress={() => handleGetSongsOfGenre(item.id)}>
+              <TouchableOpacity style={{ alignItems: "center" }} onPress={() => handleGetSongsOfGenre(item.id)}>
                 <Image
                   source={require('../assets/TheLoai.png')}
                   style={{ width: 100, height: 100, borderRadius: 10, margin: 10 }}
                 />
-                <Text style={{ ...styles.text, position: "absolute",fontSize: 16, fontWeight:"bold", marginTop:70}}>{item.name}</Text>
+                <Text style={{ ...styles.text, position: "absolute", fontSize: 16, fontWeight: "bold", marginTop: 70 }}>{item.name}</Text>
               </TouchableOpacity>
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -135,10 +135,14 @@ export default function AboutScreen({ navigation }) {
           />
         </View>
 
-        <View style={{...styles.title, paddingBottom:40}}>
-          <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold"}}> Top bảng xếp hạng được ưa thích </Text>
+        <View style={{ ...styles.title, paddingBottom: 40 }}>
+          <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold" }}> Top bảng xếp hạng được ưa thích </Text>
           {musicList.map((item, index) => (
-            <TouchableOpacity key={index} style={styles.wrapper} onPress={() => handleSongPress(item)} >
+            <TouchableOpacity
+              style={styles.wrapper}
+              key={index}
+              onPress={() => navigation.navigate('MusicPlayerFromSong', { playlist: [item] })}
+            >
               <Image
                 source={{ uri: item.imagePath }}
                 style={{ width: 100, height: 100, borderRadius: 10 }}

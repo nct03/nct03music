@@ -17,10 +17,14 @@ export default function SongScreen({ route, navigation }) {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Songs</Text>
         <TouchableOpacity onPress={navigateToMusicPlayer}>
-          <Text style={{color:"#fff"}}>Play All Songs</Text>
+          <Text style={{ color: "#fff" }}>Play All Songs</Text>
         </TouchableOpacity>
         {songs.map((song) => (
-          <TouchableOpacity style={styles.item} key={song.id}>
+          <TouchableOpacity
+            style={styles.item}
+            key={song.id}
+            onPress={() => navigation.navigate('MusicPlayerFromSong', { playlist: [song] })}
+          >
             <Image source={{ uri: song.imagePath }} style={styles.image} />
             <Text style={styles.text}>{song.name}</Text>
           </TouchableOpacity>

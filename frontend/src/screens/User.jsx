@@ -154,6 +154,8 @@ const User = ({ navigation }) => {
 
       if (!result.cancelled && result.assets.length > 0) {
         const selectedImage = result.assets[0]
+        // console.log('Selected image URI:', selectedImage.uri)
+        // console.log(selectedImage)
         setPhoto(selectedImage)
       } else {
         console.log('Image selection cancelled or URI is undefined')
@@ -201,8 +203,8 @@ const User = ({ navigation }) => {
             />
           ) : (
             <View>
-              <TouchableOpacity style={{ marginLeft: 180}} onPress={handleImageSelection}>
-                <FontAwesome name="pencil-square-o" size={24} color="#fff" paddingTop= {20}/>
+              <TouchableOpacity style={{ marginLeft: 180 }} onPress={handleImageSelection}>
+                <FontAwesome name="pencil-square-o" size={24} color="#fff" paddingTop={20} />
               </TouchableOpacity>
               <Image
                 source={{ uri: avatar }}
@@ -251,7 +253,7 @@ const User = ({ navigation }) => {
               style={styles.input}
               placeholder="Nhập mật khẩu cũ"
               placeholderTextColor="#fff"
-              onChangeText={(text)=>setOldPassword(text)}
+              onChangeText={(text) => setOldPassword(text)}
               secureTextEntry
             />
             <TextInput
@@ -259,7 +261,7 @@ const User = ({ navigation }) => {
               placeholder="Nhập mật khẩu mới"
               placeholderTextColor="#fff"
               // value={newPassword}
-              onChangeText={(text)=>setNewPassword(text)}
+              onChangeText={(text) => setNewPassword(text)}
               secureTextEntry
             />
             <TextInput
@@ -267,7 +269,7 @@ const User = ({ navigation }) => {
               placeholder="Xác nhận mật khẩu mới"
               placeholderTextColor="#fff"
               // value={confirmPassword}
-              onChangeText={(text)=>setConfirmPassword(text)}
+              onChangeText={(text) => setConfirmPassword(text)}
               secureTextEntry
             />
             <TouchableOpacity onPress={() => setIsChangePassword(false)}>

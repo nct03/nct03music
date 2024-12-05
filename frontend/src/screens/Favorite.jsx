@@ -84,6 +84,7 @@ export default function Playlist({ navigation }) {
                     visible={isModalVisible}
                     onRequestClose={() => setIsModalVisible(false)}
                     animationType="fade"
+                    transparent={true}
                 >
                     <View style={styles.modalView}>
                         <TextInput

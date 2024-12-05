@@ -59,31 +59,31 @@ export const fetchGenres = async () => {
 };
 
 export const searchSongs = async (keyword) => {
-    try {
-      const token = await checkToken();
-      const response = await fetch(`${BasicIP}/songs/search?keyword=${keyword}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      throw new Error('Error searching songs: ' + error.message);
-    }
-  };
-  
-  export const searchArtists = async (keyword) => {
-    try {
-      const token = await checkToken();
-      const response = await fetch(`${BasicIP}/artists/search?keyword=${keyword}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      throw new Error('Error searching artists: ' + error.message);
-    }
-  };
+  try {
+    const token = await checkToken();
+    const response = await fetch(`${BasicIP}/songs/search?keyword=${keyword}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    throw new Error('Error searching songs: ' + error.message);
+  }
+};
+
+export const searchArtists = async (keyword) => {
+  try {
+    const token = await checkToken();
+    const response = await fetch(`${BasicIP}/artists/search?keyword=${keyword}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    throw new Error('Error searching artists: ' + error.message);
+  }
+};
